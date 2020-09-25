@@ -114,7 +114,7 @@ const mutations = {
   [ns.mutations.SET_PARAM](state, { param, value }) {
     state.queryParams[param] = value;
   },
-  [ns.mutations.SET_FORM_STATUS](state, { id, category_id, status }) {
+  [ns.mutations.UPDATE_FORM_STATUS](state, { id, category_id, status }) {
     state.forms.forEach((form) => {
       if (form.category_id === category_id) {
         if (form.id !== id) form.status = false;
@@ -123,7 +123,7 @@ const mutations = {
       return form;
     });
   },
-  [ns.mutations.SET_FORM_STATUS_DIRECTLY](state, { id, status }) {
+  [ns.mutations.UPDATE_FORM_STATUS_DIRECTLY](state, { id, status }) {
     const form = state.forms.find((form) => form.id === id);
     if (form) form.status = status;
   },
@@ -164,10 +164,14 @@ const mutations = {
       form.category.id = category_id;
     }
   },
+  [ns.mutations.UPDATE_FORM](state, form) {
+    const idx = state.forms.findIndex(({ id }) => id === form.id);
+    if (idx !== -1) state.forms.splice(idx, 1, form);
+  },
 };
 
 const actions = {
-  async [ns.actions.FETCH]({ commit, getters, state }, categories) {
+  async [ns.actions.FETCH]({ commit, getters, state }, categories, where) {
     const params = {
       ...state.queryParams,
       categories,
@@ -177,16 +181,20 @@ const actions = {
 
     if (filters) Object.assign(params, { filters });
 
+    if (where && Object.keys(where).length) {
+      Object.assign(params, { where });
+    }
+
     try {
-      const {
-        data: { forms, categories },
-      } = await this.$axios.get('/forms/templates', {
-        params,
-      });
+      const { forms, categories } = (
+        await this.$axios.get('/admin/forms', {
+          params,
+        })
+      ).data;
 
       if (categories && categories.length) {
-        const toCommit = { type: 'categories', list: categories };
-        commit(lists.mutations.SET_LIST, toCommit, { root: true });
+        commit(lists.mutations.SET_TYPE, 'categories', { root: true });
+        commit(lists.mutations.SET_LIST, categories, { root: true });
       }
 
       commit(ns.mutations.SET_FORMS, forms.results);
@@ -200,23 +208,21 @@ const actions = {
     try {
       const {
         data: { form },
-      } = await this.$axios.put(`/forms/templates/${id}/status`, {
+      } = await this.$axios.put(`/admin/forms/${id}/status`, {
         category_id,
       });
 
-      console.log(form);
-
-      commit(ns.mutations.SET_FORM_STATUS, form);
+      commit(ns.mutations.UPDATE_FORM_STATUS, form);
     } catch (err) {
       console.log(err);
     }
   },
 
-  async [ns.actions.GET_FORM]({ commit }, { params, editable }) {
+  async [ns.actions.GET_FORM]({ commit }, { id, editable }) {
     try {
       const {
         data: { form },
-      } = await this.$axios.get(`/forms/templates/single`, { params });
+      } = await this.$axios.get(`/admin/forms/${id}`);
 
       commit(ns.mutations.SET_NAME, form.name);
       commit(ns.mutations.SET_DESCRIPTION, form.description);
@@ -232,6 +238,17 @@ const actions = {
     } catch (err) {
       console.log(err);
     }
+  },
+
+  async [ns.actions.CHANGE_FORM_DETAIL]({ commit }, { id, type, value }) {
+    const details = { [type]: value };
+    try {
+      const { form } = (
+        await this.$axios.put(`/admin/forms/${id}`, { details })
+      ).data;
+
+      commit(ns.mutations.UPDATE_FORM, form);
+    } catch (err) {}
   },
 
   async [ns.actions.CLEAR_FORM]({ commit }) {
@@ -256,12 +273,10 @@ const actions = {
 
     if (filters) Object.assign(params, { filters });
 
-    commit(ns.mutations.SET_LOADING, true);
-
     try {
       const {
         data: { forms },
-      } = await this.$axios.post('/forms/templates', params);
+      } = await this.$axios.post('/admin/forms', params);
 
       commit(ns.mutations.SET_FORMS, forms.results);
       commit(ns.mutations.SET_PARAM, { param: 'total', value: forms.total });
@@ -289,47 +304,29 @@ const actions = {
     try {
       const {
         data: { forms },
-      } = await this.$axios.delete(`/forms/templates`, { params });
+      } = await this.$axios.delete(`/admin/forms`, { params });
 
-      commit(ns.mutations.SET_FORMS, forms.results);
+      commit(ns.mutations.UPDATE_FORMS, forms.results);
       commit(ns.mutations.SET_PARAM, { param: 'total', value: forms.total });
     } catch (err) {
       console.log(err);
     }
   },
 
-  async [ns.actions.EDIT_FORM]({ commit }, { id, payload }) {
+  async [ns.actions.EDIT_FORM]({ commit }, { id, data }) {
     try {
       const {
         data: { form },
-      } = await this.$axios.put(`/forms/templates/${id}/edit`, payload);
+      } = await this.$axios.put(`/admin/forms/${id}`, data);
 
-      if (typeof form.status !== undefined) {
-        commit(ns.mutations.SET_FORM_STATUS_DIRECTLY, {
-          id: form.id,
-          status: form.status,
-        });
-      }
+      console.log(form);
 
-      if (form.name) {
-        commit(ns.mutations.SET_NAME_IN_LIST, { id, name: form.name });
-      }
+      commit(ns.mutations.UPDATE_FORM, form);
 
-      if (form.category) {
-        commit(ns.mutation.SET_CATEGORY_IN_LIST, {
-          id: form.id,
-          category_id: form.category.id,
-          name: form.category.name,
-        });
-      }
-
-      if (form.updated_at) {
-        commit(ns.mutation.SET_FORM_UPDATED, {
-          id: form.id,
-          date: form.updated_at,
-        });
-      }
-    } catch (err) {}
+      return Promise.resolve();
+    } catch (err) {
+      return Promise.reject(err);
+    }
   },
 };
 

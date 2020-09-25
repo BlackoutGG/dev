@@ -17,7 +17,7 @@
           />
           <v-btn text :disabled="!selectedItems.length" @click="open = true">
             <v-icon v-text="icon"></v-icon>
-            <span>Delete {{ length }}</span>
+            <span>Delete {{ selectedItems.length }}</span>
           </v-btn>
           <form-dialog ref="dialog"></form-dialog>
           <v-select
@@ -35,7 +35,6 @@
     <v-row>
       <v-col cols="12">
         <v-data-table
-          id="forms"
           show-select
           v-model="selectedItems"
           hide-default-footer
@@ -46,7 +45,27 @@
           :page.sync="page"
           :item-key="'id'"
         >
-          <template #item.category="{ item }">{{ item.category.name }}</template>
+          <template #item.name="{ item }">
+            <table-dialog-menu
+              :route="validate.name"
+              :id="item.id"
+              :type="'name'"
+              :value="item.name"
+              @save="changeFormDetail"
+            ></table-dialog-menu>
+          </template>
+          <template #item.category="{ item }">
+            <table-dialog-menu
+              :async="false"
+              :items="categoryList"
+              :id="item.id"
+              :item-text="'name'"
+              :item-value="'id'"
+              :type="'category_id'"
+              :value="item.category.name"
+              @save="changeFormDetail"
+            ></table-dialog-menu>
+          </template>
           <template #item.status="{ item }">
             <v-btn icon @click.native="setStatus(item)">
               <v-icon v-if="item.status">mdi-check-bold</v-icon>
@@ -95,6 +114,7 @@ import FormDialog from './FormDialog.vue';
 import TableActions from '~/components/table/TableActions.vue';
 import TableDeleteDialog from '~/components/table/TableDeleteDialog.vue';
 import TableFilterOptions from '~/components/table/TableFilterOptions.vue';
+import TableDialogMenu from '~/components/table/TableDialogMenu.vue';
 
 export default {
   name: 'FormTemplateTable',
@@ -104,6 +124,7 @@ export default {
     TableActions,
     TableDeleteDialog,
     TableFilterOptions,
+    TableDialogMenu,
   },
 
   mixins: [pagination(form), itemManagement(form)],
@@ -119,24 +140,31 @@ export default {
         { text: '', align: 'end', value: 'actions' },
       ],
 
+      icon: 'mdi-trash-can-outline',
       name: 'forms',
       open: false,
+
+      validate: {
+        name: {
+          name: 'forms',
+          value: 'name',
+        },
+      },
     };
   },
 
   methods: {
     /**
-     * this.setSelected()
-     */
-    ...mapMutations([_forms.mutations.SET_SELECTED]),
-    /**
      * this.fetchForms()
      * this.setStatus()
+     * this.changeFormDetail()
+     * this.removeItems()
      */
     ...mapActions([
       _forms.actions.FETCH,
       _forms.actions.SET_STATUS,
-      _forms.actions.REMOVE_FORMS,
+      _forms.actions.CHANGE_FORM_DETAIL,
+      _forms.actions.REMOVE_ITEMS,
     ]),
 
     onUpdate() {
@@ -152,26 +180,24 @@ export default {
   computed: {
     /**
      * this.forms()
-     * this.selected()
+     * this.selectedIds()
      */
-    ...mapGetters([
-      _forms.getters.FORMS,
-      // _forms.getters.SELECTED,
-      _forms.getters.SELECTED_IDS,
-    ]),
+    ...mapGetters([_forms.getters.FORMS, _forms.getters.SELECTED_IDS]),
 
-    filterOptions() {
-      const categories = this.$store.getters[lists.getters.GET_ITEMS](
+    categoryList() {
+      return this.$store.getters[lists.getters.GET_ITEMS](
         'categories'
       ).map(({ id, name }) => ({ id, name }));
+    },
 
+    filterOptions() {
       return [
         {
           name: 'Categories',
           type: 'category_id',
           itemProp: 'id',
           multiple: true,
-          children: categories,
+          children: this.categoryList,
         },
         { name: 'Status', type: 'status' },
       ];

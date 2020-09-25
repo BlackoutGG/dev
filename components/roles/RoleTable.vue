@@ -44,13 +44,23 @@
           :item-key="'id'"
         >
           <template #item.name="{ item }">
-            <table-input
+            <table-dialog-menu
               :route="validate.roles"
               :id="item.id"
               :type="'name'"
               :value="item.name"
-              :large="true"
-            ></table-input>
+              @save="changeRoleDetail"
+            ></table-dialog-menu>
+          </template>
+          <template #item.level="{ item }">
+            <table-dialog-menu
+              :async="false"
+              :id="item.id"
+              :type="'level'"
+              :items="levelOptions"
+              :value="item.level"
+              @save="changeRoleDetail"
+            ></table-dialog-menu>
           </template>
           <template #item.actions="{ item }">
             <div class="text-right">
@@ -71,6 +81,7 @@
     <role-dialog ref="role"></role-dialog>
     <table-delete-dialog
       v-model="open"
+      :single="single"
       :length="selectedItems.length"
       @deleteAll="onDelete"
       @cancel="onCancel"
@@ -86,10 +97,16 @@ import roles from '~/utilities/ns/public/roles.js';
 import TableActions from '~/components/table/TableActions.vue';
 import TableInput from '~/components/table/TableInput.vue';
 import TableDeleteDialog from '~/components/table/TableDeleteDialog.vue';
+import TableDialogMenu from '~/components/table/TableDialogMenu.vue';
 import RoleDialog from './RoleDialog.vue';
 
 import pagination from '~/mixins/pagination.js';
 import itemManagement from '~/mixins/itemManagement.js';
+
+const range = (start, end) => {
+  if (start === end) return [start];
+  return [start, ...range(start + 1, end)];
+};
 
 const { mapGetters, mapActions, mapMutations } = createNamespacedHelpers(
   'roles'
@@ -101,6 +118,7 @@ export default {
     TableActions,
     TableInput,
     TableDeleteDialog,
+    TableDialogMenu,
     RoleDialog,
   },
 
@@ -110,6 +128,9 @@ export default {
     return {
       headers: [
         { text: 'name', align: 'start', value: 'name' },
+        { text: 'level', align: 'start', value: 'level' },
+        { text: 'created_at', align: 'start', value: 'created_at' },
+        { text: 'updated_at', align: 'start', value: 'updated_at' },
         { text: '', sortable: false, align: 'end', value: 'actions' },
       ],
 
@@ -127,15 +148,18 @@ export default {
   },
   methods: {
     /**
-     * this.setSelected()
-     */
-    ...mapMutations([_roles.mutations.SET_SELECTED]),
-    /**
      * this.editRole()
+     * this.changeRoleDetail()
      */
-    ...mapActions([_roles.actions.EDIT_ROLE, _roles.actions.REMOVE_ROLE]),
+    ...mapActions([
+      _roles.actions.EDIT_ROLE,
+      _roles.actions.CHANGE_ROLE_DETAIL,
+    ]),
   },
   computed: {
+    levelOptions() {
+      return range(this.$auth.user.level, 5);
+    },
     /**
      * this.roles,
      * this.selected
@@ -145,14 +169,6 @@ export default {
       // _roles.getters.SELECTED,
       _roles.getters.SELECTED_IDS,
     ]),
-    // selectedItems: {
-    //   get() {
-    //     return this.selected;
-    //   },
-    //   set(value) {
-    //     this.setSelected(value);
-    //   },
-    // },
   },
 };
 </script>

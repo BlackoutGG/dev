@@ -30,22 +30,17 @@ const mutations = {
     state.roles = payload;
   },
 
+  [ns.mutations.UPDATE_ROLE](state, role) {
+    const idx = state.roles.findIndex(({ id }) => id === role.id);
+    if (idx !== -1) state.roles.splice(idx, 1, role);
+  },
+
   [ns.mutations.SET_SELECTED](state, selected) {
     state.selected = selected;
   },
 
   [ns.mutations.SET_PARAM](state, { param, value }) {
     state.queryParams[param] = value;
-  },
-
-  [ns.mutations.SET_DETAIL](state, { roleId, prop, value }) {
-    const role = state.roles.find(({ id }) => id === roleId);
-    if (role) role[prop] = value;
-  },
-
-  [ns.mutations.SET_STATUS](state, { roleId, status }) {
-    const role = state.roles.find(({ id }) => id === roleId);
-    if (role) role.is_disabled = status;
   },
 };
 
@@ -89,34 +84,22 @@ const actions = {
     }
   },
 
+  async [ns.actions.CHANGE_ROLE_DETAIL]({ commit }, { id, type, value }) {
+    const details = { [type]: value };
+    try {
+      const { role } = (
+        await this.$axios.put(`/roles/${id}`, { details })
+      ).data;
+
+      commit(ns.mutations.UPDATE_ROLE, role);
+    } catch (err) {}
+  },
+
   async [ns.actions.EDIT_ROLE]({ commit, dispatch }, { id, payload }) {
     try {
       const { role } = (await this.$axios.put(`/roles/${id}`, payload)).data;
 
-      if (role.name) {
-        commit(ns.mutations.SET_DETAIL, {
-          roleId: role.id,
-          prop: 'name',
-          value: role.name,
-        });
-      }
-
-      if (role.level) {
-        commit(ns.mutations.SET_DETAIL, {
-          roleId: role.id,
-          prop: 'level',
-          value: role.level,
-        });
-      }
-
-      if (role.updated_at) {
-        commit(ns.mutations.SET_DETAIL, {
-          roleId: role.id,
-          prop: 'updated_at',
-          value: role.updated_at,
-        });
-      }
-
+      commit(ns.mutations.UPDATE_ROLE, role);
       const text = 'Your changes have been saved.';
       dispatch(snackbar.actions.TOGGLE_BAR, { text }, { root: true });
 

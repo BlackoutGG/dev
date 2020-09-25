@@ -53,10 +53,18 @@ export default {
       errorMessage: '',
       inputCheck: null,
       valid: false,
+
+      saveButton: null,
     };
   },
 
   created() {
+    if (this.value) {
+      this.innerValue = this.value;
+    }
+
+    const button = this.$refs.dialog.$children[0].$children[0].$children[2];
+
     const url = `/${this.route.name}/validate/${this.route.value}`;
 
     this.inputCheck = debounce(async (v) => {
@@ -100,17 +108,13 @@ export default {
     },
 
     reset() {
-      this.computedValue = this.originalValue;
+      this.computedValue = this.value;
     },
   },
 
   watch: {
-    watch: {
-      errorMessage(v) {
-        if (v) {
-          console.log(this.$refs.dialog);
-        }
-      },
+    errorMessage(v) {
+      console.log(this.$refs.dialog);
     },
 
     innerValue: function (v) {
@@ -127,20 +131,15 @@ export default {
       if (v !== this.innerValue) {
         this.innerValue = v;
       }
-
-      if (!this.originalValue) {
-        this.originalValue = v;
-      }
     },
   },
   computed: {
     computedValue: {
       get() {
-        return this.value;
+        return this.innerValue;
       },
       set(value) {
         this.innerValue = value;
-        this.$emit('input', value);
       },
     },
   },

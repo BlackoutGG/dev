@@ -10,6 +10,7 @@ export default {
   },
   mutations: {
     SET_USERS: 'users/setUsers',
+    SET_USER: 'users/setUser',
     SET_ROLE_LIST: 'users/setRoleList',
     SET_SELECTED: 'users/setSelected',
     SET_PARAM: 'users/setParam',

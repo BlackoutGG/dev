@@ -71,12 +71,7 @@
           ></v-text-field>
         </v-col>
         <v-col md="6" sm="12" v-if="!dontShow('end')">
-          <event-time-date
-            v-if="!preview"
-            label="End Date"
-            :rules="endDateRules"
-            v-model="event.endDate"
-          ></event-time-date>
+          <event-time-date v-if="!preview" label="End Date" v-model="event.endDate"></event-time-date>
           <v-text-field
             v-else
             readonly
@@ -110,10 +105,10 @@
 </template>
 
 <script>
-import lists from '~/utilities/ns/public/lists.js'
-import events from '~/utilities/ns/public/events.js'
-import isAlphanumeric from '~/utilities/isAlphanumeric.js'
-import EventTimeDate from './EventTimeDatePicker.vue'
+import lists from '~/utilities/ns/public/lists.js';
+import events from '~/utilities/ns/public/events.js';
+import isAlphanumeric from '~/utilities/isAlphanumeric.js';
+import EventTimeDate from './EventTimeDatePicker.vue';
 
 export default {
   name: 'EventForm',
@@ -149,65 +144,56 @@ export default {
       ],
       startDateRules: [(v) => !!v || 'Start date is required.'],
       startTimeRules: [(v) => !!v || 'Start time is required.'],
-      endDateRules: [
-        (v) =>
-          (v &&
-            this.$dateFns.compareDesc(
-              this.$dateFns.parseISO(v),
-              this.$dateFns.parseISO(this.event.startDate)
-            ) < 1) ||
-          'End date cannot be in the past.',
-      ],
-    }
+    };
   },
 
   methods: {
     reset() {
-      this.$refs.form.reset()
+      this.$refs.form.reset();
     },
     dontShow(val) {
-      return this.hide.indexOf(val) !== -1
+      return this.hide.indexOf(val) !== -1;
     },
   },
 
   computed: {
     isValid: {
       get() {
-        return this.value
+        return this.value;
       },
       set(val) {
-        this.valid = val
-        this.$emit('input', val)
+        this.valid = val;
+        this.$emit('input', val);
       },
     },
 
     start: {
       get() {
-        const startDate = this.event.startDate || this.now
-        const startTime = this.event.startTime || '00:00'
+        const startDate = this.event.startDate || this.now;
+        const startTime = this.event.startTime || '00:00';
 
-        return this.event.start || startDate + ' ' + startTime
+        return this.event.start || startDate + ' ' + startTime;
       },
     },
 
     end: {
       get() {
-        const endDate = this.event.endDate || this.event.startDate
-        const endTime = this.event.endTime || this.event.startTime
+        const endDate = this.event.endDate || this.event.startDate;
+        const endTime = this.event.endTime || this.event.startTime;
 
-        return this.event.end || endDate + ' ' + endTime
+        return this.event.end || endDate + ' ' + endTime;
       },
     },
 
     colors() {
-      return this.$store.getters[events.getters.EVENT_COLORS]
+      return this.$store.getters[events.getters.EVENT_COLORS];
     },
 
     categories() {
-      return this.$store.getters[lists.getters.ITEMS]('categories').filter(
+      return this.$store.getters[lists.getters.GET_ITEMS]('categories').filter(
         (item) => item.name !== 'all'
-      )
+      );
     },
   },
-}
+};
 </script>

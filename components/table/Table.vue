@@ -43,7 +43,15 @@
           :item-key="'id'"
         >
           <template #item.name="{ item }">
-            <table-input :value="item.name" :route="validateName" :id="item.id" :large="false"></table-input>
+            <table-input
+              :value="item.name"
+              :route="validateName"
+              :id="item.id"
+              :large="false"
+            ></table-input>
+          </template>
+          <template #item.recruitment="{ item }" v-if="isCategories">
+            <table-recruitment-switch :item="item"></table-recruitment-switch>
           </template>
           <template #item.actions="{ item }">
             <table-actions
@@ -78,6 +86,7 @@ import TableDeleteDialog from './TableDeleteDialog.vue';
 import TableActions from './TableActions.vue';
 import TableInput from './TableInput.vue';
 import TableAddItem from './TableAddItem.vue';
+import TableRecruitmentSwitch from './TableRecruitmentSwitch.vue';
 
 const { mapGetters, mapActions, mapMutations } = createNamespacedHelpers(
   'lists'
@@ -91,6 +100,7 @@ export default {
     TableActions,
     TableInput,
     TableAddItem,
+    TableRecruitmentSwitch,
   },
 
   mixins: [pagination(lists), itemManagement(lists)],
@@ -123,6 +133,10 @@ export default {
   },
 
   computed: {
+    isCategories() {
+      return this.$route.params.type === 'categories';
+    },
+
     validateName() {
       return {
         name: this.$route.params.type,

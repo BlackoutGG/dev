@@ -2,7 +2,6 @@
   <v-row>
     <v-col cols="5">
       <role-permission-menu label="Action" :items="actions" v-model="computedAction"></role-permission-menu>
-      <!-- <v-select label="Action" :items="actions" v-model="computedAction"></v-select> -->
     </v-col>
     <v-col cols="5">
       <role-permission-menu

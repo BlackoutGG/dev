@@ -18,6 +18,7 @@ export default {
     CHANGE_QUESTION_VALUE: 'forms/changeQuestionValue',
     CHANGE_QUESTION_TYPE: 'forms/changeQuestionType',
     CHANGE_OPTION_VALUE: 'forms/changeOptionValue',
+
     TOGGLE_OPTIONAL: 'forms/toggleOptional',
     REMOVE_QUESTION: 'forms/removeQuestion',
     REMOVE_OPTION: 'forms/removeOption',
@@ -27,11 +28,12 @@ export default {
     SET_CATEGORY: 'forms/setCategory',
     SET_FORMS: 'forms/setForms',
     SET_PARAM: 'forms/setParam',
-    SET_FORM_STATUS: 'forms/setFormStatus',
-    SET_FORM_STATUS_DIRECTLY: 'forms/setFormStatusDirectly',
     SET_FIELDS: 'forms/setFields',
     SET_OPTIONS: 'forms/setOptions',
     SET_OPTIONS_CACHE: 'forms/setOptionsCache',
+    UPDATE_FORM_STATUS: 'forms/setFormStatus',
+    UPDATE_FORM_STATUS_DIRECTLY: 'forms/setFormStatusDirectly',
+    UPDATE_FORM: 'forms/updateForm',
   },
   actions: {
     ADD_FORM: 'forms/addForm',
@@ -41,5 +43,6 @@ export default {
     CLEAR_FORM: 'forms/clearForm',
     SET_STATUS: 'forms/setStatus',
     FETCH: 'forms/fetchForms',
+    CHANGE_FORM_DETAIL: 'forms/changeFormDetail',
   },
 };

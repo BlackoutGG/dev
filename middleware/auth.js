@@ -1,3 +1,4 @@
-export default function({ store, redirect }) {
-  if (!store.state.auth.isLoggedIn) return redirect("/");
+export default function ({ $auth, redirect }) {
+  console.log($auth);
+  if (!$auth.loggedIn) return redirect('/');
 }

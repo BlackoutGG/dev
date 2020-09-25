@@ -15,6 +15,7 @@ export default {
   components: { EventCalendar },
   middleware: [
     'auth',
+    setPageTitle('View Events'),
     ({ $auth, store, redirect }) => {
       if (!$auth.hasScope(['view:admin', 'view:events'])) {
         return redirect('/');
@@ -25,16 +26,6 @@ export default {
         }
       }
     },
-
-    setPageTitle('View Events'),
-    ({ store }) => {},
   ],
-
-  async fetch() {
-    const categories = this.$store.getters[lists.getters.ITEMS]('categories');
-    if (categories.length) return;
-
-    this.$store.dispatch(lists.actions.FETCH, 'categories');
-  },
 };
 </script>

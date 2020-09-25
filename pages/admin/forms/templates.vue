@@ -5,18 +5,18 @@
 </template>
 
 <script>
-import forms from '~/utilities/ns/public/forms.js'
-import setPageTitle from '~/middleware/setPageTitle.js'
-import FormTemplateTable from '~/components/forms/FormTable.vue'
-import filter from '~/utilities/ns/public/filters.js'
+import forms from '~/utilities/ns/public/forms.js';
+import setPageTitle from '~/middleware/setPageTitle.js';
+import FormTemplateTable from '~/components/forms/FormTable.vue';
+import filter from '~/utilities/ns/public/filters.js';
 
 export default {
   name: 'RecruitmentFormTemplates',
   layout: 'admin',
 
   beforeRouteLeave(to, from, next) {
-    this.$store.commit(filter.mutations.RESET_FILTER, 'forms')
-    next()
+    this.$store.commit(filter.mutations.RESET_FILTER, 'forms');
+    next();
   },
 
   components: {
@@ -25,15 +25,11 @@ export default {
 
   middleware: [
     'auth',
-    ({ $auth }) => $auth.hasScope('view:forms'),
     setPageTitle('View Forms'),
-    // ({ store }) => {
-    //   store.dispatch(forms.actions.FETCH);
-    // }
+    ({ $auth, store, redirect }) => {
+      if (!$auth.hasScope(['view:admin', 'view:forms'])) return redirect('/');
+      else store.dispatch(forms.actions.FETCH, true);
+    },
   ],
-
-  async fetch() {
-    this.$store.dispatch(forms.actions.FETCH)
-  },
-}
+};
 </script>

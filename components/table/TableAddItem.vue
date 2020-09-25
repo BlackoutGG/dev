@@ -3,12 +3,12 @@
     <template #activator="{ on }">
       <v-btn text v-on="on">
         <v-icon v-text="icon"></v-icon>
-        <span>Add {{capitalizedName}}</span>
+        <span>Add {{ capitalizedName }}</span>
       </v-btn>
     </template>
     <v-card>
       <v-card-title>
-        <span>Add {{capitalizedName}}</span>
+        <span>Add {{ capitalizedName }}</span>
         <v-spacer></v-spacer>
         <v-btn icon @click="close">
           <v-icon v-text="closeIcon"></v-icon>
@@ -16,7 +16,13 @@
       </v-card-title>
       <v-card-text>
         <v-form ref="form" v-model="valid">
-          <dialog-input label="Name" v-model="computedValue" async :route="route" ref="input"></dialog-input>
+          <dialog-input
+            label="Name"
+            v-model="computedValue"
+            async
+            :route="route"
+            ref="input"
+          ></dialog-input>
         </v-form>
       </v-card-text>
       <v-card-actions>
@@ -68,7 +74,6 @@ export default {
       this.open = false;
       this.$refs.form.reset();
       this.$refs.form.resetValidation();
-      this.$refs.input.clearErrorMessage();
     },
   },
 

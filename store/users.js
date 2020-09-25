@@ -45,17 +45,17 @@ const mutations = {
   [ns.mutations.SET_USERS](state, users) {
     state.users = users;
   },
-  [ns.mutations.SET_ROLE_LIST](state, roles) {
-    state.roles = roles;
-  },
+
   [ns.mutations.SET_SELECTED](state, value) {
     state.selected = value;
   },
+
   [ns.mutations.SET_PARAM](state, { param, value }) {
     if (typeof state.queryParams[param] !== undefined) {
       state.queryParams[param] = value;
     }
   },
+
   [ns.mutations.ADD_ROLE](state, { userId, role }) {
     const user = state.users.find((u) => u.id === userId);
     if (user) user.roles.push(role);
@@ -75,12 +75,17 @@ const mutations = {
     const user = state.users.find((u) => u.id === id);
     if (user) user.email = value;
   },
+  [ns.mutations.SET_USER](state, user) {
+    const idx = state.users.findIndex(({ id }) => id === user.id);
+    if (idx !== -1) state.users.splice(idx, 1, user);
+  },
 };
 
 const actions = {
-  async [ns.actions.FETCH]({ state, getters, commit, dispatch }) {
+  async [ns.actions.FETCH]({ state, getters, commit, dispatch }, fetch_roles) {
     const params = {
       ...state.queryParams,
+      roles: fetch_roles,
     };
 
     const filters = getters[ns.getters.FILTERS];
@@ -146,18 +151,17 @@ const actions = {
     { commit, dispatch },
     { id, type, value }
   ) {
+    const details = { [type]: value };
+
+    console.log(details);
     try {
-      const { data } = await this.$axios.put(`/users/${id}/edit`, {
-        [type]: value,
-        type,
-      });
+      const { user } = (
+        await this.$axios.put(`/admin/users/${id}`, {
+          details,
+        })
+      ).data;
 
-      const mutation = 'SET_' + data.user.type.toUpperCase();
-
-      commit(ns.mutations[mutation], {
-        id: data.user.id,
-        value: data.user.value,
-      });
+      commit(ns.mutations.SET_USER, user);
     } catch (err) {
       dispatch(
         snackbar.actions.TOGGLE_BAR,
@@ -187,6 +191,8 @@ const actions = {
         value: users.total,
       });
       commit(ns.mutations.SET_USERS, users.results);
+
+      return Promise.resolve();
     } catch (err) {
       return Promise.reject(err);
     }
@@ -206,48 +212,21 @@ const actions = {
     } catch (err) {}
   },
 
-  async [ns.actions.EDIT_USER]({ commit, dispatch }, payload) {
+  async [ns.actions.EDIT_USER]({ commit, dispatch }, { id, payload }) {
     try {
-      const url = `/admin/users/${payload.id}/edit`;
       const {
         data: { user },
-      } = await this.$axios.put(url, payload.data);
+      } = await this.$axios.put(`/admin/users/${id}`, payload);
 
-      if (user.inputs && Object.keys(user.inputs).length) {
-        Object.keys(user.inputs).forEach((key) => {
-          commit(ns.mutations[`SET_${key.toUpperCase()}`], {
-            id: user.id,
-            value: user.inputs[key],
-          });
-        });
-      }
-
-      if (user.saved && user.saved.length) {
-        user.saved.forEach((role) =>
-          commit(ns.mutations.ADD_ROLE, {
-            userId: user.id,
-            role: role,
-          })
-        );
-      }
-
-      if (user.deleted && user.deleted.length) {
-        user.deleted.forEach(({ role_id }) =>
-          commit(ns.mutations.REMOVE_ROLE, {
-            user_id: user.id,
-            role_id,
-          })
-        );
-      }
+      commit(ns.mutations.SET_USER, user);
 
       const text = 'Your changes have saved.';
 
       dispatch(snackbar.actions.TOGGLE_BAR, { text }, { root: true });
+
+      return Promise.resolve();
     } catch (err) {
-      console.log(err);
-      const text =
-        'Encountered an error. Please try again or contact the admin.';
-      dispatch(snackbar.actions.TOGGLE_BAR, { text }, { root: true });
+      return Promise.reject(err);
     }
   },
 };

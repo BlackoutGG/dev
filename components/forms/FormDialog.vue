@@ -58,19 +58,19 @@
 </template>
 
 <script>
-import { createNamespacedHelpers } from 'vuex'
-import forms from '~/utilities/ns/private/forms.js'
+import { createNamespacedHelpers } from 'vuex';
+import forms from '~/utilities/ns/private/forms.js';
 
-import FormTemplate from './FormTemplate.vue'
-import FormPreview from './FormPreview.vue'
-import SuccessCard from '~/components/Success.vue'
+import FormTemplate from './FormTemplate.vue';
+import FormPreview from './FormPreview.vue';
+import SuccessCard from '~/components/Success.vue';
 
-import cloneDeep from 'lodash/cloneDeep'
-import pickBy from 'lodash/pickBy'
-import pick from 'lodash/pick'
-import isEqual from 'lodash/isEqual'
+import cloneDeep from 'lodash/cloneDeep';
+import pickBy from 'lodash/pickBy';
+import pick from 'lodash/pick';
+import isEqual from 'lodash/isEqual';
 
-const { mapGetters, mapActions } = createNamespacedHelpers('forms')
+const { mapGetters, mapActions } = createNamespacedHelpers('forms');
 
 export default {
   name: 'FormDialog',
@@ -87,14 +87,14 @@ export default {
 
       form: null,
 
-      mode: 'new',
-    }
+      mode: 'add',
+    };
   },
 
   watch: {
     open(v) {
       if (!v) {
-        this.reset()
+        this.reset();
       }
     },
   },
@@ -112,64 +112,60 @@ export default {
       forms.actions.GET_FORM,
     ]),
     async save() {
-      if (this.mode === 'new') {
-        this.addForm()
+      if (this.mode === 'add') {
+        this.addForm();
       } else {
-        const payload = {}
+        const data = {};
 
-        if (
-          this.markedFormPropsForChange &&
-          Object.keys(this.markedFormPropsForChange)
-        ) {
-          payload.form = this.markedFormPropsForChange
+        if (this.detailsToUpdate && Object.keys(this.detailsToUpdate).length) {
+          Object.assign(data, { details: this.detailsToUpdate });
         }
 
-        if (this.newFields.length) {
-          payload.create = this.newFields
+        if (this.toAdd && this.toAdd.length) {
+          Object.assign(data, { added: this.toAdd });
         }
 
-        if (this.markedFieldsForChange.length) {
-          payload.patch = this.markedFieldsForChange
+        if (this.toUpdate && this.toUpdate.length) {
+          Object.assign(data, { update: this.toUpdate });
         }
 
-        if (this.markedFieldsForDeletion.length) {
-          payload.remove = this.markedFieldsForDeletion
+        if (this.toRemove.length) {
+          Object.assign(data, { remove: this.toRemove });
         }
         try {
-          await this.editForm({ id: this.form.id, payload })
-          this.success = true
+          await this.editForm({ id: this.form.id, data });
+          this.success = true;
         } catch (err) {
-          console.log(err)
+          console.log(err);
         }
       }
     },
 
     ok() {
-      this.open = false
-      this.$nextTick(() => setTimeout(() => (this.success = false)), 10)
+      this.open = false;
+      this.$nextTick(() => setTimeout(() => (this.success = false)), 10);
     },
 
     reset() {
-      this.form = null
-      this.tab = null
-      this.mode = 'new'
-      this.clearForm()
+      this.form = null;
+      this.tab = null;
+      this.mode = 'add';
+      this.clearForm();
     },
 
     async setEditableContent(id) {
-      this.mode = 'edit'
-      this.open = true
-      this.isSending = true
+      this.mode = 'edit';
+      this.open = true;
+      this.isSending = true;
 
-      const params = { key: 'id', id }
-      const editable = true
+      const editable = true;
 
       try {
-        this.form = cloneDeep(await this.getForm({ params, editable }))
+        this.form = cloneDeep(await this.getForm({ id, editable }));
       } catch (err) {
-        console.log(err)
+        console.log(err);
       } finally {
-        this.isSending = false
+        this.isSending = false;
       }
     },
   },
@@ -183,7 +179,7 @@ export default {
     ]),
 
     fields() {
-      return this.questions
+      return this.questions;
     },
 
     formProperties() {
@@ -191,40 +187,42 @@ export default {
         name: this.name,
         description: this.description,
         category_id: this.category,
-      }
+      };
     },
 
     isDisabled() {
-      return this.tab > 0 || !this.valid
+      return this.tab > 0 || !this.valid;
     },
 
-    newFields() {
+    toAdd() {
       return this.form && this.fields && this.fields.length
         ? this.fields.reduce((arr, field) => {
-            const idx = this.form.fields.findIndex((f) => f.id === field.id)
+            const idx = this.form.fields.findIndex((f) => f.id === field.id);
             if (idx === -1 && field.value.length) {
-              const { options, cache, ...content } = field
+              const { options, cache, ...content } = field;
 
               const validOptions =
-                options && options.length ? options.filter((o) => !!o) : options
+                options && options.length
+                  ? options.filter((o) => !!o)
+                  : options;
 
-              arr.push({ ...content, options: validOptions })
+              arr.push({ ...content, options: validOptions });
             }
-            return arr
+            return arr;
           }, [])
-        : []
+        : [];
     },
 
-    markedFormPropsForChange() {
-      const form = pick(this.form, ['name', 'description', 'category_id'])
+    detailsToUpdate() {
+      const form = pick(this.form, ['name', 'description', 'category_id']);
       const diff = pickBy(
         this.formProperties,
         (value, key) => !isEqual(form[key], value)
-      )
-      return Object.keys(diff).length ? diff : null
+      );
+      return Object.keys(diff).length ? diff : null;
     },
 
-    markedFieldsForChange() {
+    toUpdate() {
       return this.form && this.fields
         ? this.form.fields.reduce((arr, f) => {
             const field = pick(
@@ -232,51 +230,51 @@ export default {
                 (fs) => fs.hasOwnProperty('id') && fs.id === f.id
               ),
               ['id', 'value', 'optional', 'options', 'type', 'order']
-            )
+            );
 
             if (field) {
-              const result = { id: field.id }
+              const result = { id: field.id };
 
               let changed = pickBy(
                 field,
                 (value, key) => !isEqual(f[key], value)
-              )
+              );
 
-              const { options, ...content } = changed
+              const { options, ...content } = changed;
 
               const validOptions =
-                options && options.length ? options.filter((o) => !!o) : null
+                options && options.length ? options.filter((o) => !!o) : null;
 
-              const numOfChanged = Object.keys(changed).length
+              const numOfChanged = Object.keys(changed).length;
 
               if (numOfChanged) {
                 // arr.push({ id: field.id, ...content });
-                Object.assign(result, content)
+                Object.assign(result, content);
 
                 if (validOptions && validOptions.length) {
-                  Object.assign(result, { options: validOptions })
+                  Object.assign(result, { options: validOptions });
                 }
 
-                arr.push(result)
+                arr.push(result);
               }
             }
 
-            return arr
+            return arr;
           }, [])
-        : []
+        : [];
     },
 
-    markedFieldsForDeletion() {
+    toRemove() {
       return this.form && this.fields
         ? this.form.fields.reduce((arr, f) => {
             const idx = this.fields.findIndex(
               (field) => field.id && field.id === f.id
-            )
-            if (idx === -1) arr.push(f.id)
-            return arr
+            );
+            if (idx === -1) arr.push(f.id);
+            return arr;
           }, [])
-        : []
+        : [];
     },
   },
-}
+};
 </script>

@@ -13,14 +13,18 @@
               alt
             />
           </v-toolbar-title>
-          <v-tabs :height="'80px'" align-with-title v-model="tabs" class="hidden-sm-and-down">
+          <v-tabs :height="'80px'" align-with-title v-model="tab" class="hidden-sm-and-down">
             <v-tab
               v-for="(link, idx) in links"
               :key="idx"
               nuxt
               :to="link.to"
               :class="{ 'ml-4': idx === 0 }"
-            >{{link.title}}</v-tab>
+            >{{ link.title }}</v-tab>
+            <form-app-dialog
+              v-model="showForm"
+              v-if="$auth.loggedIn && $auth.hasScope('view:forms')"
+            ></form-app-dialog>
           </v-tabs>
           <v-spacer></v-spacer>
           <auth-dialog v-model="showAuth" v-if="!$auth.loggedIn"></auth-dialog>
@@ -33,34 +37,30 @@
 </template>
 
 <script>
-import AuthDialog from "~/components/auth/AuthDialog.vue";
-import UserPanel from "~/components/navigation/UserPanel.vue";
-import UserNavMobile from "./UserNavMobile.vue";
-import menu from "~/utilities/ns/public/menu.js";
+import AuthDialog from '~/components/auth/AuthDialog.vue';
+import UserPanel from '~/components/navigation/UserPanel.vue';
+import UserNavMobile from './UserNavMobile.vue';
+import FormAppDialog from '~/components/forms/FormApplicationDialog.vue';
+import menu from '~/utilities/ns/public/menu.js';
 
 export default {
-  name: "NavHeader",
-  components: { UserPanel, AuthDialog, UserNavMobile },
+  name: 'NavHeader',
+  components: { UserPanel, AuthDialog, UserNavMobile, FormAppDialog },
 
   data() {
     return {
-      color: "#1E1E1E",
+      color: '#1E1E1E',
       showMobile: false,
       showAuth: false,
-      tabs: null
-      // links: [
-      //   { icon: "mdi-home", title: "Home", to: "/" },
-      //   { icon: "mdi-book", title: "Guides", to: "/guides" },
-      //   { icon: "mdi-information", title: "History", to: "/history" },
-      //   { icon: "mdi-calendar", title: "Events", to: "/events" }
-      // ]
+      showForm: false,
+      tab: null,
     };
   },
 
   computed: {
     links() {
       return this.$store.getters[menu.getters.LINKS];
-    }
-  }
+    },
+  },
 };
 </script>

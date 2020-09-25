@@ -19,7 +19,7 @@
               <v-icon v-text="icon"></v-icon>
               <span>Delete {{ selectedItems.length }}</span>
             </v-btn>
-            <user-dialog @open="setRoles" ref="userDialog"></user-dialog>
+            <user-dialog ref="userDialog"></user-dialog>
             <v-select
               :items="perPageOptions"
               v-model="limit"
@@ -48,23 +48,22 @@
             :item-key="'id'"
           >
             <template v-slot:item.username="{ item }">
-              <table-input
+              <table-dialog-menu
                 :route="validate.username"
                 :id="item.id"
+                :type="'username'"
                 :value="item.username"
-                :large="true"
                 @save="changeUserInfo"
-              ></table-input>
+              ></table-dialog-menu>
             </template>
             <template v-slot:item.email="{ item }">
-              <table-input
+              <table-dialog-menu
                 :route="validate.email"
                 :id="item.id"
                 :type="'email'"
                 :value="item.email"
-                :large="true"
                 @save="changeUserInfo"
-              ></table-input>
+              ></table-dialog-menu>
             </template>
             <template v-slot:item.avatar="{ item }">
               <user-table-avatar :item="item"></user-table-avatar>
@@ -94,7 +93,6 @@
       @deleteAll="onDelete"
       @cancel="onCancel"
     ></table-delete-dialog>
-    <!-- <edit-dialog ref="edit" @open="setRoles"></edit-dialog> -->
   </section>
 </template>
 
@@ -105,17 +103,19 @@ import _users from '~/utilities/ns/private/users.js';
 import roles from '~/utilities/ns/public/roles.js';
 import pagination from '~/mixins/pagination.js';
 import itemManagement from '~/mixins/itemManagement.js';
-import UserTableAvatar from './UserTableAvatar.vue';
-import UserTableRoles from './UserRoles.vue';
-import TableInput from '~/components/table/TableInput.vue';
+import TableInput from '~/components/table/TableInput2.vue';
 import TableActions from '~/components/table/TableActions.vue';
 import TableFilterOptions from '~/components/table/TableFilterOptions.vue';
 import TableDeleteDialog from '~/components/table/TableDeleteDialog.vue';
+import TableDialogMenu from '~/components/table/TableDialogMenu.vue';
 import UserDialog from './UserDialog.vue';
-import EditDialog from './EditUserDialog.vue';
+import UserTableAvatar from './UserTableAvatar.vue';
+import UserTableRoles from './UserRoles.vue';
+
 const { mapGetters, mapMutations, mapActions } = createNamespacedHelpers(
   'users'
 );
+
 export default {
   name: 'UserTable',
   components: {
@@ -125,13 +125,12 @@ export default {
     TableInput,
     TableActions,
     TableDeleteDialog,
+    TableDialogMenu,
     UserDialog,
-    EditDialog,
   },
   mixins: [pagination(users), itemManagement(users)],
   data() {
     return {
-      dialog: 'create',
       headers: [
         { text: '', sortable: false, value: 'avatar' },
         { text: 'username', sortable: true, value: 'username' },
@@ -140,6 +139,7 @@ export default {
         { text: 'joined_on', sortable: true, value: 'created_at' },
         { text: '', sortable: false, value: 'actions', align: 'end' },
       ],
+
       name: 'users',
       icon: 'mdi-trash-can-outline',
 
@@ -159,21 +159,9 @@ export default {
   },
   methods: {
     /**
-     * setSelected()
-     */
-    ...mapMutations([_users.mutations.SET_SELECTED]),
-    /**
      * changeUserInfo()
-     * removeUser()
      */
-    ...mapActions([
-      _users.actions.CHANGE_USER_INFO,
-      _users.actions.REMOVE_USER,
-    ]),
-    setRoles() {
-      if (this.isRolesPopulated) return;
-      this.$store.dispatch(roles.actions.FETCH, false);
-    },
+    ...mapActions([_users.actions.CHANGE_USER_INFO]),
     onUpdate() {
       this.fetch(false);
     },
@@ -185,7 +173,7 @@ export default {
   computed: {
     /**
      * this.users,
-     * this.selected
+     * this.selectedIds
      */
     ...mapGetters([_users.getters.USERS, _users.getters.SELECTED_IDS]),
 
@@ -207,14 +195,6 @@ export default {
           children,
         },
       ];
-    },
-    selectedItems: {
-      get() {
-        return this.selected;
-      },
-      set(value) {
-        this.setSelected(value);
-      },
     },
   },
 };

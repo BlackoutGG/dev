@@ -1,5 +1,7 @@
 import ns from '~/utilities/ns/private/lists.js';
 import snackbar from '~/utilities/ns/public/snackbar.js';
+import pluralize from 'pluralize';
+import pick from 'lodash/pick';
 
 const defaultQueryParams = {
   page: 1,
@@ -47,6 +49,11 @@ const mutations = {
   [ns.mutations.SET_PARAM](state, { param, value }) {
     state.queryParams[param] = value;
   },
+  [ns.mutations.UPDATE_ITEM](state, item) {
+    const items = state[state.type];
+    const idx = items.findIndex(({ id }) => id === item.id);
+    if (idx !== -1) items.splice(idx, 1, item);
+  },
   [ns.mutations.RESET_PARAMS](state) {
     state.queryParams = defaultQueryParams;
   },
@@ -62,8 +69,6 @@ const actions = {
       const { data } = await this.$axios.get(`/${state.type}`, {
         params: { ...state.queryParams },
       });
-
-      console.log(data[state.type]);
 
       commit(ns.mutations.SET_LIST, data[state.type].results);
       commit(ns.mutations.SET_PARAM, {
@@ -104,6 +109,18 @@ const actions = {
         param: 'total',
         value: data[state.type].total,
       });
+    } catch (err) {
+      console.log(err);
+    }
+  },
+
+  async [ns.actions.EDIT_ITEM]({ commit }, { id, route, details }) {
+    try {
+      const data = await this.$axios.put(`/${route}/${id}`, {
+        details,
+      }).data;
+
+      commit(ns.mutations.UPDATE_ITEM, pick(data, [pluralize.singular(route)]));
     } catch (err) {
       console.log(err);
     }

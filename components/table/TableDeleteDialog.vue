@@ -48,7 +48,7 @@ export default {
 
   computed: {
     numOfItemsMarkedForDeletion() {
-      return this.single ? 1 : length;
+      return this.single ? 1 : this.length;
     },
   },
 };
