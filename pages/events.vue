@@ -19,7 +19,7 @@ export default {
   components: { EventCalender, ParallaxBanner },
   middleware: [
     'auth',
-    ({ $auth }) => {
+    ({ $auth, redirect }) => {
       if ($auth.hasScope('view:events')) {
         return redirect('/');
       } else {

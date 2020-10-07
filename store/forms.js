@@ -120,7 +120,6 @@ const mutations = {
         if (form.id !== id) form.status = false;
         else form.status = status;
       }
-      return form;
     });
   },
   [ns.mutations.UPDATE_FORM_STATUS_DIRECTLY](state, { id, status }) {
@@ -171,7 +170,7 @@ const mutations = {
 };
 
 const actions = {
-  async [ns.actions.FETCH]({ commit, getters, state }, categories, where) {
+  async [ns.actions.FETCH]({ commit, getters, state }, categories) {
     const params = {
       ...state.queryParams,
       categories,
@@ -179,10 +178,8 @@ const actions = {
 
     const filters = getters[ns.getters.FILTERS];
 
-    if (filters) Object.assign(params, { filters });
-
-    if (where && Object.keys(where).length) {
-      Object.assign(params, { where });
+    if (filters && Object.keys(filters).length) {
+      Object.assign(params, { filters });
     }
 
     try {
@@ -204,12 +201,13 @@ const actions = {
     }
   },
 
-  async [ns.actions.SET_STATUS]({ commit }, { id, category_id }) {
+  async [ns.actions.SET_STATUS]({ commit }, { id, status, category_id }) {
     try {
       const {
         data: { form },
-      } = await this.$axios.put(`/admin/forms/${id}/status`, {
+      } = await this.$axios.patch(`/admin/forms/${id}/status`, {
         category_id,
+        status,
       });
 
       commit(ns.mutations.UPDATE_FORM_STATUS, form);
@@ -244,8 +242,10 @@ const actions = {
     const details = { [type]: value };
     try {
       const { form } = (
-        await this.$axios.put(`/admin/forms/${id}`, { details })
+        await this.$axios.patch(`/admin/forms/${id}`, { details })
       ).data;
+
+      console.log(form);
 
       commit(ns.mutations.UPDATE_FORM, form);
     } catch (err) {}
@@ -297,19 +297,22 @@ const actions = {
   async [ns.actions.REMOVE_ITEMS]({ state, getters, commit }, id) {
     const ids = id ? [id] : getters[ns.getters.SELECTED_IDS];
     const params = { ...state.queryParams, ids };
+
     const filters = getters[ns.getters.FILTERS];
 
-    if (filters) Object.assign(params, { filters });
+    if (filters && Object.keys(filters).length) {
+      Object.assign(params, { filters });
+    }
 
     try {
       const {
         data: { forms },
       } = await this.$axios.delete(`/admin/forms`, { params });
 
-      commit(ns.mutations.UPDATE_FORMS, forms.results);
+      commit(ns.mutations.SET_FORMS, forms.results);
       commit(ns.mutations.SET_PARAM, { param: 'total', value: forms.total });
     } catch (err) {
-      console.log(err);
+      throw err;
     }
   },
 
@@ -317,15 +320,13 @@ const actions = {
     try {
       const {
         data: { form },
-      } = await this.$axios.put(`/admin/forms/${id}`, data);
+      } = await this.$axios.patch(`/admin/forms/${id}`, data);
 
       console.log(form);
 
       commit(ns.mutations.UPDATE_FORM, form);
-
-      return Promise.resolve();
     } catch (err) {
-      return Promise.reject(err);
+      throw err;
     }
   },
 };

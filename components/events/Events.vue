@@ -3,32 +3,28 @@
     <v-col>
       <v-sheet height="64">
         <v-toolbar flat>
-          <event-dialog ref="dialog" v-if="$auth.hasScope(['add:events'])"></event-dialog>
           <v-btn outlined class="mr-4" color="grey darken-2">Today</v-btn>
           <v-btn fab text small color="grey darken-2" @click="prev">
             <v-icon small>mdi-chevron-left</v-icon>
           </v-btn>
-          <v-toolbar-title v-if="$refs.events">{{$refs.events.title}}</v-toolbar-title>
-          <v-btn fab text small color="grey darken-2" @click="next">
+          <v-toolbar-title v-if="$refs.events">{{
+            $refs.events.title
+          }}</v-toolbar-title>
+          <v-btn text color="grey darken-2" @click="next">
             <v-icon small>mdi-chevron-right</v-icon>
           </v-btn>
           <v-spacer></v-spacer>
-          <v-menu bottom right>
-            <template #activator="{ on, attrs }">
-              <v-btn outlined color="grey darken-2" class="mx-2" v-bind="attrs" v-on="on">
-                <span>{{ category }}</span>
-                <v-icon right>mdi-menu-down</v-icon>
-              </v-btn>
-            </template>
-            <v-list>
-              <event-list-item
-                v-for="(cat, idx) in categories"
-                :key="idx"
-                v-model="category"
-                :item="cat"
-              >{{cat.name}}</event-list-item>
-            </v-list>
-          </v-menu>
+          <table-filter-options
+            :filters="filters"
+            :name="name"
+            @update="fetch({ start, end })"
+            @reset="onReset"
+          />
+          <event-dialog
+            ref="dialog"
+            v-if="$auth.hasScope(['add:events'])"
+          ></event-dialog>
+
           <v-menu bottom right>
             <template #activator="{ on, attrs }">
               <v-btn outlined color="grey darken-2" v-bind="attrs" v-on="on">
@@ -37,7 +33,12 @@
               </v-btn>
             </template>
             <v-list>
-              <event-list-item v-for="(t, idx) in types" :key="idx" v-model="type">{{t}}</event-list-item>
+              <event-list-item
+                v-for="(t, idx) in types"
+                :key="idx"
+                v-model="type"
+                >{{ t }}</event-list-item
+              >
             </v-list>
           </v-menu>
         </v-toolbar>
@@ -53,7 +54,7 @@
           @click:event="showEvent"
           @click:more="viewDay"
           @click:date="viewDay"
-          @change="fetch"
+          @change="fetchEvents"
         ></v-calendar>
         <event-popover ref="popover" @edit="setEditableContent"></event-popover>
       </v-sheet>
@@ -62,11 +63,16 @@
 </template>
 
 <script>
+import { createNamespacedHelpers } from 'vuex';
+import events from '~/utilities/ns/public/events.js';
 import lists from '~/utilities/ns/public/lists.js';
 import EventListItem from './EventListItem.vue';
 import EventDialog from './EventDialog.vue';
 import EventPopover from './EventPopover.vue';
-import { createNamespacedHelpers } from 'vuex';
+
+import TableFilterOptions from '~/components/table/TableFilterOptions.vue';
+
+import filters from '~/mixins/filters.js';
 
 const { mapGetters, mapActions } = createNamespacedHelpers('events');
 
@@ -76,10 +82,11 @@ const toTimestamp = (str) => {
 
 export default {
   name: 'EventsCalendar',
-  components: { EventListItem, EventDialog, EventPopover },
+
+  components: { EventListItem, EventDialog, EventPopover, TableFilterOptions },
+
   data() {
     return {
-      category: 'All',
       focus: '',
       types: ['day', 'week', 'month', '4day'],
       type: 'month',
@@ -89,16 +96,20 @@ export default {
         day: 'Day',
         '4day': '4 Days',
       },
+
+      name: 'events',
+
+      start: '',
+      end: '',
     };
   },
 
   mounted() {
     this.$refs.events.checkChange();
-    this.$auth.hasScope('events:add');
   },
 
   methods: {
-    ...mapActions(['fetchEvents']),
+    ...mapActions(['fetch']),
 
     getEventColor(event) {
       return event.color;
@@ -126,19 +137,39 @@ export default {
       this.$refs.events.prev();
     },
 
-    fetch({ start, end }) {
-      this.fetchEvents({
+    fetchEvents({ start, end }) {
+      this.start = start.date;
+      this.end = end.date;
+      this.fetch({
         start: start.date,
         end: end.date,
       });
+    },
+
+    onReset() {
+      this.$store.commit(filters.mutations.RESET_FILTER, 'events');
+      this.fetchEvents();
     },
   },
 
   computed: {
     ...mapGetters(['events', 'eventColors']),
     categories() {
-      const cats = this.$store.getters[lists.getters.GET_ITEMS]('categories');
-      return [{ id: 0, name: 'all' }, ...cats];
+      return this.$store.getters[lists.getters.GET_ITEMS](
+        'categories'
+      ).map(({ id, name }) => ({ id, name }));
+    },
+
+    filters() {
+      const categories = {
+        name: 'Categories',
+        type: 'category_id',
+        itemProp: 'id',
+        multiple: true,
+        children: this.categories,
+      };
+
+      return [categories];
     },
   },
 };

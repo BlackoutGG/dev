@@ -11,7 +11,12 @@
         ></v-select>
       </v-col>
       <v-col cols="12">
-        <v-textarea readonly :value="description" outlined label="Description"></v-textarea>
+        <v-textarea
+          readonly
+          v-model="description"
+          outlined
+          label="Description"
+        ></v-textarea>
       </v-col>
     </v-row>
     <v-row v-for="(field, idx) in fields" :key="idx">
@@ -20,48 +25,24 @@
           <span>Question {{ idx + 1 }}</span>
         </div>
         <p class="text--white">{{ field.value }}</p>
-        <template v-if="!field.options">
-          <v-text-field v-if="field.type === 'textfield'"></v-text-field>
-          <v-textarea outlined v-else></v-textarea>
-        </template>
-        <template v-else>
-          <template v-if="field.type === 'multiple'">
-            <v-radio-group v-model="radioGroup">
-              <template v-for="(option, i) in field.options">
-                <v-radio :label="option" :key="i" v-if="option"></v-radio>
-              </template>
-            </v-radio-group>
-          </template>
-          <template v-else-if="field.type === 'checkbox'">
-            <template v-for="(option, i) in field.options">
-              <v-checkbox
-                class="my-0 py-0"
-                :value="option"
-                :label="option"
-                :key="i"
-                v-if="option"
-                hide-details
-              ></v-checkbox>
-            </template>
-          </template>
-          <template v-else>
-            <v-select :items="field.options"></v-select>
-          </template>
-        </template>
+        <form-field :field="field"></form-field>
       </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script>
+import { createNamespacedHelpers } from 'vuex';
 import lists from '~/utilities/ns/public/lists.js';
 import forms from '~/utilities/ns/private/forms.js';
-import { createNamespacedHelpers } from 'vuex';
+import FormField from './FormField.vue';
 
 const { mapGetters, mapMutations } = createNamespacedHelpers('forms');
 
 export default {
   name: 'FormPreview',
+
+  components: { FormField },
 
   data() {
     return {

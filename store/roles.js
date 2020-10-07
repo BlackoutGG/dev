@@ -16,13 +16,26 @@ const state = () => ({
 
 const getters = {
   [ns.getters.ROLES]: (state) => state.roles,
+
   [ns.getters.SELECTED]: (state) => state.selected,
+
   [ns.getters.SELECTED_IDS]: (state, getters) =>
     getters[ns.getters.SELECTED].map(({ id }) => id),
+
   [ns.getters.GET_ROLE]: (state) => (id) =>
     state.roles.find((role) => role.id === id),
+
   [ns.getters.QUERY_PARAMS]: (state) => (key) =>
     typeof key !== undefined ? state.queryParams[key] : state.queryParams,
+
+  [ns.getters.FILTERS]: (state, getters, rootState, rootGetters) => {
+    const filters = rootGetters[filter.getters.GET_FILTER]('users');
+    const picked = pickBy(filters, (value, key) => {
+      if (Array.isArray(value) && value.length) return true;
+      if (typeof value === 'boolean' && value) return true;
+    });
+    return Object.keys(picked).length ? picked : null;
+  },
 };
 
 const mutations = {
@@ -32,6 +45,9 @@ const mutations = {
 
   [ns.mutations.UPDATE_ROLE](state, role) {
     const idx = state.roles.findIndex(({ id }) => id === role.id);
+
+    console.log(idx);
+
     if (idx !== -1) state.roles.splice(idx, 1, role);
   },
 
@@ -91,8 +107,12 @@ const actions = {
         await this.$axios.put(`/roles/${id}`, { details })
       ).data;
 
+      console.log(role);
+
       commit(ns.mutations.UPDATE_ROLE, role);
-    } catch (err) {}
+    } catch (err) {
+      throw err;
+    }
   },
 
   async [ns.actions.EDIT_ROLE]({ commit, dispatch }, { id, payload }) {
@@ -102,19 +122,23 @@ const actions = {
       commit(ns.mutations.UPDATE_ROLE, role);
       const text = 'Your changes have been saved.';
       dispatch(snackbar.actions.TOGGLE_BAR, { text }, { root: true });
-
-      return Promise.resolve();
     } catch (err) {
       console.log(err);
       const text = 'Encountered a problem. Please contact the administrator.';
       dispatch(snackbar.actions.TOGGLE_BAR, { text }, { root: true });
-      return Promise.reject();
+      throw err;
     }
   },
 
   async [ns.actions.REMOVE_ITEMS]({ commit, state, getters, dispatch }, id) {
     const ids = [id] || getters[ns.getters.SELECTED_IDS];
     const params = { ids, ...state.queryparams };
+    const filters = getters[ns.getters.FILTERS];
+
+    if (filters && Object.keys(filters).length) {
+      Object.assign(params, { filters });
+    }
+
     try {
       const {
         data: { roles },

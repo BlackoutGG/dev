@@ -8,7 +8,7 @@ export default {
   },
   mutations: {
     SET_ROLES: 'roles/setRoles',
-    SET_ROLE: 'roles/setRole',
+    UPDATE_ROLE: 'roles/setRole',
     SET_DETAIL: 'roles/setName',
     SET_SELECTED: 'roles/setSelected',
     SET_PARAM: 'roles/setParam',

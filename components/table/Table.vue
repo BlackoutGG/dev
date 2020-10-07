@@ -55,9 +55,8 @@
           </template>
           <template #item.actions="{ item }">
             <table-actions
-              remove
-              :removeIcon="icon"
-              :name="$route.params.type"
+              :actions="actions"
+              :suffix="$route.params.type"
               @remove="setItemForRemoval(item.id)"
             ></table-actions>
           </template>
@@ -110,6 +109,8 @@ export default {
       icon: 'mdi-trash-can-outline',
       open: false,
       itemName: '',
+
+      actions: [{ icon: 'mdi-delete', scope: 'delete', text: 'Remove' }],
     };
   },
 

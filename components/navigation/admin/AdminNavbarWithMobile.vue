@@ -9,7 +9,11 @@
       </v-app-bar-nav-icon>
       <v-toolbar-title>{{ title }}</v-toolbar-title>
       <v-spacer></v-spacer>
-      <admin-user-menu />
+      <user-panel
+        :displayMenuUser="true"
+        :hideOnMobile="false"
+        :links="userPanelLinks"
+      ></user-panel>
     </v-app-bar>
     <admin-nav-drawer v-model="showDrawer" :links="links"></admin-nav-drawer>
   </nav>
@@ -17,7 +21,7 @@
 
 <script>
 import page from '~/utilities/ns/public/page.js';
-import AdminNavDrawer from './AdminNavDrawer2.vue';
+import AdminNavDrawer from './AdminNavDrawer.vue';
 import AdminUserMenu from './AdminUserMenu.vue';
 export default {
   name: 'AdminNavbar',
@@ -26,6 +30,14 @@ export default {
   data() {
     return {
       showDrawer: false,
+
+      userPanelLinks: [
+        {
+          icon: 'mdi-home',
+          title: 'Home',
+          to: '/',
+        },
+      ],
 
       links: [
         {
@@ -63,12 +75,12 @@ export default {
           title: 'Recruitment',
           children: [
             {
-              title: 'Forms',
-              to: '/admin/forms/templates',
+              title: 'Form Templates',
+              to: '/admin/recruitment/templates',
             },
             {
-              title: 'Applications',
-              to: '/admin/forms/applications',
+              title: 'Forms',
+              to: '/admin/recruitment',
             },
           ],
         },

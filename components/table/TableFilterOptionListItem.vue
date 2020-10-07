@@ -4,7 +4,11 @@
       <v-list-item-title>{{ itemName }}</v-list-item-title>
     </v-list-item-content>
     <v-list-item-action>
-      <v-switch v-model="computedValue" :multiple="isMultiple" :value="inputValue"></v-switch>
+      <v-switch
+        v-model="computedValue"
+        :multiple="isMultiple"
+        :value="inputValue"
+      ></v-switch>
     </v-list-item-action>
   </v-list-item>
   <v-list-group v-model="open" v-else>
@@ -25,31 +29,32 @@
 </template>
 
 <script>
-import filter from "~/utilities/ns/public/filters.js";
-import isObject from "lodash/isObject";
+import filter from '~/utilities/ns/public/filters.js';
+import isValidObject from '~/utilities/isValidObject.js';
+
 export default {
-  name: "TableFilterItem",
+  name: 'TableFilterItem',
 
   props: {
     name: {
-      type: String
+      type: String,
     },
     item: {
-      type: [Object, Array, String, Number, Boolean]
+      type: [Object, Array, String, Number, Boolean],
     },
     parent: {
-      type: Object
+      type: Object,
     },
     isChild: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   data() {
     return {
       innerValue: null,
-      open: true
+      open: true,
     };
   },
 
@@ -63,7 +68,7 @@ export default {
     itemName() {
       return !this.isChild
         ? this.item.name
-        : isObject(this.item)
+        : isValidObject(this.item)
         ? this.item.name
         : this.item;
     },
@@ -75,7 +80,7 @@ export default {
         : false;
     },
     inputValue() {
-      return isObject(this.item) ? this.item[this.itemProp] : this.item;
+      return isValidObject(this.item) ? this.item[this.itemProp] : this.item;
     },
 
     computedValue: {
@@ -87,10 +92,10 @@ export default {
         this.$store.commit(filter.mutations.SET_FILTER, {
           name: this.name,
           type: this.type,
-          value
+          value,
         });
-      }
-    }
-  }
+      },
+    },
+  },
 };
 </script>

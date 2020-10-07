@@ -1,7 +1,7 @@
 <template>
   <v-avatar color="primary">
-    <v-img :src="item.avatar" alt v-if="item.avatar" />
-    <span class="white--text headline" v-else>{{initials}}</span>
+    <v-img :src="src" alt v-if="src" />
+    <span class="white--text headline" v-else>{{ initials }}</span>
   </v-avatar>
 </template>
 
@@ -9,17 +9,20 @@
 export default {
   name: 'UserTableAvatar',
   props: {
-    item: {
-      type: [Object, String],
+    username: {
+      type: String,
+    },
+    src: {
+      type: String,
     },
   },
 
   computed: {
     initials() {
-      const initials = this.item.username.match(/\b\w/g) || []
+      const initials = this.username.match(/\b\w/g) || [];
 
-      return ((initials.shift() || '') + (initials.pop() || '')).toUpperCase()
+      return ((initials.shift() || '') + (initials.pop() || '')).toUpperCase();
     },
   },
-}
+};
 </script>

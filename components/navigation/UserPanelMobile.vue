@@ -1,13 +1,13 @@
 <template>
   <v-list>
     <v-list-group>
-      <template v-slot:activator>
+      <template #activator>
         <v-list-item-avatar>
           <img :src="$auth.user.avatar" alt v-if="$auth.user.avatar" />
-          <span class="white--text headline" v-else>{{avatar}}</span>
+          <span class="white--text headline" v-else>{{ avatar }}</span>
         </v-list-item-avatar>
         <v-list-item-content>
-          <v-list-item-title>{{username}}</v-list-item-title>
+          <v-list-item-title>{{ username }}</v-list-item-title>
         </v-list-item-content>
       </template>
       <user-panel-link
@@ -23,13 +23,13 @@
 </template>
 
 <script>
-import UserPanelLink from "./UserPanelLink.vue";
+import UserPanelLink from './UserPanelLink.vue';
 export default {
-  name: "UserPanelMobile",
+  name: 'UserPanelMobile',
   components: { UserPanelLink },
   data() {
     return {
-      links: [{ icon: "mdi-account", title: "Profile" }]
+      links: [{ icon: 'mdi-account', title: 'Profile' }],
     };
   },
   computed: {
@@ -40,13 +40,13 @@ export default {
       if (this.username) {
         const initials = this.username.match(/\b\w/g) || [];
         return (
-          (initials.shift() || "") + (initials.pop() || "")
+          (initials.shift() || '') + (initials.pop() || '')
         ).toUpperCase();
       }
     },
     avatar() {
       return this.$auth.user.avatar ? this.$auth.user.avatar : this.initials;
-    }
-  }
+    },
+  },
 };
 </script>

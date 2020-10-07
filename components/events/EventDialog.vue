@@ -1,14 +1,15 @@
 <template>
-  <v-dialog v-model="open" id="event-dialog" max-width="600px" :min-height="height">
+  <v-dialog
+    v-model="open"
+    id="event-dialog"
+    :max-width="maxWidth"
+    :min-height="height"
+  >
     <template #activator="{ on, attrs }">
-      <v-tooltip bottom>
-        <template #activator="tooltip">
-          <v-btn icon v-bind="attrs" v-on="on">
-            <v-icon v-on="tooltip.on">mdi-plus</v-icon>
-          </v-btn>
-        </template>
+      <v-btn text v-bind="attrs" v-on="on">
+        <v-icon v-text="icon" left></v-icon>
         <span>Add Event</span>
-      </v-tooltip>
+      </v-btn>
     </template>
     <v-card :min-height="height">
       <v-toolbar dark>
@@ -16,22 +17,29 @@
           <v-icon small>mdi-close</v-icon>
         </v-btn>
         <v-toolbar-title>
-          <span>{{title}}</span>
+          <span>{{ title }}</span>
         </v-toolbar-title>
         <v-spacer></v-spacer>
       </v-toolbar>
       <v-tabs fixed-tabs v-model="tab">
-        <v-tab v-for="(tab, i) in tabs" :key="i">{{tab}}</v-tab>
+        <v-tab v-for="(tab, i) in tabs" :key="i">{{ tab }}</v-tab>
       </v-tabs>
-      <v-tabs-items v-model="tab">
+      <v-tabs-items v-model="tab" v-if="details">
         <v-tab-item>
           <v-card-text>
-            <event-form v-model="valid" ref="form" :event="details"></event-form>
+            <event-form
+              v-model="valid"
+              ref="form"
+              :event="details"
+            ></event-form>
           </v-card-text>
         </v-tab-item>
         <v-tab-item>
           <v-card-text>
-            <event-options :roles="roles" :rvsp.sync="details.rvsp"></event-options>
+            <event-options
+              :roles="roles"
+              :rvsp.sync="details.rvsp"
+            ></event-options>
           </v-card-text>
         </v-tab-item>
       </v-tabs-items>
@@ -41,129 +49,146 @@
         <v-btn text @click="reset">Clear</v-btn>
         <v-btn text :disabled="!valid" @click="save">Save</v-btn>
       </v-card-actions>
+      <v-overlay absolute v-model="isSending">
+        <v-progress-circular indeterminate size="64"></v-progress-circular>
+      </v-overlay>
     </v-card>
   </v-dialog>
 </template>
 
 <script>
-import events from "~/utilities/ns/public/events.js";
-import EventForm from "./EventForm.vue";
-import EventOptions from "./EventDialogOptions.vue";
+import events from '~/utilities/ns/public/events.js';
+import EventForm from './EventForm.vue';
+import EventOptions from './EventDialogOptions.vue';
 
-import pickBy from "lodash/pickBy";
-import cloneDeep from "lodash/cloneDeep";
+import pickBy from 'lodash/pickBy';
+import cloneDeep from 'lodash/cloneDeep';
+
+const picked = (prop) => typeof prop !== 'object' || typeof prop !== undefined;
 
 export default {
-  name: "EventDialog",
+  name: 'EventDialog',
   components: { EventForm, EventOptions },
 
   data() {
     return {
       open: false,
       valid: false,
-      mode: "new",
-      tabs: ["Form", "Options"],
+      mode: 'new',
+      tabs: ['Form', 'Options'],
       tab: 0,
 
-      eventId: 0,
+      isEditMode: false,
 
+      icon: 'mdi-plus',
+
+      eventId: 0,
+      maxWidth: '600px',
       minHeight: 827,
+
+      isSending: false,
 
       roles: [],
       startingRoles: [],
 
-      details: {
-        id: null,
-        category_id: 1,
-        name: "",
-        color: "",
-        startDate: "",
-        endDate: "",
-        startTime: "",
-        endTime: "",
-        description: "",
-        rvsp: false
-      },
-
-      startingValues: null
+      details: null,
+      startingValues: null,
     };
   },
 
   watch: {
     open(v) {
-      if (!v) this.reset();
-    }
+      if (!v) return this.reset();
+
+      if (!this.isEditMode) {
+        this.details = {
+          name: '',
+          description: '',
+          color: '',
+          category_id: 1,
+          start_time: '',
+          end_time: '',
+          start_date: '',
+          end_date: '',
+          rvsp: false,
+        };
+      }
+    },
   },
 
   methods: {
     async save() {
-      if (this.mode === "edit") {
-        await this.$store.dispatch(
-          events.actions.EDIT_EVENT,
-          Object.assign(
-            {},
-            { ...this.markedForChange },
-            { id: this.details.id }
-          )
+      // if (!this.$refs.form.validate()) return;
+
+      // if (this.isEditMode) {
+      //   const results = await this.$store.dispatch(
+      //     events.actions.EDIT_EVENT,
+      //     this.details
+      //   );
+      //   this.setStartingValues(results);
+      //   return;
+      // }
+
+      try {
+        const { category, organizer, ...details } = await this.$store.dispatch(
+          this.isEditMode
+            ? events.actions.EDIT_EVENT
+            : events.actions.ADD_EVENT,
+          this.details
         );
-        this.setStartingValues(this.event);
-      } else {
-        this.$store.dispatch(
-          events.actions.ADD_EVENT,
-          this.createEventObject(this.details)
-        );
-        this.$refs.form.reset();
+
+        if (this.isEditMode) this.setStartingValues(details);
+        else this.close();
+      } catch (err) {}
+    },
+
+    async getEvent(id) {
+      this.isSending = true;
+      try {
+        const { event } = (await this.$axios.get(`/events/${id}`)).data;
+        return event;
+      } catch (err) {
+        return err;
+      } finally {
+        this.isSending = false;
       }
     },
+
     reset() {
-      if (this.mode === "edit") {
+      if (this.isEditMode) {
         this.startingValues = null;
+        this.startingRoles = [];
       }
       this.$refs.form.reset();
       this.$nextTick(() => {
-        this.mode = "new";
+        this.isEditMode = false;
+        this.details = null;
       });
     },
+
     close() {
       this.open = false;
       this.tab = 0;
       this.reset();
     },
 
-    createEventObject(e) {
-      const { category_id, ...event } = e;
-      event.roles = this.rolesMarkedForChange;
-      return { category_id, event };
-    },
-
     setStartingValues(obj) {
-      const picked = prop =>
-        typeof prop !== "object" || typeof prop !== undefined;
       this.startingValues = Object.assign({}, pickBy(cloneDeep(obj), picked));
     },
 
-    setEditableContent({ id }) {
+    async setEditableContent({ id }) {
       this.eventId = id;
-      this.mode = "edit";
-      const { event } = this;
-      Object.keys(this.details).forEach(key => {
-        if (typeof event[key] !== undefined || typeof event[key] !== "object") {
-          this.details[key] = event[key];
-        }
-      });
-      this.setStartingValues(this.details);
-
+      this.isEditMode = true;
       this.open = true;
-    }
+      const { category, organizer, ...event } = await this.getEvent(id);
+
+      this.details = event;
+      this.setStartingValues(this.details);
+    },
   },
 
   computed: {
-    event() {
-      return (
-        this.$store.getters[events.getters.GET_EVENT](this.eventId) || null
-      );
-    },
-    markedForChange() {
+    toUpdate() {
       return this.startingValues
         ? Object.entries(this.details)
             .filter(([key, value]) => {
@@ -176,8 +201,10 @@ export default {
         : [];
     },
 
-    rolesMarkedForChange() {
-      return this.roles.filter(role => this.startingRoles.indexOf(role) === -1);
+    rolesToUpdatae() {
+      return this.roles.filter(
+        (role) => this.startingRoles.indexOf(role) === -1
+      );
     },
 
     height: {
@@ -186,11 +213,13 @@ export default {
       },
       set(val) {
         this.minHeight = val;
-      }
+      },
     },
     title() {
-      return this.mode === "new" ? "Add Event" : "Edit Event";
-    }
-  }
+      return !this.isEditMode
+        ? 'Add Event'
+        : `Edit Event: ${this.details.name}`;
+    },
+  },
 };
 </script>

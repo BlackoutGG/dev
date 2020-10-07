@@ -20,14 +20,21 @@
       </template>
       <template #footer>
         <v-card-actions>
-          <v-btn depressed color="primary" @click.native="$emit('update')">Save</v-btn>
+          <v-btn depressed color="primary" @click.native="$emit('update')"
+            >Save</v-btn
+          >
           <v-spacer></v-spacer>
           <v-btn text @click.native="$emit('reset')">Reset</v-btn>
         </v-card-actions>
       </template>
     </filter-list>
   </v-dialog>
-  <v-menu v-model="open" v-else :close-on-content-click="closeOnContentClick" :offset-y="offsetY">
+  <v-menu
+    v-model="open"
+    v-else
+    :close-on-content-click="closeOnContentClick"
+    :offset-y="offsetY"
+  >
     <template #activator="{ on }">
       <v-btn text v-on="on">
         <v-icon left v-text="icon"></v-icon>
@@ -40,7 +47,9 @@
       </template>
       <template #footer>
         <v-card-actions>
-          <v-btn depressed color="primary" @click.native="$emit('update')">Save</v-btn>
+          <v-btn depressed color="primary" @click.native="$emit('update')"
+            >Save</v-btn
+          >
           <v-spacer></v-spacer>
           <v-btn text @click.native="$emit('reset')">Reset</v-btn>
         </v-card-actions>
@@ -50,59 +59,59 @@
 </template>
 
 <script>
-import FilterList from "./TableFilterOptionList.vue";
+import FilterList from './TableFilterOptionList.vue';
 export default {
-  name: "TableFilterOptions",
+  name: 'TableFilterOptions',
 
   components: {
-    FilterList
+    FilterList,
   },
 
   props: {
     name: {
-      type: String
+      type: String,
     },
     filters: {
       type: [Array, Object],
-      default: () => []
+      default: () => [],
     },
     modal: {
       type: Boolean,
-      default: false
+      default: false,
     },
     modalMaxWidth: {
       type: Number,
-      default: 500
+      default: 500,
     },
     cardMaxWidth: {
       type: Number,
-      default: 500
-    }
+      default: 500,
+    },
   },
 
   data() {
     return {
-      icon: "mdi-filter-variant",
+      icon: 'mdi-filter-variant',
       closeOnContentClick: false,
       maxWidth: 500,
       open: false,
-      offsetY: true
+      offsetY: true,
     };
   },
 
   watch: {
-    "$vuetify.breakpoint.smAndDown"(newVal, oldVal) {
+    '$vuetify.breakpoint.smAndDown'(newVal, oldVal) {
       if (!newVal && this.open) {
         this.open = false;
         setTimeout(() => (this.open = true), 10);
       }
-    }
+    },
   },
 
   computed: {
     isModal() {
       return this.modal || this.$vuetify.breakpoint.smAndDown;
-    }
-  }
+    },
+  },
 };
 </script>

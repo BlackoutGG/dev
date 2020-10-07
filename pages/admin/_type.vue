@@ -9,7 +9,7 @@ import DataTable from '~/components/table/Table.vue';
 import capitalize from 'lodash/capitalize';
 
 export default {
-  name: 'Manage',
+  name: 'Items',
   layout: 'admin',
 
   components: { DataTable },

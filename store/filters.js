@@ -1,18 +1,24 @@
-import ns from "~/utilities/ns/private/filters.js";
+import ns from '~/utilities/ns/private/filters.js';
 
 const state = () => ({
   users: {
-    "roles.id": []
+    id: [],
   },
-
+  events: {
+    category_id: [],
+  },
+  recruitment: {
+    category_id: [],
+    status: '',
+  },
   forms: {
     category_id: [],
-    status: false
-  }
+    status: false,
+  },
 });
 
 const getters = {
-  [ns.getters.GET_FILTER]: state => filter => state[filter]
+  [ns.getters.GET_FILTER]: (state) => (filter) => state[filter],
 };
 
 const mutations = {
@@ -23,18 +29,21 @@ const mutations = {
   },
   [ns.mutations.RESET_FILTER](state, name) {
     const filter = state[name];
-    Object.keys(filter).forEach(key => {
+    Object.keys(filter).forEach((key) => {
+      let f = filter[key];
       let result;
-      if (Array.isArray(filter[key])) result = [];
-      if (typeof filter[key] === "boolean") result = false;
-      filter[key] = result;
+      if (Array.isArray(f)) result = [];
+      if (typeof f === 'boolean') result = false;
+      if (typeof f === 'string') result = '';
+      else f = 0;
+      f = result;
     });
   },
   [ns.mutations.CLEAR_FILTERS](state) {
-    Object.keys(state).forEach(key =>
-      Object.values(state[key]).forEach(v => (v = []))
+    Object.keys(state).forEach((key) =>
+      Object.values(state[key]).forEach((v) => (v = []))
     );
-  }
+  },
 };
 
 export default { state, getters, mutations };

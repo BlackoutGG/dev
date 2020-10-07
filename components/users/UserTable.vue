@@ -13,7 +13,7 @@
               :filters="filters"
               :name="name"
               @update="onUpdate"
-              @reset="resetFilters"
+              @reset="onReset"
             ></table-filter-options>
             <v-btn text :disabled="!selectedItems.length" @click="open = true">
               <v-icon v-text="icon"></v-icon>
@@ -66,20 +66,23 @@
               ></table-dialog-menu>
             </template>
             <template v-slot:item.avatar="{ item }">
-              <user-table-avatar :item="item"></user-table-avatar>
+              <user-table-avatar
+                :src="item.avatar"
+                :username="item.username"
+              ></user-table-avatar>
             </template>
             <template v-slot:item.roles="{ item }">
-              <user-table-roles :userId="item.id" :roles="item.roles"></user-table-roles>
+              <user-table-roles
+                :userId="item.id"
+                :roles="item.roles"
+              ></user-table-roles>
             </template>
             <template v-slot:item.actions="{ item }">
               <table-actions
                 @edit="$refs.userDialog.setEditableContent(item.id)"
                 @remove="setItemForRemoval(item.id)"
-                :item="item"
-                :name="name"
-                edit
-                reset
-                remove
+                :actions="actions"
+                :suffix="name"
               ></table-actions>
             </template>
           </v-data-table>
@@ -101,13 +104,17 @@ import { createNamespacedHelpers } from 'vuex';
 import users from '~/utilities/ns/public/users.js';
 import _users from '~/utilities/ns/private/users.js';
 import roles from '~/utilities/ns/public/roles.js';
+
 import pagination from '~/mixins/pagination.js';
 import itemManagement from '~/mixins/itemManagement.js';
-import TableInput from '~/components/table/TableInput2.vue';
+import filters from '~/mixins/filters.js';
+
+import TableInput from '~/components/table/TableInput.vue';
 import TableActions from '~/components/table/TableActions.vue';
 import TableFilterOptions from '~/components/table/TableFilterOptions.vue';
 import TableDeleteDialog from '~/components/table/TableDeleteDialog.vue';
 import TableDialogMenu from '~/components/table/TableDialogMenu.vue';
+
 import UserDialog from './UserDialog.vue';
 import UserTableAvatar from './UserTableAvatar.vue';
 import UserTableRoles from './UserRoles.vue';
@@ -128,7 +135,7 @@ export default {
     TableDialogMenu,
     UserDialog,
   },
-  mixins: [pagination(users), itemManagement(users)],
+  mixins: [pagination(users), itemManagement(users), filters(users, 'users')],
   data() {
     return {
       headers: [
@@ -144,6 +151,12 @@ export default {
       icon: 'mdi-trash-can-outline',
 
       open: false,
+
+      actions: [
+        { icon: 'mdi-pencil', scope: 'update', text: 'Edit' },
+        { icon: 'mdi-lock-reset', scope: 'update', text: 'Reset' },
+        { icon: 'mdi-delete', scope: 'delete', text: 'Remove' },
+      ],
 
       validate: {
         username: {
@@ -162,13 +175,15 @@ export default {
      * changeUserInfo()
      */
     ...mapActions([_users.actions.CHANGE_USER_INFO]),
-    onUpdate() {
-      this.fetch(false);
-    },
-    resetFilters() {
-      this.$store.commit(filter.mutations.RESET_FILTER, 'forms');
-      this.fetch(false);
-    },
+    // onUpdate() {
+    //   this.$store.commit(users.mutations.SET_SELECTED, []);
+    //   this.fetch(false);
+    // },
+    // resetFilters() {
+    //   this.$store.commit(filter.mutations.RESET_FILTER, 'forms');
+    //   this.$store.commit(users.mutations.SET_SELECTED, []);
+    //   this.fetch(false);
+    // },
   },
   computed: {
     /**
@@ -186,15 +201,15 @@ export default {
         roles.getters.ROLES
       ].map(({ name, id }) => ({ id, name }));
 
-      return [
-        {
-          name: 'Roles',
-          type: 'roles.id',
-          multiple: true,
-          itemProp: 'id',
-          children,
-        },
-      ];
+      const filters = {
+        name: 'Roles',
+        type: 'id',
+        itemProp: 'id',
+        multiple: true,
+        children,
+      };
+
+      return [filters];
     },
   },
 };

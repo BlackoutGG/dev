@@ -9,17 +9,16 @@
       <v-col md="6" sm="12">
         <div class="d-flex align-center">
           <v-spacer></v-spacer>
-          <table-filter-options
+          <!-- <table-filter-options
             :filters="filterOptions"
             :name="name"
             @update="onUpdate"
             @reset="onReset"
-          />
+          /> -->
           <v-btn text :disabled="!selectedItems.length" @click="open = true">
             <v-icon v-text="icon"></v-icon>
             <span>Delete {{ selectedItems.length }}</span>
           </v-btn>
-          <form-dialog ref="dialog"></form-dialog>
           <v-select
             :items="perPageOptions"
             :full-width="false"
@@ -35,6 +34,7 @@
     <v-row>
       <v-col cols="12">
         <v-data-table
+          id="recruitment"
           show-select
           v-model="selectedItems"
           hide-default-footer
@@ -45,50 +45,41 @@
           :page.sync="page"
           :item-key="'id'"
         >
-          <template #item.name="{ item }">
-            <table-dialog-menu
-              :route="validate.name"
-              :id="item.id"
-              :type="'name'"
-              :value="item.name"
-              @save="changeFormDetail"
-            ></table-dialog-menu>
+          <template v-slot:item.applicant.avatar="{ item }">
+            <user-table-avatar
+              :src="item.applicant.avatar"
+              :username="item.applicant.username"
+            ></user-table-avatar>
           </template>
-          <template #item.category_id="{ item }">
-            <table-dialog-menu
-              :async="false"
-              :items="categoryList"
-              :id="item.id"
-              :item-text="'name'"
-              :item-value="'id'"
-              :type="'category_id'"
-              :value="item.category_id"
-              @save="changeFormDetail"
-            ></table-dialog-menu>
+          <template #item.category_name="{ item }">
+            {{ item.category_name }}
           </template>
           <template #item.status="{ item }">
-            <v-btn icon @click.native="setStatus(item)">
-              <v-icon v-if="item.status">mdi-check-bold</v-icon>
-              <v-icon v-else>mdi-close-thick</v-icon>
-            </v-btn>
+            <table-dialog-menu
+              :async="false"
+              :items="statusOptions"
+              :id="item.id"
+              :type="'status'"
+              :value="item.status"
+              @save="changeFormDetail"
+            ></table-dialog-menu>
           </template>
           <template #item.actions="{ item }">
             <div class="text-right">
               <table-actions
-                @edit="$refs.dialog.setEditableContent(item.id)"
-                @remove="setItemForRemoval(item.id)"
                 :actions="actions"
-                :suffix="name"
+                :suffix="suffix"
+                @view="$refs.recruit.viewForm(item.id)"
               ></table-actions>
             </div>
           </template>
         </v-data-table>
       </v-col>
     </v-row>
+    <recruit-dialog v-model="showDialog" ref="recruit"></recruit-dialog>
     <table-delete-dialog
       v-model="open"
       :length="selectedItems.length"
-      :single="single"
       @deleteAll="onDelete"
       @cancel="onCancel"
     ></table-delete-dialog>
@@ -97,63 +88,53 @@
 
 <script>
 import { createNamespacedHelpers } from 'vuex';
-import _forms from '~/utilities/ns/private/forms.js';
-import forms from '~/utilities/ns/public/forms.js';
+import _recruitment from '~/utilities/ns/private/recruitment.js';
+import recruitment from '~/utilities/ns/public/recruitment.js';
 import filter from '~/utilities/ns/public/filters.js';
 import lists from '~/utilities/ns/public/lists.js';
 
 import pagination from '~/mixins/pagination.js';
 import itemManagement from '~/mixins/itemManagement.js';
 
-const { mapGetters, mapMutations, mapActions } = createNamespacedHelpers(
-  'forms'
-);
-
-import FormDialog from './FormDialog.vue';
 import TableActions from '~/components/table/TableActions.vue';
 import TableDeleteDialog from '~/components/table/TableDeleteDialog.vue';
 import TableFilterOptions from '~/components/table/TableFilterOptions.vue';
 import TableDialogMenu from '~/components/table/TableDialogMenu.vue';
 
+import RecruitDialog from './RecruitDialog.vue';
+
+const { mapGetters, mapMutations, mapActions } = createNamespacedHelpers(
+  'recruitment'
+);
+
 export default {
-  name: 'FormTemplateTable',
+  name: 'RecruitmentTable',
 
   components: {
-    FormDialog,
     TableActions,
     TableDeleteDialog,
     TableFilterOptions,
     TableDialogMenu,
+    RecruitDialog,
   },
 
-  mixins: [pagination(forms), itemManagement(forms)],
+  mixins: [pagination(recruitment), itemManagement(recruitment)],
 
   data() {
     return {
-      headers: [
-        { text: 'name', align: 'start', value: 'name' },
-        { text: 'category', sortable: true, value: 'category_id' },
-        { text: 'status', sortable: true, value: 'status' },
-        { text: 'created_at', sortable: true, value: 'created_at' },
-        { text: 'updated_at', sortable: true, value: 'updated_at' },
-        { text: '', align: 'end', value: 'actions' },
-      ],
+      statusOptions: ['pending', 'accepted', 'rejected'],
 
       icon: 'mdi-trash-can-outline',
-      name: 'forms',
+      name: 'recruitment',
       open: false,
+      showDialog: false,
+
+      suffix: 'forms',
 
       actions: [
-        { icon: 'mdi-pencil', scope: 'update', text: 'Edit' },
+        { icon: 'mdi-eye', scope: 'view', text: 'View' },
         { icon: 'mdi-delete', scope: 'delete', text: 'Remove' },
       ],
-
-      validate: {
-        name: {
-          name: 'forms',
-          value: 'name',
-        },
-      },
     };
   },
 
@@ -164,23 +145,18 @@ export default {
      * this.changeFormDetail()
      * this.removeItems()
      */
-
-    ...mapMutations(['setSelected']),
-
     ...mapActions([
-      _forms.actions.FETCH,
-      _forms.actions.SET_STATUS,
-      _forms.actions.CHANGE_FORM_DETAIL,
-      _forms.actions.REMOVE_ITEMS,
+      _recruitment.actions.FETCH,
+      _recruitment.actions.SET_STATUS,
+      _recruitment.actions.CHANGE_FORM_DETAIL,
+      _recruitment.actions.REMOVE_ITEMS,
     ]),
 
     onUpdate() {
-      this.setSelected([]);
       this.fetchForms(false);
     },
 
     onReset() {
-      this.setSelected([]);
       this.$store.commit(filter.mutations.RESET_FILTER, 'forms');
       this.fetchForms(false);
     },
@@ -191,7 +167,26 @@ export default {
      * this.forms()
      * this.selectedIds()
      */
-    ...mapGetters([_forms.getters.FORMS, _forms.getters.SELECTED_IDS]),
+    ...mapGetters([
+      _recruitment.getters.FORMS,
+      _recruitment.getters.SELECTED_IDS,
+    ]),
+
+    headers() {
+      return [
+        { text: '', align: 'start', value: 'applicant.avatar' },
+        { text: 'applicant', align: 'start', value: 'applicant.username' },
+        { text: 'category', sortable: true, value: 'category_name' },
+        { text: 'status', sortable: true, value: 'status' },
+        { text: 'created_at', sortable: true, value: 'created_at' },
+        { text: 'updated_at', sortable: true, value: 'updated_at' },
+        {
+          text: this.$vuetify.breakpoint.smAndDown ? 'actions' : '',
+          align: 'end',
+          value: 'actions',
+        },
+      ];
+    },
 
     categoryList() {
       return this.$store.getters[lists.getters.GET_ITEMS](
@@ -200,16 +195,27 @@ export default {
     },
 
     filterOptions() {
-      const categories = {
-        name: 'Categories',
-        type: 'category_id',
-        itemProp: 'id',
-        multiple: true,
-        children: this.categoryList,
-      };
-
-      return [categories, { name: 'Status', type: 'status' }];
+      return [
+        {
+          name: 'Categories',
+          type: 'category_id',
+          itemProp: 'id',
+          multiple: true,
+          children: this.categoryList,
+        },
+        { name: 'Status', type: 'status' },
+      ];
     },
   },
 };
 </script>
+<style lang="scss">
+#recruitment {
+  tr {
+    height: 60px;
+  }
+  .text-end {
+    text-align: right;
+  }
+}
+</style>

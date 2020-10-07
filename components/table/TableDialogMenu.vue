@@ -1,6 +1,6 @@
 <template>
   <v-menu
-    class="v--table-dialog"
+    :class="rootClasses"
     v-model="open"
     min-width="minWidth"
     :origin="origin"
@@ -10,7 +10,7 @@
     :no-click-animation="noClickAnimation"
   >
     <template #activator="{ on }">
-      <span class="v--table-item-pointer" v-on="on">{{computedValue}}</span>
+      <span class="v--table-item-pointer" v-on="on">{{ displayValue }}</span>
     </template>
     <v-card :min-width="minWidth">
       <v-card-text @click.stop>
@@ -178,6 +178,27 @@ export default {
     },
   },
   computed: {
+    rootClasses() {
+      return [
+        'v-edit-dialog',
+        {
+          'v-table-dialog-sm-and-down': this.$vuetify.breakpoint.smAndDown,
+        },
+      ];
+    },
+
+    displayValue() {
+      if (this.items && this.items.length) {
+        if (this.itemText !== 'text' && this.itemValue !== 'value') {
+          const v = this.items.find(
+            (item) => item[this.itemValue] === this.innerValue
+          );
+          if (v) return v[this.itemText];
+        }
+      }
+      return this.innerValue;
+    },
+
     computedValue: {
       get() {
         return this.innerValue;
@@ -195,6 +216,10 @@ export default {
 </script>
 
 <style>
+.v-table-dialog-sm-and-down {
+  left: 0;
+}
+
 .v--table-item-pointer {
   cursor: pointer;
 }

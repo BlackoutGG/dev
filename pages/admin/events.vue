@@ -13,6 +13,7 @@ export default {
   layout: 'admin',
 
   components: { EventCalendar },
+
   middleware: [
     'auth',
     setPageTitle('View Events'),
@@ -20,10 +21,7 @@ export default {
       if (!$auth.hasScope(['view:admin', 'view:events'])) {
         return redirect('/');
       } else {
-        const categories = store.getters[lists.getters.GET_ITEMS]('categories');
-        if (!categories.length) {
-          store.dispatch(lists.actions.FETCH, 'categories');
-        }
+        store.dispatch(lists.actions.FETCH, 'categories');
       }
     },
   ],

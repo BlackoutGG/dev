@@ -29,10 +29,13 @@
               ></v-text-field>
             </v-col>
             <v-col cols="12" class="py-0">
-              <v-checkbox v-model="rememberMe" :label="'Remember Me'"></v-checkbox>
+              <v-checkbox
+                v-model="rememberMe"
+                :label="'Remember Me'"
+              ></v-checkbox>
             </v-col>
             <v-col cols="12">
-              <no-ssr>
+              <client-only>
                 <vue-recaptcha
                   ref="recaptcha"
                   :sitekey="siteKey"
@@ -42,7 +45,7 @@
                   @expired="resetRecaptcha"
                   @error="onError"
                 ></vue-recaptcha>
-              </no-ssr>
+              </client-only>
             </v-col>
           </v-row>
         </v-container>
@@ -50,7 +53,13 @@
     </v-card-text>
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn text color="dark darken-1" :disabled="isDisabled" @click.prevent="signIn">Submit</v-btn>
+      <v-btn
+        text
+        color="dark darken-1"
+        :disabled="isDisabled"
+        @click.prevent="signIn"
+        >Submit</v-btn
+      >
       <v-btn text color="dark darken-1" @click="reset">Reset</v-btn>
     </v-card-actions>
     <v-overlay absolute v-model="isSending">
@@ -60,25 +69,25 @@
 </template>
 
 <script>
-const pattern = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/;
-
-import VueRecaptcha from "vue-recaptcha";
-import Divider from "./Divider.vue";
-import DiscordButton from "~/components/dialogs/DiscordButton";
-import recaptcha from "~/mixins/recaptcha.js";
-import snackbar from "~/utilities/ns/public/snackbar.js";
+import VueRecaptcha from 'vue-recaptcha';
+import Divider from './Divider.vue';
+import DiscordButton from '~/components/dialogs/DiscordButton';
+import recaptcha from '~/mixins/recaptcha.js';
+import snackbar from '~/utilities/ns/public/snackbar.js';
 
 export default {
-  name: "SigninForm",
+  name: 'SigninForm',
 
   mixins: [recaptcha],
 
   components: { Divider, DiscordButton, VueRecaptcha },
 
   beforeDestroy() {
-    if (window && window.grecaptcha) {
-      window.grecaptcha.reset(this.recaptchaId);
-    }
+    // if (window && window.grecaptcha) {
+    //   window.grecaptcha.reset(this.recaptchaId);
+    // }
+
+    this.$;
   },
 
   data() {
@@ -89,33 +98,36 @@ export default {
       isSending: false,
       showPassword: false,
       rememberMe: false,
+
+      pattern: /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/,
+
       inputs: [
         {
-          label: "Email",
-          value: "",
-          type: "text",
+          label: 'Email',
+          value: '',
+          type: 'text',
 
           rules: [
-            v => !!v || "Email is required.",
-            v => (v && pattern.test(v)) || "Email must be valid."
-          ]
+            (v) => !!v || 'Email is required.',
+            (v) => (v && this.pattern.test(v)) || 'Email must be valid.',
+          ],
         },
         {
-          label: "Password",
-          value: "",
-          type: "password",
+          label: 'Password',
+          value: '',
+          type: 'password',
 
           rules: [
-            v => !!v || "Password is required",
-            v =>
+            (v) => !!v || 'Password is required',
+            (v) =>
               (v && v.length > 8) ||
-              "Password must be longer than 8 characters.",
-            v =>
+              'Password must be longer than 8 characters.',
+            (v) =>
               (v && v.length <= 50) ||
-              "Password cannot be longer than 50 characters."
-          ]
-        }
-      ]
+              'Password cannot be longer than 50 characters.',
+          ],
+        },
+      ],
     };
   },
 
@@ -139,7 +151,7 @@ export default {
 
       if (err) {
         if (Array.isArray(err.response.data) && err.response.data.length) {
-          if (err.response.data[0].hasOwnProperty("msg")) {
+          if (err.response.data[0].hasOwnProperty('msg')) {
             text = err.response.data[0].msg;
           }
         } else {
@@ -159,12 +171,12 @@ export default {
       const data = {
         email: this.inputs[0].value,
         password: this.inputs[1].value,
-        gresponse: this.gresponse
+        gresponse: this.gresponse,
       };
 
       try {
-        await this.$auth.loginWith("local", {
-          data
+        await this.$auth.loginWith('local', {
+          data,
         });
 
         this.setSnackbar(`You've successfully logged in!`);
@@ -175,13 +187,13 @@ export default {
         this.isSending = false;
         this.gresponse = null;
       }
-    }
+    },
   },
 
   computed: {
     isDisabled() {
       return !this.valid || !this.gresponse;
-    }
-  }
+    },
+  },
 };
 </script>

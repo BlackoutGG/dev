@@ -1,5 +1,10 @@
 <template>
-  <v-navigation-drawer class="hidden-md-and-up" v-model="show" id="mobile" absolute>
+  <v-navigation-drawer
+    class="hidden-md-and-up"
+    v-model="show"
+    id="mobile"
+    absolute
+  >
     <template v-if="$auth.loggedIn">
       <user-panel-mobile />
       <v-divider></v-divider>
@@ -39,21 +44,21 @@
 </template>
 
 <script>
-import UserPanelMobile from "./UserPanelMobile.vue";
-import NavLink from "./NavLink.vue";
+import UserPanelMobile from './UserPanelMobile.vue';
+import NavLink from './NavLink.vue';
 export default {
-  name: "UserNavMobile",
+  name: 'UserNavMobile',
   components: { UserPanelMobile, NavLink },
 
   props: {
     value: {
       type: Boolean,
-      default: false
+      default: false,
     },
     links: {
       type: Array,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
 
   computed: {
@@ -62,9 +67,9 @@ export default {
         return this.value;
       },
       set(val) {
-        this.$emit("input", val);
-      }
-    }
-  }
+        this.$emit('input', val);
+      },
+    },
+  },
 };
 </script>

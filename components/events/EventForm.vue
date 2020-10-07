@@ -5,7 +5,7 @@
         <v-col md="10" sm="10" v-if="!dontShow('name')">
           <v-text-field
             :readonly="preview"
-            :rules="nameRules"
+            :rules="[rules.isRequired('name'), rules.minLength(3, 'name')]"
             label="Event Name"
             v-model="event.name"
           ></v-text-field>
@@ -26,78 +26,59 @@
         </v-col>
         <v-col md="12" sm="12" v-if="!dontShow('category')">
           <v-select
-            v-if="!preview"
             :items="categories"
             :item-text="'name'"
             :item-value="'id'"
+            :readonly="readonly"
+            :rules="[rules.isRequired('category')]"
             v-model="event.category_id"
             label="Category"
           ></v-select>
-          <v-text-field v-else readonly label="Category" v-model="event.categoryName"></v-text-field>
         </v-col>
         <v-col md="6" sm="12" v-if="!dontShow('start')">
           <event-time-date
             v-if="!preview"
             label="Start Date"
-            :rules="startDateRules"
-            :modifier="start"
-            v-model="event.startDate"
+            :rules="[rules.isRequired('Start Date')]"
+            :readonly="readonly"
+            v-model="event.start_date"
           ></event-time-date>
-          <v-text-field
-            v-else
-            readonly
-            prepend-icon="mdi-calendar"
-            label="Start Date"
-            v-model="event.startDate"
-          ></v-text-field>
         </v-col>
         <v-col md="6" sm="12" v-if="!dontShow('start')">
           <event-time-date
-            v-if="!preview"
             label="Start Time"
-            v-model="event.startTime"
+            v-model="event.start_time"
             time
-            :modifier="start"
-            :rules="startTimeRules"
+            :rules="[rules.isRequired('Start Time')]"
+            :readonly="readonly"
             :date="false"
           ></event-time-date>
-
-          <v-text-field
-            v-else
-            readonly
-            prepend-icon="mdi-calendar-clock"
-            label="Start Time"
-            v-model="event.startTime"
-          ></v-text-field>
         </v-col>
         <v-col md="6" sm="12" v-if="!dontShow('end')">
-          <event-time-date v-if="!preview" label="End Date" v-model="event.endDate"></event-time-date>
-          <v-text-field
-            v-else
-            readonly
-            prepend-icon="mdi-calendar"
+          <event-time-date
             label="End Date"
-            v-model="event.endDate"
-          ></v-text-field>
+            v-model="event.end_date"
+            :readonly="readonly"
+            :rules="[rules.isRequired('End Date')]"
+          ></event-time-date>
         </v-col>
         <v-col md="6" sm="12" v-if="!dontShow('end')">
           <event-time-date
-            v-if="!preview"
-            :date="false"
             label="End Time"
-            v-model="event.endTime"
+            v-model="event.end_time"
             time
+            :date="false"
+            :rules="[rules.isRequired('End Time')]"
+            :readonly="readonly"
           ></event-time-date>
-          <v-text-field
-            v-else
-            readonly
-            prepend-icon="mdi-calendar-clock"
-            label="End Time"
-            v-model="event.endTime"
-          ></v-text-field>
         </v-col>
         <v-col cols="12" v-if="!dontShow('desc')">
-          <v-textarea :readonly="preview" label="Description" filled v-model="event.description"></v-textarea>
+          <v-textarea
+            :readonly="readonly"
+            label="Description"
+            filled
+            v-model="event.description"
+          ></v-textarea>
         </v-col>
       </v-row>
     </v-container>
@@ -109,6 +90,7 @@ import lists from '~/utilities/ns/public/lists.js';
 import events from '~/utilities/ns/public/events.js';
 import isAlphanumeric from '~/utilities/isAlphanumeric.js';
 import EventTimeDate from './EventTimeDatePicker.vue';
+import capitalize from 'lodash/capitalize';
 
 export default {
   name: 'EventForm',
@@ -130,20 +112,29 @@ export default {
     },
 
     event: {
-      type: Object,
-      required: true,
+      type: [Object, null],
+    },
+
+    readonly: {
+      type: Boolean,
+      default: false,
     },
   },
 
   data() {
     return {
       valid: false,
-      nameRules: [
-        (v) => !!v || 'Name is required.',
-        (v) => (v && isAlphanumeric(v)) || 'Name can only be alphanumeric.',
-      ],
-      startDateRules: [(v) => !!v || 'Start date is required.'],
-      startTimeRules: [(v) => !!v || 'Start time is required.'],
+
+      rules: {
+        isRequired: (field) => (v) =>
+          !!v || `${capitalize(field)} is required.`,
+
+        minLength: (length, field) => (v) =>
+          (v && v.length >= length) ||
+          `${capitalize(
+            field
+          )} must be equal to or longer than ${length} characters.`,
+      },
     };
   },
 
@@ -151,8 +142,11 @@ export default {
     reset() {
       this.$refs.form.reset();
     },
+    validate() {
+      this.$refs.form.validate();
+    },
     dontShow(val) {
-      return this.hide.indexOf(val) !== -1;
+      return this.hide.includes(val);
     },
   },
 
@@ -167,23 +161,14 @@ export default {
       },
     },
 
-    start: {
-      get() {
-        const startDate = this.event.startDate || this.now;
-        const startTime = this.event.startTime || '00:00';
+    // start: {
+    //   get() {
+    //     const startDate = this.event.startDate || this.now;
+    //     const startTime = this.event.startTime || '00:00';
 
-        return this.event.start || startDate + ' ' + startTime;
-      },
-    },
-
-    end: {
-      get() {
-        const endDate = this.event.endDate || this.event.startDate;
-        const endTime = this.event.endTime || this.event.startTime;
-
-        return this.event.end || endDate + ' ' + endTime;
-      },
-    },
+    //     return this.event.start || startDate + ' ' + startTime;
+    //   },
+    // },
 
     colors() {
       return this.$store.getters[events.getters.EVENT_COLORS];

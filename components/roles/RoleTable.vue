@@ -67,11 +67,8 @@
               <table-actions
                 @edit="$refs.role.setEditableContent(item.id)"
                 @remove="setItemForRemoval(item.id)"
-                edit
-                remove
-                :removeIcon="icon"
-                :editIcon="editIcon"
-                :name="validate.roles.name"
+                :actions="actions"
+                :suffix="validate.roles.name"
               ></table-actions>
             </div>
           </template>
@@ -137,6 +134,13 @@ export default {
       icon: 'mdi-trash-can-outline',
       editIcon: 'mdi-pencil-outline',
       open: false,
+
+      suffix: 'roles',
+
+      actions: [
+        { icon: 'mdi-pencil', scope: 'update', text: 'Edit' },
+        { icon: 'mdi-delete', scope: 'delete', text: 'Remove' },
+      ],
 
       validate: {
         roles: {

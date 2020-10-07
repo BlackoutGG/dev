@@ -1,9 +1,5 @@
 <template>
-  <v-navigation-drawer app v-model="show">
-    <template v-if="$auth.loggedIn">
-      <user-avatar></user-avatar>
-      <v-divider />
-    </template>
+  <v-navigation-drawer app v-model="open">
     <v-list nav>
       <template v-for="(l, idx) in links">
         <nav-link
@@ -28,76 +24,36 @@
 </template>
 
 <script>
-import page from "~/utilities/ns/public/page.js";
-import UserAvatar from "~/components/avatar/UserAvatar.vue";
-import NavLink from "~/components/navigation/NavLink.vue";
+import page from '~/utilities/ns/public/page.js';
+import UserAvatar from '~/components/avatar/UserAvatar.vue';
+import NavLink from '~/components/navigation/NavLink.vue';
 export default {
-  name: "AdminNavDrawer",
+  name: 'AdminNavDrawer',
   components: { UserAvatar, NavLink },
-  data() {
-    return {
-      links: [
-        {
-          icon: "mdi-view-dashboard",
-          title: "Dashboard",
-          to: "/admin"
-        },
-        {
-          icon: "mdi-account-group",
-          title: "Users",
-          to: "/admin/users"
-        },
-        {
-          icon: "mdi-account-star",
-          title: "Roles",
-          to: "/admin/roles"
-        },
-        {
-          icon: "mdi-note",
-          title: "Posts",
-          button: true
-        },
-        {
-          icon: "mdi-shape",
-          title: "Categories",
-          button: true
-        },
-        {
-          icon: "mdi-tag-multiple",
-          title: "Tags",
-          button: true
-        },
-        {
-          icon: "mdi-note-plus",
-          title: "Recruitment",
-          children: [
-            {
-              title: "Templates",
-              to: "/admin/forms/templates"
-            },
-            {
-              title: "Applications",
-              to: "/admin/forms/applications"
-            }
-          ]
-        },
-        {
-          icon: "mdi-calendar-range",
-          title: "Events",
-          to: "/admin/events"
-        }
-      ]
-    };
+
+  props: {
+    value: {
+      type: Boolean,
+      default: false,
+    },
+    links: {
+      type: [Object, Array],
+      default: () => [],
+    },
+    title: {
+      type: String,
+    },
   },
+
   computed: {
-    show: {
+    open: {
       get() {
-        return this.$store.getters[page.getters.ACPANEL];
+        return this.value;
       },
       set(value) {
-        this.$store.commit(page.mutations.TOGGLE_ACPANEL, value);
-      }
-    }
-  }
+        this.$emit('input', value);
+      },
+    },
+  },
 };
 </script>

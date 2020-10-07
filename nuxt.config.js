@@ -1,11 +1,12 @@
 import colors from 'vuetify/es5/util/colors';
+import qs from 'querystring';
 
 export default {
   /*
    ** Nuxt rendering mode
    ** See https://nuxtjs.org/api/configuration-mode
    */
-  mode: 'universal',
+  mode: 'spa',
   /*
    ** Nuxt target
    ** See https://nuxtjs.org/api/configuration-target
@@ -67,6 +68,9 @@ export default {
    */
   axios: {
     baseURL: 'http://localhost:5000/api',
+    // paramSerializer: function (params) {
+    //   return qs.stringify(params, { arrayFormat: 'brackets', allowDots: true });
+    // },
   },
 
   auth: {
@@ -88,6 +92,7 @@ export default {
       },
     },
     plugins: [{ src: '~/plugins/hasScope.js' }, '~/plugins/onErrorCodes.js'],
+    // plugins: ['~/plugins/onErrorCodes.js'],
   },
   /*
    ** vuetify module configuration

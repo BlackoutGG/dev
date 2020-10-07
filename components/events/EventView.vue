@@ -43,26 +43,26 @@
 
 <script>
 export default {
-  name: "EventView",
+  name: 'EventView',
 
   props: {
     event: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
 
   computed: {
     start() {
-      return this.$dateFns.parseISO(
-        this.event.start || this.event.startDate + " " + this.event.startTime
-      );
+      return new Date(
+        this.event.start || this.event.start_date + ' ' + this.event.start_time
+      ).toString();
     },
     end() {
-      return this.$dateFns.parseISO(
-        this.event.end || this.event.endDate + " " + this.event.endTime
-      );
-    }
-  }
+      return new Date(
+        this.event.end || this.event.end_date + ' ' + this.event.end_time
+      ).toString();
+    },
+  },
 };
 </script>

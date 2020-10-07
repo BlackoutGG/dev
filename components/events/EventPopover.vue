@@ -18,8 +18,7 @@
         </v-btn>
       </v-toolbar>
       <v-card-text>
-        <!-- <event-form preview :name="false" :event="event"></event-form> -->
-        <event-view :event="event"></event-view>
+        <event-view :event="event" :readonly="readonly"></event-view>
       </v-card-text>
       <v-card-actions>
         <v-icon>mdi-account-group</v-icon>
@@ -32,19 +31,20 @@
 </template>
 
 <script>
-import EventForm from "./EventForm.vue";
-import EventView from "./EventView.vue";
-import events from "~/utilities/ns/public/events.js";
+import EventForm from './EventForm.vue';
+import EventView from './EventView.vue';
+import events from '~/utilities/ns/public/events.js';
 export default {
-  name: "EventPopover",
+  name: 'EventPopover',
 
   components: { EventView },
 
   data() {
     return {
       open: false,
+      readonly: true,
       element: null,
-      event: {}
+      event: {},
     };
   },
 
@@ -69,14 +69,14 @@ export default {
     },
     editEvent() {
       this.open = false;
-      this.$nextTick(() => this.$emit("edit", this.event));
+      this.$nextTick(() => this.$emit('edit', this.event));
     },
     reset() {
       this.open = false;
       this.event = null;
       this.element = null;
-    }
-  }
+    },
+  },
 
   // computed: {
   //   event: {

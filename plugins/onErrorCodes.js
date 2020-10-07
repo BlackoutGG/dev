@@ -7,10 +7,11 @@ export default ({ $axios, $auth, redirect, store }) =>
     const type = err.response.data.type;
     if (code === 401) {
       if (message === 'jwt_expired' && type === 'Unauthorized') {
-        if ($auth.loggedIn) {
-          console.log('logging you out...');
-          $auth.logout();
-        }
+        $auth.logout();
+        // if ($auth.loggedIn) {
+        //   console.log('logging you out...');
+        //   $auth.logout();
+        // }
       }
       redirect('/');
     } else if (code === 403) {

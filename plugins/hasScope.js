@@ -1,15 +1,15 @@
-import get from "lodash/get";
+import get from 'lodash/get';
 
 const defaultOptions = {
-  permissionsProp: "scope",
-  userObject: "user"
+  permissionsProp: 'scope',
+  userObject: 'user',
 };
 
-const isString = val => typeof val === "string";
-const isArray = val => Array.isArray(val);
+const isString = (val) => typeof val === 'string';
+const isArray = (val) => Array.isArray(val);
 
-const hasScope = function(auth) {
-  return function(required, options) {
+const hasScope = function (auth) {
+  return function (required, options) {
     if (required) {
       if (isString(required)) {
         required = [[required]];
@@ -35,15 +35,15 @@ const hasScope = function(auth) {
     }
 
     if (isString(permissions)) {
-      permissions = permissions.split(" ");
+      permissions = permissions.split(' ');
     }
 
     if (!isArray(permissions)) {
-      throw new Error("User permissions should be an array.");
+      throw new Error('User permissions should be an array.');
     }
 
-    const sufficient = required.some(req =>
-      req.every(perm => permissions.indexOf(perm) !== -1)
+    const sufficient = required.some((req) =>
+      req.every((perm) => permissions.includes(perm))
     );
 
     return sufficient;
@@ -52,5 +52,4 @@ const hasScope = function(auth) {
 
 export default ({ $auth }) => {
   $auth.hasScope = hasScope($auth);
-  //   inject("hasScope", hasScope.bind($auth.user));
 };

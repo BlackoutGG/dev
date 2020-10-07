@@ -2,7 +2,7 @@
   <v-dialog id="role-dialog" v-model="show" :max-width="maxWidth">
     <v-card>
       <v-toolbar dark>
-        <v-toolbar-title>{{name}}</v-toolbar-title>
+        <v-toolbar-title>{{ name }}</v-toolbar-title>
         <v-btn small icon absolute right @click="show = false">
           <v-icon>mdi-close</v-icon>
         </v-btn>
@@ -36,7 +36,12 @@
               <v-col cols="6">
                 <div class="d-flex">
                   <v-spacer></v-spacer>
-                  <v-btn text small :disabled="isAllSelected" @click="addPermission">
+                  <v-btn
+                    text
+                    small
+                    :disabled="isAllSelected"
+                    @click="addPermission"
+                  >
                     <v-icon left v-text="icon"></v-icon>
                     <span>Add Permission</span>
                   </v-btn>
@@ -58,7 +63,10 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn text @click="save" :disabled="!valid">Save</v-btn>
+        <v-btn text @click="create" :disabled="!valid" v-if="!isEditMode"
+          >Save</v-btn
+        >
+        <v-btn text @click="edit" :disabled="!valid" v-else>Save</v-btn>
         <v-btn text>Reset</v-btn>
       </v-card-actions>
       <v-overlay absolute v-model="isSending">
@@ -148,7 +156,10 @@ export default {
     editRole(id, payload) {
       this.$store
         .dispatch(roles.actions.EDIT_ROLE, { id, payload })
-        .then(() => (this.show = false));
+        .then(() => {
+          this.startingDetails = { ...this.details };
+          this.startingPermissions = cloneDeep(this.permissions);
+        });
     },
 
     addPermission() {
@@ -198,10 +209,6 @@ export default {
       } finally {
         this.isSending = false;
       }
-    },
-
-    save() {
-      this[this.mode === 'new' ? 'create' : 'edit']();
     },
 
     create() {
@@ -278,6 +285,10 @@ export default {
   },
 
   computed: {
+    isEditMode() {
+      return this.mode === 'edit';
+    },
+
     name() {
       return this.mode === 'new'
         ? 'Create A Role'

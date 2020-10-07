@@ -1,4 +1,14 @@
 <script>
+import {
+  VIcon,
+  VBtn,
+  VMenu,
+  VList,
+  VListItem,
+  VListItemContent,
+  VListItemTitle,
+} from 'vuetify/lib';
+
 export default {
   name: 'Actions',
 
@@ -29,31 +39,31 @@ export default {
 
       const scopedSlots = {
         activator: ({ on }) => {
-          return h('v-icon', { on: on }, ['mdi-dots-vertical']);
+          return h(VIcon, { on: on }, ['mdi-dots-vertical']);
         },
       };
 
-      return h('v-menu', { props, on, scopedSlots }, [children]);
+      return h(VMenu, { props, on, scopedSlots }, [children]);
     };
 
     const vListItemContent = (children) => {
-      return h('v-list-item-content', {}, [children]);
+      return h(VListItemContent, {}, [children]);
     };
 
-    const vListItemTitle = (children) => h('v-list-item-title', {}, children);
+    const vListItemTitle = (children) => h(VListItemTitle, {}, children);
 
     const text = (text) => h('span', {}, [text]);
 
     const icon = (icon) => {
       const props = { left: true };
-      return h('v-icon', { props }, [icon]);
+      return h(VIcon, { props }, [icon]);
     };
 
     const item = (action) => {
       const props = { link: true };
       const nativeOn = { click: () => this.$emit(action.text.toLowerCase()) };
 
-      return h('v-list-item', { props, nativeOn }, [
+      return h(VListItem, { props, nativeOn }, [
         vListItemContent(
           vListItemTitle([icon(action.icon), text(action.text)])
         ),
@@ -77,7 +87,7 @@ export default {
         return output;
       }, []);
 
-      return h('v-list', { props }, actionsToShow);
+      return h(VList, { props }, actionsToShow);
     };
 
     return menu(list(this.actions));

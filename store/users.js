@@ -120,7 +120,7 @@ const actions = {
 
   async [ns.actions.ADD_ROLE]({ commit, dispatch }, { userId, roleId }) {
     try {
-      const { data } = await this.$axios.put(`/users/${userId}/role`, {
+      const { data } = await this.$axios.put(`/admin/users/${userId}/role`, {
         roleId,
       });
       commit(ns.mutations.ADD_ROLE, {
@@ -137,9 +137,8 @@ const actions = {
   },
 
   async [ns.actions.REMOVE_ROLE]({ commit }, { userId, roleId }) {
-    const url = `/users/${userId}/role`;
     try {
-      const { data } = await this.$axios.delete(url, {
+      const { data } = await this.$axios.delete(`/admin/users/${userId}/role`, {
         params: { roleId },
       });
 
@@ -173,11 +172,18 @@ const actions = {
 
   async [ns.actions.RESET_PASSWORD]({ commit, dispatch }, id) {},
 
-  async [ns.actions.ADD_USER]({ state, commit, dispatch }, payload) {
+  async [ns.actions.ADD_USER]({ state, commit, getters, dispatch }, payload) {
     const params = {
       ...payload,
       ...state.queryParams,
     };
+
+    const filters = getters[ns.getters.FILTERS];
+
+    if (filters && Object.keys(filters).length) {
+      Object.assign(params, { filters });
+    }
+
     try {
       const { username, users } = (
         await this.$axios.post('/admin/users', params)
@@ -201,10 +207,16 @@ const actions = {
   async [ns.actions.REMOVE_ITEMS]({ state, commit, getters }, id) {
     const ids = id ? [id] : getters[ns.getters.SELECTED_IDS];
     const params = { ...state.queryParams, ids };
+    const filters = getters[ns.getters.FILTERS];
+
+    if (filters && Object.keys(filters.length)) {
+      Object.assign(params, { filters });
+    }
+
     try {
       const {
         data: { users },
-      } = await this.$axios.delete('/users/delete', { params });
+      } = await this.$axios.delete('/admin/users', { params });
 
       commit(ns.mutations.SET_USERS, users.results);
       commit(ns.mutations.SET_PARAM, { param: 'total', value: users.total });
