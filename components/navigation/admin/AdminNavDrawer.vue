@@ -1,5 +1,5 @@
 <template>
-  <v-navigation-drawer app v-model="open">
+  <v-navigation-drawer app v-model="open" dark>
     <v-list nav>
       <template v-for="(l, idx) in links">
         <nav-link

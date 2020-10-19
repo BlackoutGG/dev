@@ -1,10 +1,11 @@
 <template>
   <v-dialog v-model="show" :max-width="'600px'">
     <template #activator="{ on, attrs }">
-      <v-btn outlined dark text class="hidden-sm-and-down" v-on="on" v-bind="attrs">
+      <slot name="activator" v-bind="{ on, attrs }" />
+      <!-- <v-btn outlined dark text class="hidden-sm-and-down" v-on="on" v-bind="attrs">
         <v-icon left>mdi-account-circle</v-icon>
         <span>Sign In</span>
-      </v-btn>
+      </v-btn> -->
     </template>
     <v-card>
       <v-toolbar>
@@ -29,25 +30,25 @@
 </template>
 
 <script>
-import SignIn from "./SigninForm.vue";
-import SignUp from "./SignupForm.vue";
+import SignIn from './SigninForm.vue';
+import SignUp from './SignupForm.vue';
 export default {
-  name: "AuthDialog",
+  name: 'AuthDialog',
 
   components: { SignIn, SignUp },
 
   props: {
     value: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   data() {
     return {
       tab: null,
       success: false,
-      open: false
+      open: false,
     };
   },
 
@@ -60,7 +61,7 @@ export default {
         this.show = false;
         this.success = false;
       }
-    }
+    },
   },
 
   computed: {
@@ -70,9 +71,9 @@ export default {
       },
       set(value) {
         this.open = value;
-        this.$emit("input", value);
-      }
-    }
-  }
+        this.$emit('input', value);
+      },
+    },
+  },
 };
 </script>

@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import page from '~/utilities/ns/public/page.js'
+import page from '~/utilities/ns/public/page.js';
 
 export default {
   name: 'ParallaxHeader',
@@ -23,28 +23,22 @@ export default {
   data() {
     return {
       defaultSrc:
-        'https://www.blackout.team/wp-content/uploads/2020/01/banner-history.png',
+        'https://images.ctfassets.net/j95d1p8hsuun/1ShvIkEIe3cvb5qKSguLdC/9bbac0c4239985ca540650ec240d765b/HOME_USP1_FightTheWorld_CPB-L-1920x720.jpg',
       elevation: 5,
       height: 300,
-    }
+    };
   },
 
   created() {
     if (!this.$vuetify.theme.dark) {
-      this.$vuetify.theme.dark = true
+      this.$vuetify.theme.dark = true;
     }
   },
 
   computed: {
     parallaxClasses() {
-      return [`elevation-${this.elevation}`]
+      return [`elevation-${this.elevation}`];
     },
-    pageTitle() {
-      return this.$store.getters[page.getters.TITLE]
-    },
-    // title() {
-    //   return this.pageTitle ? this.pageTitle : 'Insert Title Here'
-    // },
   },
-}
+};
 </script>

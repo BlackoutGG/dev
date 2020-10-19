@@ -1,41 +1,41 @@
 <template>
   <event-scroller :items="items" @update="update">
-    <template #default="{ item } ">
+    <template #default="{ item }">
       <v-list-item>
         <v-list-item-content>
           <v-list-item-title>{{ item.name }}</v-list-item-title>
         </v-list-item-content>
         <v-list-item-action>
-          <v-checkbox multiple v-model="roles" :true-value="item.id" :value="item.id"></v-checkbox>
+          <v-checkbox
+            multiple
+            v-model="roles"
+            :true-value="item.id"
+            :value="item.id"
+          ></v-checkbox>
         </v-list-item-action>
       </v-list-item>
     </template>
   </event-scroller>
 </template>
 <script>
-import EventScroller from "./Scroller.vue";
-import { createNamespacedHelpers } from "vuex";
-
-const { mapGetters, mapMutations, mapActions } = createNamespacedHelpers(
-  "roles"
-);
-
+import EventScroller from './Scroller.vue';
+import snackbar from '~/utilities/ns/public/snackbar.js';
 export default {
-  name: "EventRoleList",
+  name: 'EventRoleList',
   components: { EventScroller },
 
   props: {
     value: {
       type: Array,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
 
   data() {
     return {
       page: 1,
       limit: 50,
-      items: []
+      items: [],
     };
   },
 
@@ -63,28 +63,27 @@ export default {
     async fetchItems() {
       const { page, limit } = this;
       try {
-        const {
-          data: { roles }
-        } = await this.$axios.get("/api/roles", { params: { page, limit } });
+        const { roles } = (
+          await this.$axios.get('/roles', { params: { page, limit } })
+        ).data;
 
         return roles;
       } catch (err) {
+        throw err;
         console.log(err);
       }
-    }
+    },
   },
 
   computed: {
     roles: {
       get() {
-        const d = this.items.filter(item => item.default);
-        return [...d, ...this.value];
+        return this.value;
       },
       set(val) {
-        console.log(val);
-        this.$emit("input", val);
-      }
-    }
-  }
+        this.$emit('input', val);
+      },
+    },
+  },
 };
 </script>

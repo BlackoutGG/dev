@@ -3,6 +3,7 @@ import filter from '~/utilities/ns/public/filters.js';
 import lists from '~/utilities/ns/public/lists.js';
 import snackbar from '~/utilities/ns/public/snackbar.js';
 import pickBy from 'lodash/pickBy';
+import isFilterTruthy from '~/utilities/isFilterTruthy.js';
 
 const state = () => ({
   name: '',
@@ -45,12 +46,11 @@ const getters = {
   },
 
   [ns.getters.FILTERS]: (state, getters, rootState, rootGetters) => {
-    const filters = rootGetters[filter.getters.GET_FILTER]('forms');
-    const picked = pickBy(filters, (value, key) => {
-      if (Array.isArray(value) && value.length) return true;
-      if (typeof value === 'boolean' && value) return true;
-    });
-    return Object.keys(picked).length ? picked : null;
+    const filters = pickBy(
+      rootGetters[filter.getters.GET_FILTER]('forms'),
+      isFilterTruthy
+    );
+    return Object.keys(filters).length ? filters : null;
   },
 
   [ns.getters.DESCRIPTION]: (state) => state.description,

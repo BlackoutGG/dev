@@ -19,19 +19,14 @@ export default {
   components: { EventCalender, ParallaxBanner },
   middleware: [
     'auth',
-    ({ $auth, redirect }) => {
-      if ($auth.hasScope('view:events')) {
+    setPageTitle('View Events'),
+    ({ $auth, store, redirect }) => {
+      if (!$auth.hasScope(['view:events'])) {
         return redirect('/');
       } else {
-        const categories = this.$store.getters[lists.getters.GET_ITEMS](
-          'categories'
-        );
-        if (categories.length) return;
-
         store.dispatch(lists.actions.FETCH, 'categories');
       }
     },
-    setPageTitle('Events'),
   ],
 
   head() {

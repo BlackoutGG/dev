@@ -41,15 +41,33 @@
               v-if="$auth.loggedIn && $auth.hasScope('view:forms')"
               :button="true"
             ></recruit-dialog>
+            <v-spacer></v-spacer>
+            <auth-dialog v-model="showAuth" v-if="!$auth.loggedIn">
+              <template #activator="{ on }">
+                <a class="v-tab" v-on="on">
+                  <v-icon left>mdi-account-circle</v-icon>
+                  <span>Sign In</span>
+                </a>
+              </template>
+            </auth-dialog>
+            <user-panel :links="userPanelLinks" :avatarSize="32" v-else>
+              <template #activator="{ on }">
+                <div class="v-tab" v-on="on">
+                  <v-avatar :size="32" class="mr-2">
+                    <v-img
+                      :src="$auth.user.avatar"
+                      v-if="$auth.user.avatar"
+                    ></v-img>
+                    <span class="white--text headline" v-else>{{
+                      initials
+                    }}</span>
+                  </v-avatar>
+                  <span>{{ $auth.user.username }}</span>
+                  <v-icon right>mdi-chevron-down</v-icon>
+                </div>
+              </template>
+            </user-panel>
           </v-tabs>
-          <v-spacer></v-spacer>
-          <auth-dialog v-model="showAuth" v-if="!$auth.loggedIn"></auth-dialog>
-          <user-panel
-            :links="userPanelLinks"
-            :displayToggleUser="true"
-            :avatarSize="32"
-            v-else
-          ></user-panel>
         </v-row>
       </v-container>
     </v-toolbar>
@@ -63,7 +81,7 @@
 
 <script>
 import AuthDialog from '~/components/auth/AuthDialog.vue';
-import UserPanel from '~/components/navigation/UserPanel.vue';
+import UserPanel from '~/components/navigation/UserPanelWithActivator.vue';
 import RecruitDialog from '~/components/recruitment/RecruitDialog.vue';
 import UserNavMobile from './UserNavMobile.vue';
 
@@ -94,6 +112,16 @@ export default {
   computed: {
     links() {
       return this.$store.getters[menu.getters.LINKS];
+    },
+
+    initials() {
+      if (this.$auth.user.username) {
+        const username = this.$auth.user.username;
+        const initials = username.match(/\b\w/g) || [];
+        return (
+          (initials.shift() || '') + (initials.pop() || '')
+        ).toUpperCase();
+      }
     },
   },
 };

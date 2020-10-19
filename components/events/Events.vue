@@ -49,7 +49,10 @@
           v-model="focus"
           color="primary"
           :events="events"
-          :event-colors="getEventColor"
+          :event-overlap-mode="eventOverlapMode"
+          :event-overlap-threshold="eventOverlapThreshold"
+          :eventMore="eventMore"
+          :event-color="getEventColor"
           :type="type"
           @click:event="showEvent"
           @click:more="viewDay"
@@ -72,7 +75,7 @@ import EventPopover from './EventPopover.vue';
 
 import TableFilterOptions from '~/components/table/TableFilterOptions.vue';
 
-import filters from '~/mixins/filters.js';
+import filters from '~/utilities/ns/public/filters.js';
 
 const { mapGetters, mapActions } = createNamespacedHelpers('events');
 
@@ -96,6 +99,10 @@ export default {
         day: 'Day',
         '4day': '4 Days',
       },
+
+      eventOverlapMode: 'stack',
+      eventOverlapThreshold: 0,
+      eventMore: true,
 
       name: 'events',
 
@@ -138,6 +145,8 @@ export default {
     },
 
     fetchEvents({ start, end }) {
+      if (start.date === end.date) return;
+
       this.start = start.date;
       this.end = end.date;
       this.fetch({
@@ -154,10 +163,15 @@ export default {
 
   computed: {
     ...mapGetters(['events', 'eventColors']),
+
     categories() {
       return this.$store.getters[lists.getters.GET_ITEMS](
         'categories'
       ).map(({ id, name }) => ({ id, name }));
+    },
+
+    getCategoriesByName() {
+      return this.categories.map(({ name }) => name);
     },
 
     filters() {
@@ -174,3 +188,9 @@ export default {
   },
 };
 </script>
+
+<style lang="scss">
+// .v-calendar-weekly__week {
+//   min-height: 200px;
+// }
+</style>

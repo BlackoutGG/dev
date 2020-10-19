@@ -183,40 +183,49 @@ export default {
           status: this.status,
         };
 
-        this.$store.dispatch(recruitment.actions.EDIT_FORM, { id, details });
+        this.$store.dispatch(recruitment.actions.EDIT_FORM, {
+          id: this.selectedForm.id,
+          details,
+        });
         return;
       }
 
       try {
         await this.$axios.post('/recruitment', params);
-        this.$store.dispatch(snackbar.actions.SET_TOGGLE_BAR, {
-          text:
-            'Thank you for your submission. You should hear back from us soon.',
-        });
         this.submitted = true;
-        // this.open = false;
-      } catch (err) {}
+      } catch (err) {
+        console.log(err);
+      }
     },
 
     async setForm(id) {
-      let selectedForm = this.forms.find(
-        (form) => form && id && form.category_id === id
-      );
+      // let selectedForm = this.forms.find(
+      //   (form) => form && id && form.category_id === id
+      // );
 
-      if (!selectedForm) {
-        const getForm = id ? this.getForm(id) : this.getForm();
-        const results = await getForm;
+      // if (!selectedForm) {
+      //   const getForm = id ? this.getForm(id) : this.getForm();
+      //   const results = await getForm;
 
-        if (results.categories && results.categories.length) {
-          this.categoryList = results.categories;
-          if (results.category_id) this.category = results.category_id;
-        }
+      //   if (results.categories && results.categories.length) {
+      //     this.categoryList = results.categories;
+      //     if (results.category_id) this.category = results.category_id;
+      //   }
 
-        selectedForm = results.form;
+      //   selectedForm = results.form;
 
-        // this.forms.push(selectedForm);
+      //   this.forms.push(selectedForm);
+      // }
+
+      const getForm = id ? this.getForm(id) : this.getForm();
+      const results = await getForm;
+
+      if (results.categories && results.categories.length) {
+        this.categoryList = results.categories;
+        if (results.category_id) this.category = results.category_id;
       }
-      this.selectedForm = selectedForm;
+
+      this.selectedForm = results.form;
     },
 
     async getForm(id) {
@@ -230,8 +239,6 @@ export default {
 
       try {
         const results = await this.$axios.get(url);
-
-        console.log(results);
 
         if (results.status === 203) {
           this.submitted = true;
@@ -266,7 +273,7 @@ export default {
       return `${this.selectedForm.applicant.username}'s Application`;
     },
     isDisabled() {
-      return !this.gresponse || !this.valid;
+      return !this.readonly && (!this.gresponse || !this.valid);
     },
     open: {
       get() {

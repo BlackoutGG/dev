@@ -19,7 +19,10 @@
               <v-icon v-text="icon"></v-icon>
               <span>Delete {{ selectedItems.length }}</span>
             </v-btn>
-            <user-dialog ref="userDialog"></user-dialog>
+            <user-dialog
+              ref="userDialog"
+              @edit-profile-image="openMedia"
+            ></user-dialog>
             <v-select
               :items="perPageOptions"
               v-model="limit"
@@ -44,7 +47,6 @@
             :items-per-page="limit"
             :items="users"
             :headers="headers"
-            :page.sync="page"
             :item-key="'id'"
           >
             <template v-slot:item.username="{ item }">
@@ -89,6 +91,15 @@
         </v-col>
       </v-row>
     </v-container>
+    <media-dialog
+      v-model="openMediaDialog"
+      single
+      header
+      fullscreen
+      :title="'Select a profile avatar'"
+      :fileSize="700000"
+      @setImage="$refs.userDialog.setAvatar($event)"
+    ></media-dialog>
     <table-delete-dialog
       v-model="open"
       :length="selectedItems.length"
@@ -119,23 +130,29 @@ import UserDialog from './UserDialog.vue';
 import UserTableAvatar from './UserTableAvatar.vue';
 import UserTableRoles from './UserRoles.vue';
 
+import MediaDialog from '~/components/media/MediaDialog.vue';
+
 const { mapGetters, mapMutations, mapActions } = createNamespacedHelpers(
   'users'
 );
 
 export default {
   name: 'UserTable',
+
   components: {
     UserTableAvatar,
     UserTableRoles,
+    UserDialog,
     TableFilterOptions,
     TableInput,
     TableActions,
     TableDeleteDialog,
     TableDialogMenu,
-    UserDialog,
+    MediaDialog,
   },
+
   mixins: [pagination(users), itemManagement(users), filters(users, 'users')],
+
   data() {
     return {
       headers: [
@@ -151,6 +168,7 @@ export default {
       icon: 'mdi-trash-can-outline',
 
       open: false,
+      openMediaDialog: false,
 
       actions: [
         { icon: 'mdi-pencil', scope: 'update', text: 'Edit' },
@@ -170,21 +188,19 @@ export default {
       },
     };
   },
+
   methods: {
     /**
      * changeUserInfo()
      */
     ...mapActions([_users.actions.CHANGE_USER_INFO]),
-    // onUpdate() {
-    //   this.$store.commit(users.mutations.SET_SELECTED, []);
-    //   this.fetch(false);
-    // },
-    // resetFilters() {
-    //   this.$store.commit(filter.mutations.RESET_FILTER, 'forms');
-    //   this.$store.commit(users.mutations.SET_SELECTED, []);
-    //   this.fetch(false);
-    // },
+
+    openMedia() {
+      console.log('triggering...');
+      this.openMediaDialog = true;
+    },
   },
+
   computed: {
     /**
      * this.users,

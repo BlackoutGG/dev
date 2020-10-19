@@ -3,6 +3,15 @@ import cosmetic from '~/mixins/props/cosmetic.js';
 import general from '~/mixins/props/general.js';
 import select from '~/mixins/props/select.js';
 
+import {
+  VTextField,
+  VTextarea,
+  VSelect,
+  VRadioGroup,
+  VRadio,
+  VCheckbox,
+} from 'vuetify/lib';
+
 const generalProps = [
   'autofocus',
   'clearIcon',
@@ -65,6 +74,15 @@ const selectProps = [
 
 export default {
   name: 'FormField',
+
+  components: {
+    VTextField,
+    VTextarea,
+    VSelect,
+    VRadioGroup,
+    VRadio,
+    VCheckbox,
+  },
 
   mixins: [general, select, cosmetic],
 

@@ -56,9 +56,9 @@ export default {
           to: '/admin/roles',
         },
         {
-          icon: 'mdi-note',
-          title: 'Posts',
-          button: true,
+          icon: 'mdi-file-image',
+          title: 'Media',
+          to: '/admin/media',
         },
         {
           icon: 'mdi-shape',

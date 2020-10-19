@@ -1,5 +1,10 @@
 <template>
-  <v-dialog id="user-dialog" v-model="show" :max-width="maxWidth" :min-width="minWidth">
+  <v-dialog
+    id="user-dialog"
+    v-model="show"
+    :max-width="maxWidth"
+    :min-width="minWidth"
+  >
     <template v-slot:activator="{ on, attrs }">
       <v-btn text v-bind="attrs" v-on="on">
         <v-icon left>mdi-plus</v-icon>
@@ -9,7 +14,7 @@
     <v-card>
       <v-toolbar dark>
         <v-toolbar-title>
-          <span class="headline">{{title}}</span>
+          <span class="headline">{{ title }}</span>
         </v-toolbar-title>
         <v-spacer></v-spacer>
         <v-btn icon>
@@ -21,17 +26,22 @@
           <v-container>
             <v-row v-if="isEditMode">
               <v-col cols="12" class="text-center">
-                <v-badge avatar bordered overlap>
+                <v-badge
+                  avatar
+                  bordered
+                  overlap
+                  @click.native.stop="$emit('edit-profile-image')"
+                >
                   <template v-slot:badge>
-                    <v-avatar size="32">
-                      <v-btn text>
-                        <v-icon>mdi-image-edit-outline</v-icon>
-                      </v-btn>
+                    <v-avatar class="elevation-1">
+                      <v-icon>mdi-image-edit-outline</v-icon>
                     </v-avatar>
                   </template>
                   <v-avatar size="80" color="primary">
-                    <img :src="avatar.url" alt v-if="avatar.url" />
-                    <span class="white--text headline" v-else>{{initials}}</span>
+                    <v-img :src="avatar" alt v-if="avatar" />
+                    <span class="white--text headline" v-else>{{
+                      initials
+                    }}</span>
                   </v-avatar>
                 </v-badge>
               </v-col>
@@ -64,8 +74,10 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn text @click="add" :disabled="!valid" v-if="!isEditMode">Save</v-btn>
-        <v-btn text @click="edit" :disabled="!valid" v-else>Save</v-btn>
+        <!-- <v-btn text @click="add" :disabled="!valid" v-if="!isEditMode"
+          >Save</v-btn
+        > -->
+        <v-btn text @click="save" :disabled="!valid">Save</v-btn>
         <v-btn text @click="reset">Reset</v-btn>
       </v-card-actions>
       <v-overlay absolute v-model="isSending">
@@ -76,10 +88,12 @@
 </template>
 
 <script>
-import DialogInput from '~/components/dialogs/DialogInput.vue';
-import RoleSelect from './UserRoleSelect.vue';
-import users from '~/utilities/ns/private/users.js';
 import { createNamespacedHelpers } from 'vuex';
+import users from '~/utilities/ns/private/users.js';
+
+import DialogInput from '~/components/dialogs/DialogInput.vue';
+
+import RoleSelect from './UserRoleSelect.vue';
 
 import pick from 'lodash/pick';
 import cloneDeep from 'lodash/cloneDeep';
@@ -130,10 +144,7 @@ export default {
         },
       },
 
-      avatar: {
-        url: null,
-        preview: null,
-      },
+      avatar: '',
 
       roles: [],
       valid: false,
@@ -163,6 +174,7 @@ export default {
       id: null,
       startingRoles: null,
       startingDetails: null,
+      startingAvatar: null,
     };
   },
 
@@ -180,6 +192,10 @@ export default {
   methods: {
     ...mapActions([users.actions.ADD_USER, users.actions.EDIT_USER]),
 
+    setAvatar(avatar) {
+      this.avatar = avatar;
+    },
+
     async setEditableContent(id) {
       this.mode = 'edit';
       this.show = true;
@@ -193,22 +209,27 @@ export default {
       this.inputs.password.visible = false;
       this.roles = user.roles.map(({ id }) => id);
 
-      this.avatar.url = user.avatar;
+      this.avatar = user.avatar;
 
       this.startingDetails = pick(starting, ['username', 'email']);
       this.startingRoles = starting.roles.map(({ id }) => id);
+      this.startingAvatar = starting.avatar;
     },
 
     async getUser(id) {
       this.isSending = true;
       try {
-        const { user } = (await this.$axios.get(`/users/${id}`)).data;
+        const { user } = (await this.$axios.get(`/admin/users/${id}`)).data;
         return user;
       } catch (err) {
         console.log(err);
       } finally {
         this.isSending = false;
       }
+    },
+
+    save() {
+      this.isEditMode ? this.edit() : this.add();
     },
 
     async add() {
@@ -237,11 +258,18 @@ export default {
     },
 
     async edit() {
-      const data = {};
+      const data = {},
+        details = this.detailsToUpdate || {};
 
-      if (this.detailsToUpdate && Object.keys(this.detailsToUpdate).length) {
-        Object.assign(data, { details: this.detailsToUpdate });
+      if (this.avatar !== this.startingAvatar) {
+        Object.assign(details, { avatar: this.avatar });
       }
+
+      if (details && Object.keys(details).length) {
+        Object.assign(data, { details });
+      }
+
+      console.log(data);
 
       if (this.rolesToAdd && this.rolesToAdd.length) {
         Object.assign(data, { added: this.rolesToAdd });
@@ -265,10 +293,6 @@ export default {
         this.isSending = false;
       }
     },
-
-    // save() {
-    //   this[!this.isEditMode ? 'add' : 'edit']();
-    // },
 
     reset() {
       if (this.isEditMode) {
@@ -297,6 +321,7 @@ export default {
           this.roles = [];
           this.startingRoles = null;
           this.startingDetails = null;
+          this.startingAvatar = '';
           if (this.id) this.id = null;
         }, 50)
       );
@@ -304,8 +329,6 @@ export default {
   },
 
   computed: {
-    // ...mapGetters([users.getters.GET_USER]),
-
     isEditMode() {
       return this.mode === 'edit';
     },

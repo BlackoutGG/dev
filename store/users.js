@@ -1,9 +1,9 @@
 import ns from '~/utilities/ns/private/users.js';
 import snackbar from '~/utilities/ns/public/snackbar.js';
 import roles from '~/utilities/ns/public/roles';
-
 import filter from '~/utilities/ns/public/filters.js';
 import pickBy from 'lodash/pickBy';
+import isFilterTruthy from '~/utilities/isFilterTruthy';
 
 const state = () => ({
   users: [],
@@ -32,12 +32,11 @@ const getters = {
     typeof key !== undefined ? state.queryParams[key] : state.queryParams,
 
   [ns.getters.FILTERS]: (state, getters, rootState, rootGetters) => {
-    const filters = rootGetters[filter.getters.GET_FILTER]('users');
-    const picked = pickBy(filters, (value, key) => {
-      if (Array.isArray(value) && value.length) return true;
-      if (typeof value === 'boolean' && value) return true;
-    });
-    return Object.keys(picked).length ? picked : null;
+    const filters = pickBy(
+      rootGetters[filter.getters.GET_FILTER]('users'),
+      isFilterTruthy
+    );
+    return Object.keys(filters).length ? filters : null;
   },
 };
 
@@ -152,7 +151,6 @@ const actions = {
   ) {
     const details = { [type]: value };
 
-    console.log(details);
     try {
       const { user } = (
         await this.$axios.put(`/admin/users/${id}`, {
@@ -209,8 +207,27 @@ const actions = {
     const params = { ...state.queryParams, ids };
     const filters = getters[ns.getters.FILTERS];
 
-    if (filters && Object.keys(filters.length)) {
+    if (filters && Object.keys(filters).length) {
       Object.assign(params, { filters });
+    }
+
+    const isEmpty = state.users.every((user) => ids.includes(user.id));
+
+    console.log(isEmpty);
+
+    if (isEmpty && state.queryParams.page > 1) {
+      const total = Math.ceil(
+        (state.queryParams.total - ids.length) / state.queryParams.limit
+      );
+
+      console.log('total', total);
+
+      // const pageToSend = state.queryParams.page - total;
+
+      // console.log('pageToSend', pageToSend);
+
+      params.page = total;
+      // commit(ns.mutations.SET_PARAM, { type: 'page', value: pageToSend });
     }
 
     try {
@@ -219,16 +236,19 @@ const actions = {
       } = await this.$axios.delete('/admin/users', { params });
 
       commit(ns.mutations.SET_USERS, users.results);
+
       commit(ns.mutations.SET_PARAM, { param: 'total', value: users.total });
       commit(ns.mutations.SET_SELECTED, []);
     } catch (err) {}
   },
 
   async [ns.actions.EDIT_USER]({ commit, dispatch }, { id, payload }) {
+    console.log(payload);
+
     try {
       const {
         data: { user },
-      } = await this.$axios.put(`/admin/users/${id}`, payload);
+      } = await this.$axios.patch(`/admin/users/${id}`, payload);
 
       commit(ns.mutations.SET_USER, user);
 

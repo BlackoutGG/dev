@@ -11,6 +11,7 @@ export default {
     ADD_EVENT: 'events/addEvent',
     EDIT_EVENT: 'events/editEvent',
     REMOVE_EVENT: 'events/removeEvent',
+    UPDATE_EVENT: 'events/updateEvent',
   },
   actions: {
     FETCH: 'events/fetch',

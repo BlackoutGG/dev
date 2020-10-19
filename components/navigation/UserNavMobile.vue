@@ -28,6 +28,12 @@
         :title="link.title"
         :icon="link.icon"
       />
+      <nav-link
+        :to="'/events'"
+        :title="'Events'"
+        :icon="'mdi-calendar'"
+        v-if="$auth.loggedIn && $auth.hasScope('view:events')"
+      />
     </v-list>
     <template v-if="$auth.loggedIn">
       <v-divider></v-divider>
@@ -39,7 +45,9 @@
           <v-list-item-title>Logout</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
-    </template>
+    </template></v-navigation-drawer
+  >
+</template>
   </v-navigation-drawer>
 </template>
 

@@ -13,13 +13,13 @@
     </template>
     <v-card :min-height="height">
       <v-toolbar dark>
-        <v-btn icon @click="close">
-          <v-icon small>mdi-close</v-icon>
-        </v-btn>
         <v-toolbar-title>
           <span>{{ title }}</span>
         </v-toolbar-title>
         <v-spacer></v-spacer>
+        <v-btn icon @click="close">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
       </v-toolbar>
       <v-tabs fixed-tabs v-model="tab">
         <v-tab v-for="(tab, i) in tabs" :key="i">{{ tab }}</v-tab>
@@ -37,7 +37,7 @@
         <v-tab-item>
           <v-card-text>
             <event-options
-              :roles="roles"
+              v-model="roles"
               :rvsp.sync="details.rvsp"
             ></event-options>
           </v-card-text>
@@ -121,25 +121,35 @@ export default {
       // if (!this.$refs.form.validate()) return;
 
       // if (this.isEditMode) {
-      //   const results = await this.$store.dispatch(
+      //   const { category, organizer, ...details } = this.$store.dispatch(
       //     events.actions.EDIT_EVENT,
-      //     this.details
+      //     {
+      //       id: this.details.id,
+      //       ...this.toUpdate,
+      //     }
       //   );
-      //   this.setStartingValues(results);
-      //   return;
+
+      //   this.setStartingValues(details);
       // }
 
-      try {
-        const { category, organizer, ...details } = await this.$store.dispatch(
-          this.isEditMode
-            ? events.actions.EDIT_EVENT
-            : events.actions.ADD_EVENT,
-          this.details
-        );
+      const { category, organizer, ...details } = await this.$store.dispatch(
+        this.isEditMode ? events.actions.EDIT_EVENT : events.actions.ADD_EVENT,
+        this.isEditMode
+          ? { id: this.details.id, ...this.toUpdate }
+          : this.details
+      );
 
-        if (this.isEditMode) this.setStartingValues(details);
-        else this.close();
-      } catch (err) {}
+      console.log(details);
+
+      if (this.isEditMode) this.setStartingValues(details);
+      else this.close();
+
+      // try {
+
+      // } catch (err) {
+      //   console.log(err);
+      //   throw err;
+      // }
     },
 
     async getEvent(id) {
@@ -218,7 +228,9 @@ export default {
     title() {
       return !this.isEditMode
         ? 'Add Event'
-        : `Edit Event: ${this.details.name}`;
+        : this.details
+        ? `Edit Event: ${this.details.name}`
+        : 'Edit Event';
     },
   },
 };

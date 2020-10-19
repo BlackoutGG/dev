@@ -1,30 +1,7 @@
 <template>
   <v-menu v-model="menu" :close-on-content-click="false" offset-y>
     <template #activator="{ on }">
-      <v-list v-if="displayToggleUser" class="hidden-sm-and-down">
-        <v-list-item v-on="on">
-          <v-list-item-avatar :size="avatarSize">
-            <img :src="$auth.user.avatar" alt="" v-if="$auth.user.avatar" />
-            <span class="white--text headline" v-else>{{ initials }}</span>
-          </v-list-item-avatar>
-          <v-list-item-content>
-            <v-list-item-title>{{ username }}</v-list-item-title>
-          </v-list-item-content>
-          <v-list-item-icon class="ml-2 align-self-center">
-            <v-icon small>mdi-chevron-down</v-icon>
-          </v-list-item-icon>
-        </v-list-item>
-      </v-list>
-      <v-avatar
-        v-on="on"
-        v-else
-        :class="avatarClasses"
-        :color="avatarColor"
-        :size="avatarSize"
-      >
-        <img :src="$auth.user.avatar" alt="" v-if="$auth.user.avatar" />
-        <span class="white--text headline" v-else>{{ initials }}</span>
-      </v-avatar>
+      <slot name="activator" v-bind="{ on }" />
     </template>
     <v-card>
       <v-list>

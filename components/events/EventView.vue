@@ -3,7 +3,7 @@
     <v-list-item>
       <v-list-item-content>
         <v-list-item-subtitle>Category</v-list-item-subtitle>
-        <v-list-item-title>{{ event.categoryName }}</v-list-item-title>
+        <v-list-item-title>{{ event.category }}</v-list-item-title>
       </v-list-item-content>
     </v-list-item>
     <v-list-item>

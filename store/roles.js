@@ -1,5 +1,8 @@
 import ns from '~/utilities/ns/private/roles.js';
 import snackbar from '~/utilities/ns/public/snackbar.js';
+import filter from '~/utilities/ns/public/filters.js';
+import pickBy from 'lodash/pickBy';
+import isFilterTruthy from '~/utilities/isFilterTruthy.js';
 
 const state = () => ({
   roles: [],
@@ -29,12 +32,11 @@ const getters = {
     typeof key !== undefined ? state.queryParams[key] : state.queryParams,
 
   [ns.getters.FILTERS]: (state, getters, rootState, rootGetters) => {
-    const filters = rootGetters[filter.getters.GET_FILTER]('users');
-    const picked = pickBy(filters, (value, key) => {
-      if (Array.isArray(value) && value.length) return true;
-      if (typeof value === 'boolean' && value) return true;
-    });
-    return Object.keys(picked).length ? picked : null;
+    const filters = pickBy(
+      rootGetters[filter.getters.GET_FILTER]('roles'),
+      isFilterTruthy
+    );
+    return Object.keys(filters).length ? filters : null;
   },
 };
 
@@ -107,8 +109,6 @@ const actions = {
         await this.$axios.put(`/roles/${id}`, { details })
       ).data;
 
-      console.log(role);
-
       commit(ns.mutations.UPDATE_ROLE, role);
     } catch (err) {
       throw err;
@@ -131,22 +131,16 @@ const actions = {
   },
 
   async [ns.actions.REMOVE_ITEMS]({ commit, state, getters, dispatch }, id) {
-    const ids = [id] || getters[ns.getters.SELECTED_IDS];
+    const ids = id ? [id] : getters[ns.getters.SELECTED_IDS];
     const params = { ids, ...state.queryparams };
-    const filters = getters[ns.getters.FILTERS];
-
-    if (filters && Object.keys(filters).length) {
-      Object.assign(params, { filters });
-    }
 
     try {
       const {
         data: { roles },
       } = await this.$axios.delete('/roles', { params });
 
-      console.log(roles);
-
       commit(ns.mutations.SET_ROLES, roles.results);
+      commit(ns.mutations.SET_SELECTED, []);
       commit(ns.mutations.SET_PARAM, {
         param: 'total',
         value: roles.total,

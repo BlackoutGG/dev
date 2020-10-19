@@ -48,7 +48,7 @@
 import lists from '~/utilities/ns/public/lists.js';
 import forms from '~/utilities/ns/private/forms.js';
 import { createNamespacedHelpers } from 'vuex';
-import FormField from '~/components/forms/FormField.vue';
+import FormField from '~/components/forms/FormField2.vue';
 
 const { mapGetters, mapMutations } = createNamespacedHelpers('forms');
 

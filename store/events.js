@@ -1,6 +1,7 @@
 import CalendarEvent from '~/components/events/CalendarEvent.js';
-import pick from 'lodash/pick';
+import pickBy from 'lodash/pickBy';
 import snackbar from '~/utilities/ns/public/snackbar.js';
+import isFilterTruthy from '~/utilities/isFilterTruthy.js';
 import ns from '~/utilities/ns/private/events.js';
 import filter from '~/utilities/ns/public/filters.js';
 
@@ -27,6 +28,15 @@ const getters = {
 
   [ns.getters.GET_EVENT]: (state) => (id) =>
     state.events.find((evt) => evt.id === id),
+
+  [ns.getters.FILTERS]: (state, getters, rootState, rootGetters) => {
+    const filters = pickBy(
+      rootGetters[filter.getters.GET_FILTER]('events'),
+      isFilterTruthy
+    );
+
+    return Object.keys(filters).length ? filters : null;
+  },
 };
 
 const mutations = {
@@ -53,18 +63,14 @@ const mutations = {
     if (event && event.category) event.category = category;
   },
 
+  [ns.mutations.UPDATE_EVENT](state, event) {
+    const idx = state.events.findIndex(({ id }) => event.id);
+    if (idx !== -1) state.events.splice(idx, 1, event);
+  },
+
   [ns.mutations.REMOVE_EVENT](state, event) {
     const idx = state.events.findIndex((evt) => evt.id === event.id);
     if (idx !== -1) state.events.splice(idx, 1);
-  },
-
-  [ns.getters.FILTERS]: (state, getters, rootState, rootGetters) => {
-    const filters = rootGetters[filter.getters.GET_FILTER]('events');
-    const picked = pickBy(filters, (value, key) => {
-      if (Array.isArray(value) && value.length) return true;
-      if (typeof value === 'boolean' && value) return true;
-    });
-    return Object.keys(picked).length ? picked : null;
   },
 };
 
@@ -76,8 +82,6 @@ const actions = {
     };
 
     const filters = getters[ns.getters.FILTERS];
-
-    console.log(filters);
 
     if (filters) {
       Object.assign(params, { filters });
@@ -107,14 +111,8 @@ const actions = {
     }
 
     try {
-      // const {
-      //   data: { event },
-      // } = await this.$axios.post('/events', params);
-
       const { event } = (await this.$axios.post('/events', params)).data;
       const text = `Saved Event: ${event.name}`;
-
-      console.log(event.start);
 
       commit(ns.mutations.ADD_EVENT, new CalendarEvent(event));
       dispatch(snackbar.actions.TOGGLE_BAR, { text }, { root: true });
@@ -124,35 +122,36 @@ const actions = {
       console.log(err);
       const text = 'Encounterd an error. Please contact administration.';
       dispatch(snackbar.actions.TOGGLE_BAR, text, { root: true });
-      throw err;
     }
   },
 
-  async [ns.actions.EDIT_EVENT]({ commit, dispatch }, evt) {
-    const { id, ...payload } = evt;
+  async [ns.actions.EDIT_EVENT]({ commit, dispatch, state }, data) {
+    const { id, ...body } = data;
     try {
-      const {
-        data: { event },
-      } = await this.$axios.put(`/events/${id}`, payload);
+      const { event } = (await this.$axios.put(`/events/${id}`, body)).data;
 
-      commit(ns.commit.UPDATE_EVENT, event);
+      // const events = cloneDeep(state.events);
 
-      return event;
+      const events = state.events.map((e) => {
+        if (e.id === event.id) return new CalendarEvent(event);
+        else return e;
+      });
 
-      // const e = pick(event, props);
+      // let match = events.find((e) => e.id === event.id);
+      // if (match) match = new CalendarEvent(event);
 
-      // if (event.category) {
-      //   let { category, ...evt } = event;
-      //   commit(ns.mutations.EDIT_EVENT_CATEGORY, category);
-      // }
+      commit(ns.mutations.SET_EVENTS, []);
 
-      // if (e && Object.keys(e).length) {
-      //   commit(ns.mutations.EDIT_EVENT, { id, event: e });
-      // }
+      setTimeout(() => commit(ns.mutations.SET_EVENTS, events), 50);
+
+      // commit(ns.mutations.UPDATE_EVENT, new CalendarEvent(event));
 
       dispatch(snackbar.actions.SUCCESS, null, { root: true });
+
+      return event;
     } catch (err) {
       dispatch(snackbar.actions.ERROR, null, { root: true });
+      return Promise.reject(err);
     }
   },
 };

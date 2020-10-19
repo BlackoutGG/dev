@@ -21,50 +21,42 @@
             <span>Event Visibility</span>
           </v-list-item-title>
           <v-list-item-subtitle>
-            <span>Enable to choose which roles can see this event. Defaults to member.</span>
+            <span
+              >Enable to choose which roles can see this event. Defaults to
+              member.</span
+            >
           </v-list-item-subtitle>
         </v-list-item-content>
         <v-list-item-action>
-          <event-switch v-model="showRoles"></event-switch>
+          <!-- <event-switch v-model="showRoles"></event-switch> -->
+          <v-switch v-model="showRoles"></v-switch>
         </v-list-item-action>
       </v-list-item>
     </v-list>
-    <!-- <event-scroller :endpoint="'/api/roles'" v-if="showRoles">
-      <template #default="{ item }">
-        <v-list-item>
-          <v-list-item-content>
-            <v-list-item-title>{{ item.name }}</v-list-item-title>
-          </v-list-item-content>
-          <v-list-item-action>
-            <v-checkbox multiple v-model="roles" :true-value="item.id" :value="item.id"></v-checkbox>
-          </v-list-item-action>
-        </v-list-item>
-      </template>
-    </event-scroller>-->
-    <event-role-list v-model="roles" v-if="showRoles"></event-role-list>
+    <event-role-list v-model="computedRoles" v-if="showRoles"></event-role-list>
   </section>
 </template>
 
 <script>
-import EventSwitch from "./EventSwitch.vue";
-import EventRoleList from "./EventRoleList.vue";
+import EventSwitch from './EventSwitch.vue';
+import EventRoleList from './EventRoleList.vue';
 export default {
-  name: "EventDialogOptions",
+  name: 'EventDialogOptions',
   components: { EventSwitch, EventRoleList },
   props: {
     rvsp: {
       type: Boolean,
-      default: false
+      default: false,
     },
-    roles: {
+    value: {
       type: Array,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
 
   data() {
     return {
-      showRoles: false
+      showRoles: false,
     };
   },
 
@@ -74,9 +66,18 @@ export default {
         return this.rvsp;
       },
       set(val) {
-        this.$emit("update:rvsp", val);
-      }
-    }
-  }
+        this.$emit('update:rvsp', val);
+      },
+    },
+
+    computedRoles: {
+      get() {
+        return this.value;
+      },
+      set(val) {
+        this.$emit('input', val);
+      },
+    },
+  },
 };
 </script>

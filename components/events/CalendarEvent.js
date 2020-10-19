@@ -47,8 +47,13 @@ export default class CalendarEvent {
     this.description = description;
     this.rvsp = rvsp || false;
     this.organizer = organizer;
-    this.category = category;
     this.roles = roles;
+
+    if (typeof category === 'object') {
+      this.category = category.name;
+    } else {
+      this.category = category;
+    }
   }
 
   get start() {
@@ -63,11 +68,11 @@ export default class CalendarEvent {
       : null;
   }
 
-  get category_id() {
-    return this.category.id || 1;
-  }
+  // get category_id() {
+  //   return this.category.id || 1;
+  // }
 
-  get categoryName() {
-    return this.category.name || '';
-  }
+  // get categoryName() {
+  //   return this.category.name || '';
+  // }
 }
