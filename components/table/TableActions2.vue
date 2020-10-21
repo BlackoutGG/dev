@@ -35,13 +35,13 @@ export default {
         value: this.open,
       };
 
-      const on = { input: (v) => this.$emit('input', v) };
-
       const scopedSlots = {
         activator: ({ on }) => {
           return h(VIcon, { on: on }, ['mdi-dots-vertical']);
         },
       };
+
+      const on = { input: (v) => this.$emit('input', v) };
 
       return h(VMenu, { props, on, scopedSlots }, [children]);
     };

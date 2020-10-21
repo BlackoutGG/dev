@@ -5,6 +5,22 @@ const state = () => ({
     { icon: 'mdi-home', title: 'Home', to: '/' },
     { icon: 'mdi-book', title: 'Guides', to: '/guides' },
     { icon: 'mdi-information', title: 'History', to: '/history' },
+    {
+      icon: 'mdi-information',
+      title: 'Community',
+      children: [
+        { title: 'Discord', to: '/' },
+        { title: 'Forum', to: '/' },
+        {
+          title: 'Twitter',
+          children: [
+            { title: 'Child 1', to: '/guides' },
+            { title: 'Child 2', to: '/history' },
+          ],
+        },
+      ],
+    },
+    { title: 'Tools', to: '/' },
     // { icon: "mdi-calendar", title: "Events", to: "/events" }
   ],
 });

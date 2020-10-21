@@ -1,6 +1,6 @@
 <template>
   <nav>
-    <v-toolbar dark flat :color="color" height="80px">
+    <v-toolbar dark flat height="80px">
       <v-container>
         <v-row justify="center" align="center" class="flex-nowrap">
           <v-app-bar-nav-icon
@@ -22,14 +22,12 @@
             v-model="tab"
             class="hidden-sm-and-down"
           >
-            <v-tab
+            <nav-link
               v-for="(link, idx) in links"
-              nuxt
               :key="idx"
-              :to="link.to"
+              :link="link"
               :class="{ 'ml-4': idx === 0 }"
-              >{{ link.title }}</v-tab
-            >
+            ></nav-link>
             <v-tab
               v-if="$auth.loggedIn && $auth.hasScope('view:events')"
               nuxt
@@ -41,15 +39,33 @@
               v-if="$auth.loggedIn && $auth.hasScope('view:forms')"
               :button="true"
             ></recruit-dialog>
+            <v-spacer></v-spacer>
+            <auth-dialog v-model="showAuth" v-if="!$auth.loggedIn">
+              <template #activator="{ on }">
+                <a class="v-tab" v-on="on">
+                  <v-icon left>mdi-account-circle</v-icon>
+                  <span>Sign In</span>
+                </a>
+              </template>
+            </auth-dialog>
+            <user-panel :links="userPanelLinks" :avatarSize="32" v-else>
+              <template #activator="{ on }">
+                <div class="v-tab" v-on="on">
+                  <v-avatar :size="32" class="mr-2">
+                    <v-img
+                      :src="$auth.user.avatar"
+                      v-if="$auth.user.avatar"
+                    ></v-img>
+                    <span class="white--text headline" v-else>{{
+                      initials
+                    }}</span>
+                  </v-avatar>
+                  <span>{{ $auth.user.username }}</span>
+                  <v-icon right>mdi-chevron-down</v-icon>
+                </div>
+              </template>
+            </user-panel>
           </v-tabs>
-          <v-spacer></v-spacer>
-          <auth-dialog v-model="showAuth" v-if="!$auth.loggedIn"></auth-dialog>
-          <user-panel
-            :links="userPanelLinks"
-            :displayToggleUser="true"
-            :avatarSize="32"
-            v-else
-          ></user-panel>
         </v-row>
       </v-container>
     </v-toolbar>
@@ -63,19 +79,25 @@
 
 <script>
 import AuthDialog from '~/components/auth/AuthDialog.vue';
-import UserPanel from '~/components/navigation/UserPanel.vue';
+import UserPanel from '~/components/navigation/UserPanelWithActivator.vue';
 import RecruitDialog from '~/components/recruitment/RecruitDialog.vue';
 import UserNavMobile from './UserNavMobile.vue';
+import NavLink from './NavLink2.vue';
 
 import menu from '~/utilities/ns/public/menu.js';
 
 export default {
   name: 'NavHeader',
-  components: { UserPanel, AuthDialog, UserNavMobile, RecruitDialog },
+  components: {
+    UserPanel,
+    AuthDialog,
+    UserNavMobile,
+    RecruitDialog,
+    NavLink,
+  },
 
   data() {
     return {
-      color: '#1E1E1E',
       showMobile: false,
       showAuth: false,
       showForm: false,
@@ -94,6 +116,16 @@ export default {
   computed: {
     links() {
       return this.$store.getters[menu.getters.LINKS];
+    },
+
+    initials() {
+      if (this.$auth.user.username) {
+        const username = this.$auth.user.username;
+        const initials = username.match(/\b\w/g) || [];
+        return (
+          (initials.shift() || '') + (initials.pop() || '')
+        ).toUpperCase();
+      }
     },
   },
 };
