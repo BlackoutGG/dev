@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import EventCalender from '~/components/events/Events.vue';
+import EventCalender from '~/components/events/EventCalendar.vue';
 import ParallaxBanner from '~/components/Parallax.vue';
 import setPageTitle from '~/middleware/setPageTitle.js';
 import lists from '~/utilities/ns/public/lists.js';

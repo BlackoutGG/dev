@@ -5,17 +5,6 @@ import isFilterTruthy from '~/utilities/isFilterTruthy.js';
 import ns from '~/utilities/ns/private/events.js';
 import filter from '~/utilities/ns/public/filters.js';
 
-const props = [
-  'name',
-  'color',
-  'start_time',
-  'start_date',
-  'end_time',
-  'end_date',
-  'description',
-  'rvsp',
-];
-
 const state = () => ({
   events: [],
   colors: ['#FF9AA2', '#FFB7B2', '#FFDAC1', 'E2F0CB', '#B5EAD7', 'C7CEEA'],

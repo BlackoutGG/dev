@@ -16,6 +16,7 @@
         :prepend-icon="icon"
         :rules="rules"
         :error-messages="errorMessages"
+        :disabled="disabled"
         readonly
         v-bind="attrs"
         v-on="on"
@@ -36,7 +37,7 @@
 
 <script>
 export default {
-  name: 'EventDateAndTime',
+  name: 'CalEventDateAndTime',
   props: {
     value: {
       type: String,
@@ -53,10 +54,10 @@ export default {
     label: {
       type: String,
     },
-    modifier: {
-      type: String,
+    disabled: {
+      type: Boolean,
+      default: false,
     },
-
     rules: {
       type: [Function, Object, Array, String],
     },
@@ -66,17 +67,17 @@ export default {
       open: false,
       innerValue: this.value,
       errorMessages: '',
-    }
+    };
   },
 
   computed: {
     input: {
       get() {
-        return this.value
+        return this.value;
       },
       set(val) {
-        this.innerValue = val
-        this.$emit('input', val)
+        this.innerValue = val;
+        this.$emit('input', val);
       },
     },
     icon() {
@@ -84,12 +85,12 @@ export default {
         ? 'mdi-calendar-clock'
         : this.date && !this.time
         ? 'mdi-calendar'
-        : 'mdi-calendar-clock'
+        : 'mdi-calendar-clock';
     },
 
     parsed() {
-      return this.$dateFns.parseISO(this.modifier)
+      return this.$dateFns.parseISO(this.modifier);
     },
   },
-}
+};
 </script>

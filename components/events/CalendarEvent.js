@@ -15,18 +15,17 @@
  * @property {Object} organizer Object containing the id, avatar and username of the event submitter/organizer. Defaults to null.
  * @property {Object} category Object containing the id, name and banner background source for the category the event is bound to. Defaults to null.
  */
-export default class CalendarEvent {
+export default class DayGridEvent {
   constructor({
     id,
-    name,
+    title,
     color,
-    year,
-    month,
-    day,
     start_date,
     start_time,
     end_date,
     end_time,
+    start_recur,
+    end_recur,
     description,
     rvsp,
     roles = null,
@@ -35,24 +34,24 @@ export default class CalendarEvent {
   }) {
     // const dates = start_date.split("-");
     this.id = id || null;
-    // this.year = year || parseInt(dates[0], 10);
-    // this.month = month || parseInt(dates[1], 10);
-    // this.day = day || parseInt(dates[2], 10);
-    this.name = name;
-    this.color = color || '#000000';
-    this.start_date = start_date.split('T')[0];
+    this.title = title;
+    // this.color = color;
+    this.start_date = start_date;
     this.start_time = start_time;
-    this.end_date = end_date.split('T')[0] || start_date;
+    this.end_date = end_date || start_date;
     this.end_time = end_time || start_time;
-    this.description = description;
-    this.rvsp = rvsp || false;
-    this.organizer = organizer;
-    this.roles = roles;
+    this.start_recur = start_recur;
+    this.end_recur - end_recur;
 
+    this.extendedProps.description = description;
+    this.extendedProps.rvsp = rvsp || false;
+    this.extendedProps.organizer = organizer;
+    this.extendedProps.roles = roles;
+    
     if (typeof category === 'object') {
-      this.category = category.name;
+      this.extendedProps.category = category.name;
     } else {
-      this.category = category;
+      this.extendedProps.category = category;
     }
   }
 
@@ -67,12 +66,4 @@ export default class CalendarEvent {
       ? this.end_date + ' ' + this.end_time
       : null;
   }
-
-  // get category_id() {
-  //   return this.category.id || 1;
-  // }
-
-  // get categoryName() {
-  //   return this.category.name || '';
-  // }
 }

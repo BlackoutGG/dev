@@ -1,5 +1,6 @@
 <script>
 import {
+  VSpacer,
   VList,
   VTab,
   VIcon,
@@ -10,12 +11,11 @@ import {
   VListItemGroup,
 } from 'vuetify/lib';
 
-import pick from 'lodash/pick';
-
 export default {
   name: 'NavigationLink',
 
   components: {
+    VSpacer,
     VList,
     VTab,
     VIcon,
@@ -41,14 +41,12 @@ export default {
     },
   },
 
-  data() {
-    return {
-      open: false,
-    };
+  created() {
+    console.log(this.$refs);
   },
 
   methods: {
-    genMenu(children, element, child, opts, _props) {
+    genMenu(children, element, child, opts, _props, ref) {
       const scopedSlots = {
         activator: ({ on }) => {
           const options = Object.assign({}, opts, { on: on });
@@ -58,14 +56,21 @@ export default {
 
       const defaultProps = {
         'offset-y': true,
+        'content-class': this.contentClass,
         bottom: true,
       };
 
+      const on = { input: (v) => this.$emit('input', v) };
+
       const props = Object.assign({}, defaultProps, _props);
+
+      const menuOptions = { scopedSlots, on, props };
 
       const menuList = children.map(this.genMenuItem);
 
-      return this.$createElement('v-menu', { scopedSlots, props }, [
+      if (ref) Object.assign(menuOptions, { ref });
+
+      return this.$createElement('v-menu', menuOptions, [
         this.$createElement('v-list', {}, [menuList]),
       ]);
     },
@@ -84,6 +89,8 @@ export default {
         const menuProps = {
           'offset-y': false,
           'offset-x': true,
+          'close-on-content-click': true,
+          transition: 'scroll-x-reverse-transition',
           bottom: false,
           top: true,
           right: true,
@@ -94,10 +101,15 @@ export default {
           'v-list-item',
           [
             this.$createElement('v-list-item-content', {}, [
-              this.$createElement('v-list-item-title', {}, [
-                link.title,
-                this.genIcon('mdi-chevron-right'),
-              ]),
+              this.$createElement(
+                'v-list-item-title',
+                { staticClass: 'd-flex' },
+                [
+                  link.title,
+                  this.$createElement('v-spacer', {}, []),
+                  this.genIcon('mdi-chevron-right'),
+                ]
+              ),
             ]),
           ],
           {},
@@ -105,7 +117,9 @@ export default {
         );
       }
 
-      return this.$createElement('v-list-item', { props }, [
+      const nativeOn = { click: () => this.$refs.menu.save('') };
+
+      return this.$createElement('v-list-item', { props, nativeOn }, [
         this.$createElement('v-list-item-content', {}, [
           this.$createElement('v-list-item-title', {}, link.title),
         ]),
@@ -142,7 +156,9 @@ export default {
             [this.link.title, this.genIcon('mdi-chevron-down')],
             {
               staticClass: 'v-tab',
-            }
+            },
+            {},
+            'menu'
           )
         : this.$createElement('v-tab', { props }, [this.link.title]);
     },
@@ -160,6 +176,15 @@ export default {
         this.link.children.length > 0
       );
     },
+
+    contentClass() {
+      return ['nav-item-top', 'hidden-sm-and-down'].join(' ');
+    },
   },
 };
 </script>
+<style scoped>
+.nav-item-top {
+  top: 80px !important;
+}
+</style>

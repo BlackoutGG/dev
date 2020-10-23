@@ -11,7 +11,7 @@
         <span>Add Event</span>
       </v-btn>
     </template>
-    <v-card :min-height="height">
+    <v-card :min-height="height" scrollable>
       <v-toolbar dark>
         <v-toolbar-title>
           <span>{{ title }}</span>
@@ -26,7 +26,7 @@
       </v-tabs>
       <v-tabs-items v-model="tab" v-if="details">
         <v-tab-item>
-          <v-card-text>
+          <v-card-text :height="innerCardHeight">
             <event-form
               v-model="valid"
               ref="form"
@@ -67,7 +67,7 @@ import cloneDeep from 'lodash/cloneDeep';
 const picked = (prop) => typeof prop !== 'object' || typeof prop !== undefined;
 
 export default {
-  name: 'EventDialog',
+  name: 'CalEventDialog',
   components: { EventForm, EventOptions },
 
   data() {
@@ -85,8 +85,13 @@ export default {
       eventId: 0,
       maxWidth: '600px',
       minHeight: 827,
+      innerCardHeight: 500,
 
       isSending: false,
+
+      start_recur: null,
+      end_recur: null,
+      interval: null,
 
       roles: [],
       startingRoles: [],
@@ -102,10 +107,11 @@ export default {
 
       if (!this.isEditMode) {
         this.details = {
-          name: '',
+          title: '',
           description: '',
           color: '',
           category_id: 1,
+          all_day: false,
           start_time: '',
           end_time: '',
           start_date: '',
@@ -118,20 +124,6 @@ export default {
 
   methods: {
     async save() {
-      // if (!this.$refs.form.validate()) return;
-
-      // if (this.isEditMode) {
-      //   const { category, organizer, ...details } = this.$store.dispatch(
-      //     events.actions.EDIT_EVENT,
-      //     {
-      //       id: this.details.id,
-      //       ...this.toUpdate,
-      //     }
-      //   );
-
-      //   this.setStartingValues(details);
-      // }
-
       const { category, organizer, ...details } = await this.$store.dispatch(
         this.isEditMode ? events.actions.EDIT_EVENT : events.actions.ADD_EVENT,
         this.isEditMode
@@ -143,13 +135,6 @@ export default {
 
       if (this.isEditMode) this.setStartingValues(details);
       else this.close();
-
-      // try {
-
-      // } catch (err) {
-      //   console.log(err);
-      //   throw err;
-      // }
     },
 
     async getEvent(id) {
@@ -229,7 +214,7 @@ export default {
       return !this.isEditMode
         ? 'Add Event'
         : this.details
-        ? `Edit Event: ${this.details.name}`
+        ? `Edit Event: ${this.details.title}`
         : 'Edit Event';
     },
   },

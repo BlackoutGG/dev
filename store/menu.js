@@ -12,10 +12,25 @@ const state = () => ({
         { title: 'Discord', to: '/' },
         { title: 'Forum', to: '/' },
         {
+          title: 'Social',
+          children: [
+            { title: 'Youtube', to: '/' },
+            { title: 'Twitch', to: '/' },
+          ],
+        },
+        {
           title: 'Twitter',
           children: [
             { title: 'Child 1', to: '/guides' },
-            { title: 'Child 2', to: '/history' },
+            {
+              title: 'Community',
+              to: '/guides',
+              children: [
+                { title: 'Descendent 1', to: '/guides' },
+                { title: 'Descendent 2', to: '/guides' },
+              ],
+            },
+            { title: 'Child 3', to: '/history' },
           ],
         },
       ],

@@ -1,9 +1,9 @@
 <template>
   <v-menu
     v-model="open"
-    :close-on-content-click="false"
     offset-x
     max-width="600px"
+    :close-on-content-click="false"
     :activator="element"
   >
     <v-card flat>
@@ -11,19 +11,18 @@
         <v-btn icon @click="editEvent">
           <v-icon>mdi-pencil</v-icon>
         </v-btn>
-        <v-toolbar-title>{{ event.name }}</v-toolbar-title>
+        <v-toolbar-title>{{ event.title }}</v-toolbar-title>
         <v-spacer></v-spacer>
         <v-btn>
           <v-icon>mdi-dots-vertical</v-icon>
         </v-btn>
       </v-toolbar>
       <v-card-text>
-        <event-view :event="event" :readonly="readonly"></event-view>
+        <!-- <event-view :event="event"></event-view> -->
       </v-card-text>
       <v-card-actions>
         <v-icon>mdi-account-group</v-icon>
         <v-spacer></v-spacer>
-        <v-btn text color="primary" v-if="event.rvsp">Join In</v-btn>
         <v-btn text color="primary" @click="open = false">Close</v-btn>
       </v-card-actions>
     </v-card>
@@ -35,7 +34,7 @@ import EventForm from './EventForm.vue';
 import EventView from './EventView.vue';
 import events from '~/utilities/ns/public/events.js';
 export default {
-  name: 'EventPopover',
+  name: 'CalEventPopover',
 
   components: { EventView },
 
@@ -77,18 +76,5 @@ export default {
       this.element = null;
     },
   },
-
-  // computed: {
-  //   event: {
-  //     get() {
-  //       return this.id
-  //         ? this.$store.getters[events.getters.GET_EVENT](this.id)
-  //         : {};
-  //     },
-  //     set(val) {
-  //       this.id = val;
-  //     }
-  //   }
-  // }
 };
 </script>

@@ -2,12 +2,12 @@
   <v-form v-model="isValid" ref="form">
     <v-container>
       <v-row>
-        <v-col md="10" sm="10" v-if="!dontShow('name')">
+        <v-col md="10" sm="10" v-if="!dontShow('title')">
           <v-text-field
             :readonly="preview"
-            :rules="[rules.isRequired('name'), rules.minLength(3, 'name')]"
-            label="Event Name"
-            v-model="event.name"
+            :rules="[rules.isRequired('title'), rules.minLength(3, 'title')]"
+            label="Event Title"
+            v-model="event.title"
           ></v-text-field>
         </v-col>
         <v-col md="2" sm="2" v-if="!dontShow('color')">
@@ -24,7 +24,7 @@
             </template>
           </v-select>
         </v-col>
-        <v-col md="12" sm="12" v-if="!dontShow('category')">
+        <v-col cols="12" v-if="!dontShow('category')">
           <v-select
             :items="categories"
             :item-text="'name'"
@@ -35,13 +35,29 @@
             label="Category"
           ></v-select>
         </v-col>
+        <v-col cols="12">
+          <v-checkbox
+            v-model="event.all_day"
+            :label="'All Day'"
+            :readonly="readonly"
+          ></v-checkbox>
+        </v-col>
+        <v-col cols="12">
+          <v-select
+            :items="intervalOptions"
+            :item-text="'name'"
+            :item-value="'interval'"
+            :readonly="readonly"
+            label="Interval"
+          ></v-select>
+        </v-col>
         <v-col md="6" sm="12" v-if="!dontShow('start')">
           <event-time-date
             v-if="!preview"
             label="Start Date"
+            v-model="event.start_date"
             :rules="[rules.isRequired('Start Date')]"
             :readonly="readonly"
-            v-model="event.start_date"
           ></event-time-date>
         </v-col>
         <v-col md="6" sm="12" v-if="!dontShow('start')">
@@ -51,6 +67,7 @@
             time
             :rules="[rules.isRequired('Start Time')]"
             :readonly="readonly"
+            :disabled="event.all_day"
             :date="false"
           ></event-time-date>
         </v-col>
@@ -58,8 +75,9 @@
           <event-time-date
             label="End Date"
             v-model="event.end_date"
-            :readonly="readonly"
             :rules="[rules.isRequired('End Date')]"
+            :readonly="readonly"
+            :disabled="event.all_day"
           ></event-time-date>
         </v-col>
         <v-col md="6" sm="12" v-if="!dontShow('end')">
@@ -67,9 +85,10 @@
             label="End Time"
             v-model="event.end_time"
             time
-            :date="false"
             :rules="[rules.isRequired('End Time')]"
             :readonly="readonly"
+            :disabled="event.all_day"
+            :date="false"
           ></event-time-date>
         </v-col>
         <v-col cols="12" v-if="!dontShow('desc')">
@@ -93,7 +112,7 @@ import EventTimeDate from './EventTimeDatePicker.vue';
 import capitalize from 'lodash/capitalize';
 
 export default {
-  name: 'EventForm',
+  name: 'CalEventForm',
   components: { EventTimeDate },
   props: {
     value: {
@@ -125,6 +144,13 @@ export default {
     return {
       valid: false,
 
+      intervalOptions: [
+        { name: 'Only once', interval: 'once' },
+        { name: 'Every day', interval: 'daily' },
+        { name: 'Every week', interval: 'weekly' },
+        { name: 'Every month', interval: 'monthly' },
+      ],
+
       rules: {
         isRequired: (field) => (v) =>
           !!v || `${capitalize(field)} is required.`,
@@ -136,6 +162,16 @@ export default {
           )} must be equal to or longer than ${length} characters.`,
       },
     };
+  },
+
+  watch: {
+    'event.all_day'(isAllDay) {
+      if (isAllDay) {
+        this.event.start_time = '';
+        this.event.end_date = '';
+        this.event.end_time = '';
+      }
+    },
   },
 
   methods: {
@@ -176,7 +212,7 @@ export default {
 
     categories() {
       return this.$store.getters[lists.getters.GET_ITEMS]('categories').filter(
-        (item) => item.name !== 'all'
+        (item) => item.title !== 'all'
       );
     },
   },

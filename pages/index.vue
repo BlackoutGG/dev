@@ -1,7 +1,7 @@
 <template>
   <section id="home">
     <video-banner />
-    <v-container dark id="home" class="pa-0" fluid>
+    <v-container dark class="pa-0" fluid>
       <div v-for="(block, idx) in blocks" :key="idx + 1">
         <div class="py-12"></div>
         <info-block :idx="idx" :data="block" />
@@ -12,8 +12,8 @@
 </template>
 
 <script>
-import InfoBlock from '~/components/frontpage/InfoBlock.vue'
-import VideoBanner from '~/components/frontpage/VideoBanner.vue'
+import InfoBlock from '~/components/frontpage/InfoBlock.vue';
+import VideoBanner from '~/components/frontpage/VideoBanner.vue';
 export default {
   name: 'Home',
   layout: 'default',
@@ -55,7 +55,7 @@ export default {
           },
         },
       ],
-    }
+    };
   },
-}
+};
 </script>

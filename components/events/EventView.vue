@@ -1,10 +1,10 @@
 <template>
   <v-list>
     <v-list-item>
-      <v-list-item-content>
+      <!-- <v-list-item-content>
         <v-list-item-subtitle>Category</v-list-item-subtitle>
         <v-list-item-title>{{ event.category }}</v-list-item-title>
-      </v-list-item-content>
+      </v-list-item-content> -->
     </v-list-item>
     <v-list-item>
       <v-list-item-icon>
@@ -32,18 +32,18 @@
         </v-list-item-title>
       </v-list-item-content>
     </v-list-item>
-    <v-list-item>
+    <!-- <v-list-item>
       <v-list-item-content>
         <v-list-item-subtitle>Description</v-list-item-subtitle>
         <span>{{ event.description }}</span>
       </v-list-item-content>
-    </v-list-item>
+    </v-list-item> -->
   </v-list>
 </template>
 
 <script>
 export default {
-  name: 'EventView',
+  name: 'CalEventView',
 
   props: {
     event: {

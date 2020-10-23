@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import EventCalendar from '~/components/events/Events.vue';
+import EventCalendar from '~/components/events/EventCalendar.vue';
 import setPageTitle from '~/middleware/setPageTitle.js';
 import lists from '~/utilities/ns/public/lists.js';
 export default {

@@ -38,11 +38,10 @@
 </template>
 
 <script>
-import EventSwitch from './EventSwitch.vue';
 import EventRoleList from './EventRoleList.vue';
 export default {
   name: 'EventDialogOptions',
-  components: { EventSwitch, EventRoleList },
+  components: { EventRoleList },
   props: {
     rvsp: {
       type: Boolean,

@@ -1,6 +1,6 @@
 <template>
   <nav>
-    <v-toolbar dark flat :color="color" height="80px">
+    <v-toolbar id="navbar" :color="color" dark flat height="80px">
       <v-container>
         <v-row justify="center" align="center" class="flex-nowrap">
           <v-app-bar-nav-icon
@@ -17,19 +17,17 @@
             />
           </v-toolbar-title>
           <v-tabs
-            :height="'80px'"
             align-with-title
             v-model="tab"
             class="hidden-sm-and-down"
+            :height="'80px'"
           >
-            <v-tab
+            <nav-link
               v-for="(link, idx) in links"
-              nuxt
               :key="idx"
-              :to="link.to"
+              :link="link"
               :class="{ 'ml-4': idx === 0 }"
-              >{{ link.title }}</v-tab
-            >
+            ></nav-link>
             <v-tab
               v-if="$auth.loggedIn && $auth.hasScope('view:events')"
               nuxt
@@ -84,20 +82,28 @@ import AuthDialog from '~/components/auth/AuthDialog.vue';
 import UserPanel from '~/components/navigation/UserPanelWithActivator.vue';
 import RecruitDialog from '~/components/recruitment/RecruitDialog.vue';
 import UserNavMobile from './UserNavMobile.vue';
+import NavLink from './NavigationLink.vue';
 
 import menu from '~/utilities/ns/public/menu.js';
 
 export default {
   name: 'NavHeader',
-  components: { UserPanel, AuthDialog, UserNavMobile, RecruitDialog },
+  components: {
+    UserPanel,
+    AuthDialog,
+    UserNavMobile,
+    RecruitDialog,
+    NavLink,
+  },
 
   data() {
     return {
-      color: '#1E1E1E',
       showMobile: false,
       showAuth: false,
       showForm: false,
       tab: null,
+
+      color: '#1E1E1E',
 
       userPanelLinks: [
         {

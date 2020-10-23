@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import UserNavbar from '~/components/navigation/NavHeader2.vue';
+import UserNavbar from '~/components/navigation/NavHeader.vue';
 import VideoBanner from '~/components/frontpage/VideoBanner.vue';
 import ParallaxBanner from '~/components/Parallax.vue';
 import SnackBar from '~/components/SnackBar.vue';
