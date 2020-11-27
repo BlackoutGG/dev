@@ -9,9 +9,11 @@
     :multi-line="options.multiLine"
     :vertical="options.vertical"
   >
-    <span>{{ text }}</span>
-    <v-spacer></v-spacer>
-    <v-btn text dark @click="showBar = false">CLOSE</v-btn>
+    {{ text }}
+
+    <template #action="{ attrs }">
+      <v-btn text @click="showBar = false" v-bind="attrs">CLOSE</v-btn>
+    </template>
   </v-snackbar>
 </template>
 

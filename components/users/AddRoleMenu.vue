@@ -6,8 +6,12 @@
       </v-chip>
     </template>
     <v-list>
-      <v-list-item v-for="(role, idx) in roles" :key="idx" @click.stop="addRole(role)">
-        <span>{{role.name}}</span>
+      <v-list-item
+        v-for="(role, idx) in roles"
+        :key="idx"
+        @click.stop="addRole(role)"
+      >
+        <span>{{ role.name }}</span>
       </v-list-item>
     </v-list>
   </v-menu>
@@ -36,7 +40,7 @@ export default {
 
   computed: {
     roles() {
-      return this.$store.getters[roles.getters.ROLES];
+      return this.$store.getters[roles.getters.ITEMS];
     },
   },
 };

@@ -12,28 +12,32 @@
   "dependencies": {
     "@fullcalendar/daygrid": "^5.3.2",
     "@fullcalendar/interaction": "^5.3.1",
+    "@fullcalendar/list": "^5.3.1",
     "@fullcalendar/timegrid": "^5.3.1",
     "@fullcalendar/vue": "^5.3.1",
     "@nuxtjs/auth": "^4.9.1",
     "@nuxtjs/axios": "^5.12.0",
-    "dompurify": "^2.1.1",
-    "nanoid": "^3.1.12",
-    "nuxt": "^2.14.0",
+    "@nuxtjs/date-fns": "^1.4.1",
+    "@nuxtjs/dayjs": "^1.2.0",
+    "array-move": "^3.0.1",
+    "dompurify": "^2.2.2",
+    "nanoid": "^3.1.16",
+    "nuxt": "^2.14.7",
     "pluralize": "^8.0.0",
     "vue-infinite-loading": "^2.4.5",
     "vue-recaptcha": "^1.3.0",
-    "vuedraggable": "^2.24.1"
+    "vuedraggable": "^2.24.3"
   },
   "devDependencies": {
     "@nuxtjs/vuetify": "^1.11.2",
-    "@vue/test-utils": "^1.0.3",
+    "@vue/test-utils": "^1.1.1",
     "babel-core": "7.0.0-bridge.0",
-    "babel-jest": "^26.1.0",
-    "eslint-config-prettier": "^6.11.0",
+    "babel-jest": "^26.6.3",
+    "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-prettier": "^3.1.4",
-    "jest": "^26.1.0",
-    "prettier": "^2.0.5",
+    "jest": "^26.6.3",
+    "prettier": "^2.1.2",
     "qs": "^6.9.4",
-    "vue-jest": "^3.0.4"
+    "vue-jest": "^3.0.7"
   }
 }

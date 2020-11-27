@@ -79,15 +79,21 @@ export default {
         return output;
       }, []);
 
-      return this.$createElement('v-list', { props }, actionsToShow);
+      return this.$createElement(
+        'v-list',
+        { props },
+        actionsToShow.sort((a, b) => a.order - b.order)
+      );
     },
 
     genItem(action) {
       const props = { link: true };
-      const nativeOn = { click: () => this.$emit(action.text.toLowerCase()) };
+      const nativeOn = {
+        click: () => this.$emit(action.text.toLowerCase().replace(/\s/g, '-')),
+      };
 
       const icon = () => {
-        const iconProps = { left: true };
+        const iconProps = { left: true, small: true };
         return this.$createElement('v-icon', { props: iconProps }, [
           action.icon,
         ]);

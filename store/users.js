@@ -19,7 +19,7 @@ const state = () => ({
 });
 
 const getters = {
-  [ns.getters.USERS]: (state) => state.users,
+  [ns.getters.ITEMS]: (state) => state.users,
 
   [ns.getters.SELECTED]: (state) => state.selected,
 

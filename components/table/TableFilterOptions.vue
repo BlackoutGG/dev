@@ -45,7 +45,7 @@
       <template #subheader>
         <v-subheader>FILTERS</v-subheader>
       </template>
-      <template #footer>
+      <template #footer v-if="footer">
         <v-card-actions>
           <v-btn depressed color="primary" @click.native="$emit('update')"
             >Save</v-btn
@@ -86,6 +86,10 @@ export default {
     cardMaxWidth: {
       type: Number,
       default: 500,
+    },
+    footer: {
+      type: Boolean,
+      default: false,
     },
   },
 

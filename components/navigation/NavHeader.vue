@@ -61,7 +61,7 @@
                     }}</span>
                   </v-avatar>
                   <span>{{ $auth.user.username }}</span>
-                  <v-icon right>mdi-chevron-down</v-icon>
+                  <v-icon small>mdi-chevron-down</v-icon>
                 </div>
               </template>
             </user-panel>

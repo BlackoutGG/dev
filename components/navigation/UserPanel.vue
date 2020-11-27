@@ -10,7 +10,7 @@
           <v-list-item-content>
             <v-list-item-title>{{ username }}</v-list-item-title>
           </v-list-item-content>
-          <v-list-item-icon class="ml-2 align-self-center">
+          <v-list-item-icon class="ml-1 align-self-center">
             <v-icon small>mdi-chevron-down</v-icon>
           </v-list-item-icon>
         </v-list-item>

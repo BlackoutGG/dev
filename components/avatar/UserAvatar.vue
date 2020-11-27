@@ -13,19 +13,19 @@
 </template>
 
 <script>
-import avatar from "~/mixins/avatar.js";
+import avatar from '~/mixins/avatar.js';
 export default {
-  name: "LargeAvatar",
+  name: 'LargeAvatar',
   props: {
     size: {
       type: Number,
-      default: 62
+      default: 62,
     },
     color: {
       type: String,
-      default: "primary"
-    }
+      default: 'primary',
+    },
   },
-  mixins: [avatar]
+  mixins: [avatar],
 };
 </script>

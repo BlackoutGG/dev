@@ -10,7 +10,7 @@
 
 <script>
 import AdminNavbar from "~/components/navigation/admin/AdminNavbarWithMobile.vue";
-import Snackbar from "~/components/SnackBar.vue";
+import Snackbar from "~/components/core/SnackBar.vue";
 export default {
   name: "Admin",
   // components: { AdminNavbar, AdminNavDrawer, Snackbar },

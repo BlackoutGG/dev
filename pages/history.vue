@@ -6,21 +6,19 @@
 </template>
 
 <script>
-import setTitle from '~/middleware/setPageTitle.js'
-import ParallaxBanner from '~/components/Parallax.vue'
+import ParallaxBanner from '~/components/core/Parallax.vue';
 export default {
   name: 'History',
 
   components: { ParallaxBanner },
 
-  middleware: [setTitle('History')],
   head() {
-    return { title: 'History' }
+    return { title: 'History' };
   },
   data() {
     return {
       title: 'History',
-    }
+    };
   },
-}
+};
 </script>

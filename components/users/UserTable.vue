@@ -14,6 +14,7 @@
               :name="name"
               @update="onUpdate"
               @reset="onReset"
+              footer
             ></table-filter-options>
             <v-btn text :disabled="!selectedItems.length" @click="open = true">
               <v-icon v-text="icon"></v-icon>
@@ -45,7 +46,7 @@
             hide-default-footer
             :server-items-length="total"
             :items-per-page="limit"
-            :items="users"
+            :items="items"
             :headers="headers"
             :item-key="'id'"
           >
@@ -203,18 +204,18 @@ export default {
 
   computed: {
     /**
-     * this.users,
+     * this.items,
      * this.selectedIds
      */
-    ...mapGetters([_users.getters.USERS, _users.getters.SELECTED_IDS]),
+    ...mapGetters([_users.getters.ITEMS, _users.getters.SELECTED_IDS]),
 
     isRolesPopulated() {
-      return this.$store.getters[roles.getters.ROLES].length;
+      return this.$store.getters[roles.getters.ITEMS].length;
     },
 
     filters() {
       const children = this.$store.getters[
-        roles.getters.ROLES
+        roles.getters.ITEMS
       ].map(({ name, id }) => ({ id, name }));
 
       const filters = {

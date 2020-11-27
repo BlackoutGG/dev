@@ -1,29 +1,29 @@
-import snackbar from "~/utilities/ns/private/snackbar.js";
+import snackbar from '~/utilities/ns/private/snackbar.js';
 
 const defaultOptions = {
   x: null,
-  y: "top",
+  y: 'bottom',
   mode: null,
-  color: "#000",
-  timeout: 3000
+  color: '#000',
+  timeout: 3000,
 };
 
 const state = () => ({
-  text: "",
+  text: '',
 
   options: {
     x: defaultOptions.x,
     y: defaultOptions.y,
     mode: defaultOptions.mode,
     color: defaultOptions.color,
-    timeout: defaultOptions.timeout
-  }
+    timeout: defaultOptions.timeout,
+  },
 });
 
 const getters = {
-  [snackbar.getters.TEXT]: state => state.text,
-  [snackbar.getters.DISPLAY]: state => !!state.text,
-  [snackbar.getters.OPTIONS]: state => state.options
+  [snackbar.getters.TEXT]: (state) => state.text,
+  [snackbar.getters.DISPLAY]: (state) => !!state.text,
+  [snackbar.getters.OPTIONS]: (state) => state.options,
 };
 
 const mutations = {
@@ -45,7 +45,7 @@ const mutations = {
   },
   [snackbar.mutations.SET_TEXT](state, text) {
     state.text = text;
-  }
+  },
 };
 
 const actions = {
@@ -54,21 +54,21 @@ const actions = {
     if (text) {
       commit(snackbar.mutations.SET_OPTIONS, options);
       commit(snackbar.mutations.SET_TEXT, text);
-      console.log("toggling bar...");
+      console.log('toggling bar...');
     } else {
       commit(snackbar.mutations.RESET_OPTIONS);
-      commit(snackbar.mutations.SET_TEXT, "");
-      console.log("resetting bar...");
+      commit(snackbar.mutations.SET_TEXT, '');
+      console.log('resetting bar...');
     }
   },
   [snackbar.actions.ERROR]({ dispatch }) {
-    const text = "Encountered an error. Please contact administration.";
+    const text = 'Encountered an error. Please contact administration.';
     dispatch(snackbar.actions.TOGGLE_BAR, { text });
   },
   [snackbar.actions.SUCCESS]({ dispatch }) {
-    const text = "Saved Changes.";
+    const text = 'Saved Changes.';
     dispatch(snackbar.actions.TOGGLE_BAR, { text });
-  }
+  },
 };
 
 export default { state, getters, mutations, actions };

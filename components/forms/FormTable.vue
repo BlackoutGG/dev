@@ -14,6 +14,7 @@
             :name="name"
             @update="onUpdate"
             @reset="onReset"
+            footer
           />
           <v-btn text :disabled="!selectedItems.length" @click="open = true">
             <v-icon v-text="icon"></v-icon>

@@ -1,6 +1,6 @@
 export default {
   getters: {
-    USERS: 'users/users',
+    ITEMS: 'users/items',
     GET_USER: 'users/getUser',
     SELECTED: 'users/selected',
     SELECTED_IDS: 'users/selectedIds',

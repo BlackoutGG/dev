@@ -138,7 +138,7 @@ export default {
     },
 
     genIcon(icon, opts = {}) {
-      const props = Object.assign({}, opts, { right: true, small: true });
+      const props = Object.assign({}, opts, { right: false, small: true });
       return this.$createElement('v-icon', { props }, icon);
     },
 

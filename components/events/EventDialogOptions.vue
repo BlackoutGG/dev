@@ -1,5 +1,5 @@
 <template>
-  <section id="event-options">
+  <v-container>
     <v-list>
       <v-list-item>
         <v-list-item-content>
@@ -34,7 +34,7 @@
       </v-list-item>
     </v-list>
     <event-role-list v-model="computedRoles" v-if="showRoles"></event-role-list>
-  </section>
+  </v-container>
 </template>
 
 <script>

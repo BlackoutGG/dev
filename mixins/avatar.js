@@ -7,9 +7,9 @@ export default {
       if (this.username) {
         const initials = this.username.match(/\b\w/g) || [];
         return (
-          (initials.shift() || "") + (initials.pop() || "")
+          (initials.shift() || '') + (initials.pop() || '')
         ).toUpperCase();
       }
-    }
-  }
+    },
+  },
 };

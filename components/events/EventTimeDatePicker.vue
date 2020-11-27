@@ -2,12 +2,12 @@
   <v-menu
     v-model="open"
     ref="menu"
-    :close-on-content-click="false"
-    :return-value.sync="input"
     transition="scale-transition"
     offset-y
     min-width="290px"
     max-width="290px"
+    :close-on-content-click="false"
+    :return-value.sync="input"
   >
     <template v-slot:activator="{ on, attrs }">
       <v-text-field
@@ -22,7 +22,13 @@
         v-on="on"
       ></v-text-field>
     </template>
-    <v-date-picker v-model="input" no-title scrolalble v-if="date && !time">
+    <!-- <v-date-picker
+      v-model="input"
+      :max="max"
+      :min="min"
+      no-title
+      v-if="date && !time"
+    >
       <v-spacer></v-spacer>
       <v-btn text color="primary" @click="open = false">Cancel</v-btn>
       <v-btn text color="primary" @click="$refs.menu.save(input)">Save</v-btn>
@@ -31,7 +37,17 @@
       <v-spacer></v-spacer>
       <v-btn text color="primary" @click="open = false">Cancel</v-btn>
       <v-btn text color="primary" @click="$refs.menu.save(input)">Save</v-btn>
-    </v-time-picker>
+    </v-time-picker> -->
+    <component
+      :is="component"
+      v-model="input"
+      v-bind="componentProps"
+      v-if="!readonly"
+    >
+      <v-spacer></v-spacer>
+      <v-btn text color="primary" @click="open = false">Cancel</v-btn>
+      <v-btn text color="primary" @click="$refs.menu.save(input)">Save</v-btn>
+    </component>
   </v-menu>
 </template>
 
@@ -58,8 +74,18 @@ export default {
       type: Boolean,
       default: false,
     },
+    max: {
+      type: [String],
+    },
+    min: {
+      type: [String],
+    },
     rules: {
       type: [Function, Object, Array, String],
+    },
+    readonly: {
+      type: Boolean,
+      default: false,
     },
   },
   data() {
@@ -90,6 +116,16 @@ export default {
 
     parsed() {
       return this.$dateFns.parseISO(this.modifier);
+    },
+
+    component() {
+      return this.date ? 'v-date-picker' : 'v-time-picker';
+    },
+
+    componentProps() {
+      const dateProps = { max: this.max, min: this.min, 'no-title': true };
+      const timeProps = { 'full-width': true };
+      return this.date ? dateProps : timeProps;
     },
   },
 };

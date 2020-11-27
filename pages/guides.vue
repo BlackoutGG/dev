@@ -6,8 +6,7 @@
 </template>
 
 <script>
-import setTitle from '~/middleware/setPageTitle.js'
-import ParallaxBanner from '~/components/Parallax.vue'
+import ParallaxBanner from '~/components/core/Parallax.vue';
 export default {
   name: 'Guides',
   components: { ParallaxBanner },
@@ -15,13 +14,13 @@ export default {
   layout: 'default',
 
   head() {
-    return { title: 'Guides' }
+    return { title: 'Guides' };
   },
 
   data() {
     return {
       title: 'Guides',
-    }
+    };
   },
-}
+};
 </script>

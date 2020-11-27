@@ -6,7 +6,8 @@ export default {
    ** Nuxt rendering mode
    ** See https://nuxtjs.org/api/configuration-mode
    */
-  mode: 'spa',
+  // mode: 'spa',
+  ssr: false,
   /*
    ** Nuxt target
    ** See https://nuxtjs.org/api/configuration-target
@@ -54,7 +55,7 @@ export default {
   /*
    ** Nuxt.js dev-modules
    */
-  buildModules: ['@nuxtjs/vuetify', '@nuxtjs/auth'],
+  buildModules: ['@nuxtjs/vuetify', '@nuxtjs/auth', '@nuxtjs/dayjs'],
   /*
    ** Nuxt.js modules
    */
@@ -62,6 +63,18 @@ export default {
     // Doc: https://axios.nuxtjs.org/usage
     '@nuxtjs/axios',
   ],
+
+  dayjs: {
+    locales: ['en'],
+    defaultLocale: 'en',
+    plugins: [
+      'isToday',
+      'isBetween',
+      'weekday',
+      'weekOfYear',
+      'advancedFormat',
+    ],
+  },
   /*
    ** Axios module configuration
    ** See https://axios.nuxtjs.org/options
@@ -86,7 +99,7 @@ export default {
             method: 'post',
             propertyName: 'token',
           },
-          logout: false,
+          logout: { url: '/auth/logout', method: 'post' },
           user: { url: '/auth/user', method: 'get', propertyName: 'user' },
         },
       },
@@ -120,6 +133,6 @@ export default {
    ** See https://nuxtjs.org/api/configuration-build/
    */
   build: {
-    transpile: /@fullcalendar.*/
+    transpile: /@fullcalendar.*/,
   },
 };

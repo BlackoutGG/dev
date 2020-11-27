@@ -4,14 +4,15 @@
     id="event-dialog"
     :max-width="maxWidth"
     :min-height="height"
+    scrollable
   >
     <template #activator="{ on, attrs }">
-      <v-btn text v-bind="attrs" v-on="on">
+      <v-btn class="mr-2" text v-bind="attrs" v-on="on">
         <v-icon v-text="icon" left></v-icon>
         <span>Add Event</span>
       </v-btn>
     </template>
-    <v-card :min-height="height" scrollable>
+    <v-card>
       <v-toolbar dark>
         <v-toolbar-title>
           <span>{{ title }}</span>
@@ -24,25 +25,25 @@
       <v-tabs fixed-tabs v-model="tab">
         <v-tab v-for="(tab, i) in tabs" :key="i">{{ tab }}</v-tab>
       </v-tabs>
-      <v-tabs-items v-model="tab" v-if="details">
-        <v-tab-item>
-          <v-card-text :height="innerCardHeight">
+      <v-card-text :height="827">
+        <v-tabs-items v-model="tab" v-if="details">
+          <v-tab-item>
             <event-form
               v-model="valid"
               ref="form"
               :event="details"
+              :hide="hideFields"
+              :readOnlyAll="isViewMode"
             ></event-form>
-          </v-card-text>
-        </v-tab-item>
-        <v-tab-item>
-          <v-card-text>
+          </v-tab-item>
+          <v-tab-item>
             <event-options
               v-model="roles"
               :rvsp.sync="details.rvsp"
             ></event-options>
-          </v-card-text>
-        </v-tab-item>
-      </v-tabs-items>
+          </v-tab-item>
+        </v-tabs-items>
+      </v-card-text>
 
       <v-card-actions>
         <v-spacer></v-spacer>
@@ -60,6 +61,7 @@
 import events from '~/utilities/ns/public/events.js';
 import EventForm from './EventForm.vue';
 import EventOptions from './EventDialogOptions.vue';
+import EventDetails from './EventDetails.js';
 
 import pickBy from 'lodash/pickBy';
 import cloneDeep from 'lodash/cloneDeep';
@@ -70,6 +72,15 @@ export default {
   name: 'CalEventDialog',
   components: { EventForm, EventOptions },
 
+  props: {
+    start: {
+      type: String,
+    },
+    end: {
+      type: String,
+    },
+  },
+
   data() {
     return {
       open: false,
@@ -78,7 +89,9 @@ export default {
       tabs: ['Form', 'Options'],
       tab: 0,
 
-      isEditMode: false,
+      readonly: false,
+
+      mode: 'add',
 
       icon: 'mdi-plus',
 
@@ -88,10 +101,6 @@ export default {
       innerCardHeight: 500,
 
       isSending: false,
-
-      start_recur: null,
-      end_recur: null,
-      interval: null,
 
       roles: [],
       startingRoles: [],
@@ -105,13 +114,14 @@ export default {
     open(v) {
       if (!v) return this.reset();
 
-      if (!this.isEditMode) {
+      if (this.isAddMode) {
         this.details = {
           title: '',
           description: '',
           color: '',
           category_id: 1,
           all_day: false,
+          interval: 'once',
           start_time: '',
           end_time: '',
           start_date: '',
@@ -123,24 +133,59 @@ export default {
   },
 
   methods: {
-    async save() {
-      const { category, organizer, ...details } = await this.$store.dispatch(
-        this.isEditMode ? events.actions.EDIT_EVENT : events.actions.ADD_EVENT,
-        this.isEditMode
-          ? { id: this.details.id, ...this.toUpdate }
-          : this.details
-      );
-
-      console.log(details);
-
-      if (this.isEditMode) this.setStartingValues(details);
-      else this.close();
+    openFromDate(date) {
+      this.open = true;
+      this.$nextTick(() => {
+        this.details.start_date = date;
+        this.details.end_date = date;
+      });
     },
 
-    async getEvent(id) {
+    async save() {
+      const addData = {
+        ...this.details,
+        duration: this.duration,
+        start: this.start,
+        end: this.end,
+      };
+
+      const editData = {
+        id: this.details.id,
+        ...this.toUpdate,
+        duration: this.duration,
+      };
+
+      if (this.isRecurring) {
+        addData.isRecurring = true;
+      }
+
+      // const { category, organizer, ...details } = await this.$store.dispatch(
+      //   this.isEditMode ? events.actions.EDIT_EVENT : events.actions.ADD_EVENT,
+      //   this.isEditMode ? editData : addData
+      // );
+
+      this.$store.dispatch(
+        this.isEditMode ? events.actions.EDIT_EVENT : events.actions.ADD_EVENT,
+        this.isEditMode ? editData : addData
+      );
+
+      // console.log(details);
+
+      // if (this.isEditMode) this.setStartingValues(details);
+      // else this.close();
+
+      this.close();
+    },
+
+    async getEvent(event_id, secondary_id) {
       this.isSending = true;
+
+      const params = { id: secondary_id };
+
       try {
-        const { event } = (await this.$axios.get(`/events/${id}`)).data;
+        const { event } = (
+          await this.$axios.get(`/events/${event_id}`, { params })
+        ).data;
         return event;
       } catch (err) {
         return err;
@@ -154,9 +199,10 @@ export default {
         this.startingValues = null;
         this.startingRoles = [];
       }
-      this.$refs.form.reset();
+      if (this.$refs.form) this.$refs.form.reset();
       this.$nextTick(() => {
-        this.isEditMode = false;
+        this.mode = 'add';
+        this.readonly = false;
         this.details = null;
       });
     },
@@ -164,21 +210,39 @@ export default {
     close() {
       this.open = false;
       this.tab = 0;
-      this.reset();
+      this.$next;
     },
 
     setStartingValues(obj) {
       this.startingValues = Object.assign({}, pickBy(cloneDeep(obj), picked));
     },
 
-    async setEditableContent({ id }) {
-      this.eventId = id;
-      this.isEditMode = true;
-      this.open = true;
-      const { category, organizer, ...event } = await this.getEvent(id);
+    async setEditableContent({ type, event }) {
+      console.log(type, event);
 
-      this.details = event;
-      this.setStartingValues(this.details);
+      if (type === 'more-info') {
+        this.mode = 'view';
+      } else if (type === 'edit-event-series') {
+        this.mode = 'edit-event-series';
+      } else {
+        this.mode = 'edit-event';
+      }
+      // this.isEditMode = true;
+      this.eventId = event.event_id;
+
+      this.open = true;
+      const { category, organizer, ...details } = await this.getEvent(
+        event.event_id,
+        event.id
+      );
+
+      console.log(details);
+
+      if (details) {
+        this.details = new EventDetails(details);
+        this.startingValues = new EventDetails(details);
+      }
+      // this.setStartingValues(this.details);
     },
   },
 
@@ -196,10 +260,57 @@ export default {
         : [];
     },
 
+    viewMode() {
+      return this.readonly === true;
+    },
+
+    hideFields() {
+      switch (this.mode) {
+        case 'edit-event-series':
+          return ['start_date', 'end_date', 'interval', 'all_day'];
+        case 'edit-event':
+          return ['interval', 'all_day'];
+        default:
+          break;
+      }
+      // return this.isRecurring
+      //   ? ['start_date', 'end_date', 'interval', 'all_day']
+      //   : [];
+    },
+
     rolesToUpdatae() {
       return this.roles.filter(
         (role) => this.startingRoles.indexOf(role) === -1
       );
+    },
+
+    isEditEventMode() {
+      return this.mode === 'edit';
+    },
+
+    isEditSeriesMode() {
+      return this.mode === 'edit-event-series';
+    },
+
+    isAddMode() {
+      return this.mode === 'add';
+    },
+
+    isViewMode() {
+      return this.mode === 'view';
+    },
+
+    isRecurring() {
+      return this.details.interval !== 'once' && this.isEditMode;
+    },
+
+    duration() {
+      return this.details.start_date && this.details.end_date
+        ? this.$dayjs(this.details.end_date).diff(
+            this.$dayjs(this.details.start_date),
+            'day'
+          )
+        : 0;
     },
 
     height: {

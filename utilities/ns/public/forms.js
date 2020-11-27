@@ -9,7 +9,7 @@ export default {
     QUERY_PARAMS: 'forms/queryParams',
     SELECTED: 'forms/selected',
     SELECTED_IDS: 'users/selectedIds',
-    FORMS: 'forms/forms',
+    ITEMS: 'forms/items',
   },
   mutations: {
     ADD_QUESTION: 'forms/addQuestion',

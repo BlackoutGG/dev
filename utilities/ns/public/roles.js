@@ -1,6 +1,6 @@
 export default {
   getters: {
-    ROLES: 'roles/roles',
+    ITEMS: 'roles/items',
     SELECTED: 'roles/selected',
     SELECTED_IDS: 'roles/selectedIds',
     GET_ROLE: 'roles/getRole',

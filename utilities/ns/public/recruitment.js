@@ -1,10 +1,10 @@
 export default {
   getters: {
+    ITEMS: 'recruitment/items',
     FILTERS: 'recruitment/filters',
     QUERY_PARAMS: 'recruitment/queryParams',
     SELECTED: 'recruitment/selected',
     SELECTED_IDS: 'users/selectedIds',
-    FORMS: 'recruitment/forms',
   },
   mutations: {
     SET_SELECTED: 'recruitment/setSelected',

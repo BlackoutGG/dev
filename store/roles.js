@@ -18,7 +18,7 @@ const state = () => ({
 });
 
 const getters = {
-  [ns.getters.ROLES]: (state) => state.roles,
+  [ns.getters.ITEMS]: (state) => state.roles,
 
   [ns.getters.SELECTED]: (state) => state.selected,
 
