@@ -1,21 +1,72 @@
 <template>
   <section id="events">
     <parallax-banner :title="title"></parallax-banner>
-    <v-container fluid>
-      <calendar />
+    <v-container>
+      <v-row>
+        <v-col cols="12" md="6">
+          <v-btn text fab small color="grey darken-2" @click="prev">
+            <v-icon>mdi-chevron-left</v-icon>
+          </v-btn>
+          <span class="text-h6 white--text" v-if="$refs.calendar">{{
+            $refs.calendar.title
+          }}</span>
+          <span class="text-h6 white--text" v-else-if="$refs.upcoming">{{
+            $refs.upcoming.title
+          }}</span>
+          <v-btn text fab small color="grey darken-2" @click="next">
+            <v-icon>mdi-chevron-right</v-icon>
+          </v-btn>
+        </v-col>
+        <v-col cols="12" md="6">
+          <div class="d-flex align-center">
+            <v-spacer></v-spacer>
+            <event-dialog
+              ref="dialog"
+              v-if="$auth.hasScope(['add:events']) && $refs.calendar"
+              :start="startOfCalendarView"
+              :end="endOfCalendarView"
+            ></event-dialog>
+            <v-btn-toggle>
+              <v-btn small outlined @click="view = 'monthGrid'">
+                <span>Month</span>
+              </v-btn>
+              <v-btn small @click="view = 'upcomingEvents'">
+                <span>Upcoming</span>
+              </v-btn>
+            </v-btn-toggle>
+          </div>
+        </v-col>
+      </v-row>
+      <month-grid
+        :events="events"
+        ref="calendar"
+        @change="onChange"
+        @dayClick="onDayClick"
+        v-if="view === 'monthGrid'"
+      ></month-grid>
+      <upcoming-events
+        :events="events"
+        ref="upcoming"
+        @change="onChange"
+        v-else
+      ></upcoming-events>
     </v-container>
   </section>
 </template>
 
 <script>
-import Calendar from '~/components/calendar/Calendar.vue';
+import events from '~/utilities/ns/public/events.js';
+
+import MonthGrid from '~/components/calendar/Calendar2.vue';
+import UpcomingEvents from '~/components/calendar/CalendarUpcoming.vue';
 import ParallaxBanner from '~/components/core/Parallax.vue';
 import lists from '~/utilities/ns/public/lists.js';
 export default {
   name: 'Events',
   layout: 'default',
 
-  components: { ParallaxBanner, Calendar },
+  components: { ParallaxBanner, MonthGrid, UpcomingEvents },
+
   middleware: [
     'auth',
     ({ $auth, store, redirect }) => {
@@ -30,10 +81,41 @@ export default {
   head() {
     return { title: 'Events' };
   },
+
   data() {
     return {
       title: 'Events',
+      view: 'monthGrid',
     };
+  },
+
+  methods: {
+    onChange({ start, end }) {
+      this.$store.dispatch(events.actions.FETCH, { start, end });
+    },
+    onDayClick(date) {
+      this.$refs.dialog.openFromDate(date);
+    },
+    prev() {
+      if (this.$refs.calendar) this.$refs.calendar.prev();
+      else this.$refs.upcoming.prev();
+    },
+    next() {
+      if (this.$refs.calendar) this.$refs.calendar.next();
+      else this.$refs.upcoming.next();
+    },
+  },
+
+  computed: {
+    events() {
+      return this.$store.getters[events.getters.ITEMS];
+    },
+    startOfCalendarView() {
+      return this.$refs.calendar.startOfCalendarView;
+    },
+    endOfCalendarView() {
+      return this.$refs.calendar.endOfCalendarView;
+    },
   },
 };
 </script>

@@ -1,18 +1,26 @@
 <template>
   <v-row class="upcoming-event" align="center">
-    <v-col md="4">
-      <div class="d-flex align-center">
+    <v-col md="2" cols="12">
+      <div :class="timeClasses">
         <v-icon :color="color">mdi-circle-medium</v-icon>
         <div class="px-2">{{ eventTime }}</div>
       </div>
     </v-col>
-    <v-col md="6">
+    <v-col md="4" cols="12" :class="titleClasses">
       <span>{{ event.title }}</span>
     </v-col>
-    <v-col md="2">
-      <div class="d-flex">
-        <v-spacer></v-spacer>
-        <v-btn outlined @click="joinEvent"> {{ eventJoinStatus }}</v-btn>
+    <v-col md="6" cols="12">
+      <div :class="buttonWrapperClasses">
+        <v-spacer v-if="!$vuetify.breakpoint.smAndDown"></v-spacer>
+        <v-btn outlined small @click="joinEvent"> {{ eventJoinStatus }}</v-btn>
+        <span class="pl-3"
+          >{{ event.extendedProps.participants }} are coming</span
+        >
+      </div>
+      <div v-if="$vuetify.breakpoint.smAndDown">
+        <div class="mt-6"></div>
+        <v-divider></v-divider>
+        <div class="pb-4"></div>
       </div>
     </v-col>
   </v-row>
@@ -47,6 +55,25 @@ export default {
       return this.event.extendedProps.joined ? 'Leave' : 'Join';
     },
 
+    titleClasses() {
+      return { 'text-center': this.$vuetify.breakpoint.smAndDown };
+    },
+
+    timeClasses() {
+      return [
+        'd-flex',
+        'align-center',
+        { 'justify-center': this.$vuetify.breakpoint.smAndDown },
+      ];
+    },
+
+    buttonWrapperClasses() {
+      return [
+        'd-flex',
+        { 'justify-center': this.$vuetify.breakpoint.smAndDown },
+      ];
+    },
+
     color() {
       return this.event.color || 'primary';
     },
@@ -59,15 +86,11 @@ export default {
       return this.$dayjs(this.event.extendedProps.end_date).isSame(this.date);
     },
 
-    isRecurring() {
-      return this.event.isRecurring;
-    },
-
     eventTime() {
       const start = this.$dayjs(this.event.start).format('h:mm a');
       const end = this.$dayjs(this.event.end).format('h:mm a');
 
-      if (this.event.isRecurring) {
+      if (this.event.extendedProps.isMultiDay) {
         if (this.isStart) return `Starts at ${start}`;
         else if (this.isEnd) return `Ends at ${end}`;
         else return 'All day';

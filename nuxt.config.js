@@ -69,6 +69,8 @@ export default {
     defaultLocale: 'en',
     plugins: [
       'isToday',
+      'isSameOrBefore',
+      'isSameOrAfter',
       'isBetween',
       'weekday',
       'weekOfYear',
@@ -132,7 +134,7 @@ export default {
    ** Build configuration
    ** See https://nuxtjs.org/api/configuration-build/
    */
-  build: {
-    transpile: /@fullcalendar.*/,
-  },
+  // build: {
+  //   transpile: /@fullcalendar.*/,
+  // },
 };
