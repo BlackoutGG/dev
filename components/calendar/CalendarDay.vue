@@ -24,8 +24,8 @@
         ></calendar-event>
         <div class="calendar-event placeholder" :key="i" v-else></div>
       </template>
-      <!-- 
-      <template v-for="n in numOfEventsVisible">
+
+      <!-- <template v-for="n in numOfEventsVisible">
         <calendar-event
           v-if="visible[n - 1] && visible[n - 1].order === n - 1"
           :key="n"
@@ -38,12 +38,14 @@
 
       <!-- <template v-for="n in numOfEventsVisible">
         <calendar-event
+          v-if="visible[n - 1]"
           :key="n"
           :event="visible[n - 1]"
           :date="day.date"
           :order="n - 1"
           @click.stop.native="emitEventClick($event, visible[n - 1])"
         ></calendar-event>
+        <div class="calendar-event placeholder" :key="n" v-else></div>
       </template> -->
 
       <v-menu v-if="more.length" offset-y open-on-hover>
@@ -192,8 +194,6 @@ export default {
         const prev = this.dayEvents[idx - 1];
         // const next = this.dayEvents[idx + 1];
 
-        let _order;
-
         // if (!isMulti(e) && isStart(e, this.day.date)) {
         //   const { order, ...event } = e;
         //   if (prev && isMulti(prev) && !isStart(prev, this.day.date)) {
@@ -202,30 +202,47 @@ export default {
         // }
 
         if (isMulti(e)) {
-          const { order, ...event } = e;
-
+          if (!isStart(e, this.day.date)) {
+            const slot = this.dayEvents[e.order];
+            console.log(slot);
+            if (slot && e.order >= slot.order) {
+              return { order: slot.order + 1, ...e };
+            }
+          }
+          //   const { order, ...event } = e;
+          //   if (!isStart(e, this.day.date)) {
+          //     if (next && isMulti(next) && isStart(next, this.day.date)) {
+          //       return { order: next.order + 1, ...event };
+          //     }
+          //   }
+          //   if (isStart(e, this.day.date)) {
+          //     if (prev && isMulti(prev) && !isStart(prev, this.day.date)) {
+          //       if (prev.order === e.order) {
+          //         // return { order: e.order - prev.order, ...event };
+          //         e.order = e.order - prev.order;
+          //       }
+          //     }
+          //   }
           // if (!isStart(e, this.day.date)) {
-          //   if (next && isMulti(next) && isStart(next, this.day.date)) {
-          //     return { order: next.order + 1, ...event };
+          //   const next = this.dayEvents[e.order];
+          //   if (next && !isMulti(next)) {
+          //     if (e.order >= next.order) {
+          //       // next.order = next.order - e.order;
+          //       e.order = next.order;
+          //     }
           //   }
           // }
-
-          if (isStart(e, this.day.date)) {
-            if (prev && isMulti(prev) && !isStart(prev, this.day.date)) {
-              if (prev.order === e.order) {
-                return { order: e.order - prev.order, ...event };
-              }
-            }
-          }
-
-          if (!isStart(e, this.day.date)) {
-            const next = this.dayEvents[e.order];
-            if (next && !isMulti(next)) {
-              if (e.order >= next.order) {
-                next.order = next.order - e.order;
-              }
-            }
-          }
+          // if (!isStart(e, this.day.date)) {
+          //   const max = e.order;
+          //   for (let order = idx; order <= max; order++) {
+          //     const next = this.dayEvents[order];
+          //     if (next && !isMulti(next)) {
+          //       if (e.order >= next.order) {
+          //         next.order -= 1;
+          //       }
+          //     }
+          //   }
+          // }
         }
 
         // if (!isMulti(e)) {
@@ -251,27 +268,29 @@ export default {
         const startB = new Date(b.start);
         return startA - startB;
       };
-      return this.visibleEvents
-        .sort(sortByTime)
-        .sort((a, b) => a.order - b.order);
+      return (
+        this.visibleEvents
+          // .sort(sortByTime)
+          .sort((a, b) => a.order - b.order)
+          .map((e, idx) => {
+            const previous = this.visibleEvents[idx - 1];
+            /**
+             * Check to see if we have multi day events flowing over from other dates.
+             * If so we need to readjust the order property.
+             */
+
+            if (previous && !isMulti(previous)) {
+              if (this.overflow) {
+                const { order, ...event } = e;
+                return { order: order ? order - 1 : order, ...event };
+              }
+            }
+            return e;
+          })
+      );
       // .map((e, idx) => {
       //   const { order, ...event } = e;
       //   return { order: idx, ...event };
-      // });
-      // .map((e, idx) => {
-      //   const previous = this.visibleEvents[idx - 1];
-      //   /**
-      //    * Check to see if we have multi day events flowing over from other dates.
-      //    * If so we need to readjust the order property.
-      //    */
-
-      //   if (previous && !isMulti(previous)) {
-      //     if (this.overflow) {
-      //       const { order, ...event } = e;
-      //       return { order: order ? order - 1 : order, ...event };
-      //     }
-      //   }
-      //   return e;
       // });
     },
 
@@ -290,11 +309,13 @@ export default {
       //   if (events[i]) {
       //     const event = events[i];
       //     const order = event.order;
-      //     if (i === order) display.splice(order, 1, event);
+      //     display.splice(order, 1, event);
+      //   } else {
+      //     display.push(null);
       //   }
       // }
 
-      // return display;
+      // return display.splice(0, 4);
     },
   },
 };

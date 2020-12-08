@@ -15,7 +15,11 @@
         :links="userPanelLinks"
       ></user-panel>
     </v-app-bar>
-    <admin-nav-drawer v-model="showDrawer" :links="links"></admin-nav-drawer>
+    <admin-nav-drawer
+      v-model="showDrawer"
+      :links="links"
+      :title.sync="title"
+    ></admin-nav-drawer>
   </nav>
 </template>
 

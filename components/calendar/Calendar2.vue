@@ -1,67 +1,27 @@
 <template>
-  <v-container>
-    <v-row>
-      <v-col cols="12" md="6">
-        <v-btn text fab small color="grey darken-2" @click="prev">
-          <v-icon>mdi-chevron-left</v-icon>
-        </v-btn>
-        <span class="text-h6 white--text">{{ selectedMonth }}</span>
-        <v-btn text fab small color="grey darken-2" @click="next">
-          <v-icon>mdi-chevron-right</v-icon>
-        </v-btn>
-      </v-col>
-      <v-col cols="12" md="6">
-        <div class="d-flex align-center">
-          <v-spacer></v-spacer>
-          <table-filter-options :filters="filters" :name="name" />
-          <event-dialog
-            ref="dialog"
-            v-if="$auth.hasScope(['add:events'])"
-            :start="startOfCalendarView"
-            :end="endOfCalendarView"
-          ></event-dialog>
-          <v-btn-toggle>
-            <v-btn small outlined>
-              <span>Month</span>
-            </v-btn>
-            <v-btn small>
-              <span>Upcoming</span>
-            </v-btn>
-          </v-btn-toggle>
+  <v-row>
+    <v-col cols="12">
+      <div class="calendar-headers">
+        <div class="calendar-header" v-for="weekday in weekdays" :key="weekday">
+          {{ weekday }}
         </div>
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col cols="12">
-        <div class="calendar-headers">
-          <div
-            class="calendar-header"
-            v-for="weekday in weekdays"
-            :key="weekday"
-          >
-            {{ weekday }}
-          </div>
+      </div>
+      <v-sheet>
+        <div class="calendar-daygrid">
+          <calendar-day
+            v-for="day in days"
+            :events="ordered"
+            :key="day.date"
+            :day="day"
+            :today="day.date === selectedDate"
+            @eventClick="showPopover"
+            @dayClick="onDayClick"
+          ></calendar-day>
         </div>
-        <v-sheet>
-          <div class="calendar-daygrid">
-            <calendar-day
-              v-for="day in days"
-              :events="ordered"
-              :key="day.date"
-              :day="day"
-              :today="day.date === selectedDate"
-              @eventClick="showPopover"
-              @addEvent="openDialogFromDate"
-            ></calendar-day>
-          </div>
-          <event-popover
-            ref="popover"
-            @edit="setEditableContent"
-          ></event-popover>
-        </v-sheet>
-      </v-col>
-    </v-row>
-  </v-container>
+        <event-popover ref="popover" @edit="setEditableContent"></event-popover>
+      </v-sheet>
+    </v-col>
+  </v-row>
 </template>
 
 <script>
@@ -69,7 +29,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import uniqBy from 'lodash/uniqBy';
 import { nanoid } from 'nanoid';
 
-import CalendarDay from './CalendarDay2.vue';
+import CalendarDay from './CalendarDay4.vue';
 import EventDialog from '~/components/events/EventDialog.vue';
 import EventPopover from '~/components/events/EventPopover.vue';
 import TableFilterOptions from '~/components/table/TableFilterOptions.vue';
@@ -81,6 +41,14 @@ import filters from '~/utilities/ns/public/filters.js';
 export default {
   name: 'MyCalendar',
   components: { CalendarDay, EventPopover, EventDialog, TableFilterOptions },
+
+  props: {
+    events: {
+      type: Array,
+      default: () => [],
+    },
+  },
+
   data() {
     return {
       selectedDate: this.$dayjs(this.selectedDate, 'YYYY-MM-DD'),
@@ -92,7 +60,8 @@ export default {
   mounted() {
     const start = this.startOfCalendarView;
     const end = this.endOfCalendarView;
-    this.$store.dispatch(events.actions.FETCH, { start, end });
+    // this.$store.dispatch(events.actions.FETCH, { start, end });
+    this.$emit('change', { start, end });
   },
 
   methods: {
@@ -107,7 +76,7 @@ export default {
         start: this.startOfMonth,
         end: this.endOfMonth,
       });
-      this.$store.dispatch(events.actions.FETCH, { start, end });
+      // this.$store.dispatch(events.actions.FETCH, { start, end });
     },
     next() {
       this.selectedDate = this.$dayjs(this.selectedDate).add(1, 'month');
@@ -120,7 +89,7 @@ export default {
         start: this.startOfMonth,
         end: this.endOfMonth,
       });
-      this.$store.dispatch(events.actions.FETCH, { start, end });
+      // this.$store.dispatch(events.actions.FETCH, { start, end });
     },
     getWeekday(date) {
       return this.$dayjs(date).weekday();
@@ -129,9 +98,11 @@ export default {
       this.$refs.popover.toggle(event, el);
       nativeEvent.stopPropagation();
     },
-    openDialogFromDate(date) {
-      console.log(date);
-      this.$refs.dialog.openFromDate(date);
+    onDayClick(date) {
+      // console.log(date);
+      // this.$refs.dialog.openFromDate(date);
+
+      this.$emit('dayClick', date);
     },
 
     setEditableContent(event) {
@@ -140,8 +111,12 @@ export default {
   },
 
   computed: {
-    events() {
-      return cloneDeep(this.$store.getters[events.getters.ITEMS]);
+    internalEvents() {
+      return [...this.events];
+    },
+
+    title() {
+      return this.selectedMonth;
     },
 
     weekdays() {
@@ -246,7 +221,7 @@ export default {
       // let ref = nanoid();
 
       const days = this.days.reduce((output, day) => {
-        const events = this.events
+        const events = this.internalEvents
           .filter((event) => {
             const start = event.extendedProps.start_date;
             const end = event.extendedProps.end_date;
@@ -261,6 +236,7 @@ export default {
             const isEnd = event.extendedProps.end_date === day.date;
             if (isMulti) {
               const result = {
+                order,
                 start: event.start,
                 end: event.end,
                 ref,
@@ -271,7 +247,7 @@ export default {
                 result.date = day.date;
               } else {
                 result.date = this.$dayjs(event.start).format('YYYY-MM-DD');
-                result.order = order;
+                // result.order = order;
               }
 
               if (isEnd) ref = nanoid();
@@ -327,24 +303,6 @@ export default {
         ...this.currentMonthDays,
         ...this.nextMonthsDays,
       ];
-    },
-
-    categories() {
-      return this.$store.getters[lists.getters.GET_ITEMS](
-        'categories'
-      ).map(({ id, name }) => ({ id, name }));
-    },
-
-    filters() {
-      const categories = {
-        name: 'Categories',
-        type: 'category_id',
-        itemProp: 'id',
-        multiple: true,
-        children: this.categories,
-      };
-
-      return [categories];
     },
   },
 };

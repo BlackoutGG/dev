@@ -1,19 +1,29 @@
 import snackbar from '~/utilities/ns/public/snackbar.js';
+import page from '~/utilities/ns/public/page.js';
 
 export default ({ $axios, $auth, redirect, store }) =>
   $axios.onError((err) => {
     const code = parseInt(err.response && err.response.status);
     const message = err.response.data.message;
     const type = err.response.data.type;
+
+    console.log(message);
+
     if (code === 401) {
-      if (message === 'jwt_expired' && type === 'Unauthorized') {
-        $auth.logout();
-        // if ($auth.loggedIn) {
-        //   console.log('logging you out...');
-        //   $auth.logout();
-        // }
+      if (type === 'Unauthorized') {
+        switch (message) {
+          case 'jwt_expired':
+            $auth.logout();
+            return redirect('/');
+          case 'jwt_revoked':
+            return store.commit(
+              page.mutations.TOGGLE_ACCOUNT_CHANGE_DIALOG,
+              true
+            );
+          default:
+            break;
+        }
       }
-      redirect('/');
     } else if (code === 403) {
       if ($auth.loggedIn) {
         if (message === 'Permission denied' && type === 'Unauthorized') {
