@@ -4,15 +4,18 @@
       <v-row :align="alignItems" :justify="justifyContent" :class="rowClasses">
         <v-col md="6" sm="12">
           <div :class="contentClasses">
-            <p class="title">{{data.title}}</p>
-            <p class="regular">{{data.text}}</p>
+            <p class="title">{{ data.title }}</p>
+            <p class="regular">{{ data.text }}</p>
           </div>
         </v-col>
 
-        <v-col md="6" sm="12" class="hidden-sm-and-down">
+        <v-col md="6" sm="12" class="hidden-sm-and-down" v-if="!hasDefaultSlot">
           <div :class="imageClasses">
             <img :src="data.image.src" alt />
           </div>
+        </v-col>
+        <v-col md="6" sm="12" class="hidden-sm-and-down" v-else>
+          <slot />
         </v-col>
       </v-row>
     </v-container>
@@ -21,20 +24,23 @@
 
 <script>
 export default {
-  name: "InfoBlock",
+  name: 'InfoBlock',
   props: {
     data: {
-      type: [Object, Array]
+      type: [Object, Array],
     },
-    idx: Number
+    idx: Number,
   },
   data() {
     return {
-      alignItems: "center",
-      justifyContent: "center"
+      alignItems: 'center',
+      justifyContent: 'center',
     };
   },
   computed: {
+    hasDefaultSlot() {
+      return !!this.$slots.default || !!this.$scopedSlots.default;
+    },
     row() {
       return this.idx + 1;
     },
@@ -46,37 +52,38 @@ export default {
     },
     contentClasses() {
       return [
-        "d-flex flex-column",
-        "pt-sm-12 pt-md-0",
-        !this.isEven ? "text-left" : "text-right",
-        !this.isEven ? "pl-12" : "pr-12"
+        'd-flex flex-column',
+        'pt-sm-12 pt-md-0',
+        !this.isEven ? 'text-left' : 'text-right',
+        !this.isEven ? 'pl-12' : 'pr-12',
       ];
     },
     imageClasses() {
       return [
-        "d-flex",
-        !this.isEven ? "justify-end" : "justify-start",
-        "align-center",
-        !this.isEven ? "text-left" : "text-right"
+        'd-flex',
+        !this.isEven ? 'justify-end' : 'justify-start',
+        'align-center',
+        !this.isEven ? 'text-left' : 'text-right',
       ];
     },
     rowClasses() {
       return [
-        "info-row",
-        "flex-nowrap",
+        'info-row',
+        'flex-nowrap',
         {
-          "flex-md-row-reverse": this.isEven
-        }
+          'flex-md-row-reverse': this.isEven,
+        },
       ];
-    }
-  }
+    },
+  },
 };
 </script>
 
 <style lang="scss">
 .info-block {
   background: url(https://blackout-gaming.s3.amazonaws.com/Images/webx/black-brush-stroke.webp);
-  height: 290px;
+  // height: 290px;
+  height: 500px;
   width: 100%;
   // margin-bottom: 8rem;
   // &:first-child {

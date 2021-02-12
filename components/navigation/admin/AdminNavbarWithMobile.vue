@@ -45,9 +45,14 @@ export default {
 
       links: [
         {
-          icon: 'mdi-view-dashboard',
+          icon: 'mdi-gauge',
           title: 'Dashboard',
           to: '/admin',
+        },
+        {
+          icon: 'mdi-view-dashboard',
+          title: 'Front Page',
+          to: '/admin/frontpage',
         },
         {
           icon: 'mdi-account-group',

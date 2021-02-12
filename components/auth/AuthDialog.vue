@@ -52,6 +52,10 @@ export default {
     };
   },
 
+  beforeDestroy() {
+    this.show = false;
+  },
+
   watch: {
     open(v) {
       if (!v) {

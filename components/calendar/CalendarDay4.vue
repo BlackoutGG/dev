@@ -1,7 +1,9 @@
 <template>
-  <div :class="rootClasses" :data-date="day.date" @click="onDayClick">
+  <div :class="rootClasses" :data-date="day.date">
     <div class="calendar-day-top d-flex">
-      <div class="calendar-day-label">{{ day.dayText }}</div>
+      <div class="calendar-day-label" @click="onDayDateClick">
+        {{ day.dayText }}
+      </div>
       <v-spacer></v-spacer>
       <v-btn class="calendar-day-add" icon small right @click="onDayClick">
         <v-icon>mdi-plus</v-icon>
@@ -97,7 +99,11 @@ export default {
     onDayClick() {
       this.$emit('dayClick', this.day.date);
     },
-    sort(a, b) {
+    onDayDateClick() {
+      console.log('dayDateClick');
+      this.$emit('dayDateClick', this.day.date);
+    },
+    sortEvents(a, b) {
       if (isMulti(a) && !isStart(a, this.day.date)) {
         const start = a.extendedProps.start_date;
         const relative = this.events.find(
@@ -109,12 +115,35 @@ export default {
             ? 1
             : relative.order <= b.order
             ? -1
-            : 0;
+            : 1;
         } else {
           return a.order >= b.order ? -1 : a.order <= b.order ? 1 : 0;
         }
       }
       return 0;
+
+      // return a.order >= b.order ? -1 : a.order <= b.order ? 1 : 0;
+    },
+    reduceEvents(output, event, idx) {
+      const start = event.extendedProps.start_date;
+      const isEventStartDate = isStart(event, this.day.date);
+
+      // if (isEventStartDate) {
+      //   event.order = idx;
+      // }
+
+      if (isMulti(event) && !isStart(event, this.day.date)) {
+        const start = event.extendedProps.start_date;
+        const relative = this.events.find(
+          (evt) => isMulti(evt) && evt.id === event.id && evt.date === start
+        );
+        if (relative) output[relative.order] = relative;
+      } else {
+        output[event.order] = event;
+        // output.push(event);
+      }
+
+      return output;
     },
   },
 
@@ -129,30 +158,34 @@ export default {
       ];
     },
 
+    filteredEvents() {
+      return this.events.filter((event) => event.date === this.day.date);
+    },
+
+    sortedEvents() {
+      return this.filteredEvents.sort(this.sortEvents).map((event, idx) => {
+        const start = isStart(event, this.day.date);
+        if (start) event.order = idx;
+        return event;
+      });
+    },
+
     dayEvents() {
-      return this.events
-        .filter((event) => event.date === this.day.date)
-        .sort(this.sort)
-        .reduce((output, event, idx) => {
-          const start = event.extendedProps.start_date;
-          const _isStart = isStart(event, this.day.date);
-          if (_isStart) {
-            event.order = idx;
-          }
+      // return this.sortedEvents.reduce(this.reduceEvents, []);
+      return this.sortedEvents.map((event, idx, arr) => {
+        const prev = arr[idx - 1];
+        const next = arr[idx + 1];
 
-          if (isMulti(event) && !isStart(event, this.day.date)) {
-            const start = event.extendedProps.start_date;
-            const relative = this.events.find(
-              (evt) => isMulti(evt) && evt.id === event.id && evt.date === start
-            );
-            if (relative) output[relative.order] = relative;
-          } else {
-            output[idx] = event;
-            // output.push(event);
-          }
+        // if (isMulti(event) && !isStart(event, this.day.date)) {
+        //   if (next && isStart(next, this.day.date)) {
+        //     if (next.order === event.order) {
+        //       next.order = event.order - 1;
+        //     }
+        //   }
+        // }
 
-          return output;
-        }, []);
+        return event;
+      });
     },
 
     overflow() {
@@ -174,7 +207,23 @@ export default {
     },
 
     visible() {
-      return [...this.dayEvents].splice(0, 4);
+      // return this.dayEvents.filter((event) => event.order <= 3);
+      // return [...this.dayEvents].slice(0, 4);
+
+      const events = this.dayEvents;
+      const display = Array(4).fill(null);
+
+      for (let i = 0; i < this.numOfEventsVisible - 1; i++) {
+        if (events[i]) {
+          const event = events[i];
+          const order = event.order;
+          display.splice(order, 1, event);
+        } else {
+          display.push(null);
+        }
+      }
+
+      return display.slice(0, 4);
     },
 
     more() {

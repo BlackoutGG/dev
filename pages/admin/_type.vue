@@ -2,8 +2,9 @@
   <data-table />
 </template>
 <script>
-const types = /posts|categories|tags/;
-import lists from '~/utilities/ns/public/lists.js';
+const types = /categories|tags/;
+// import lists from '~/utilities/ns/public/lists.js';
+import lists from '~/components/table/store/types/public.js';
 import page from '~/utilities/ns/public/page.js';
 import DataTable from '~/components/table/Table.vue';
 import capitalize from 'lodash/capitalize';

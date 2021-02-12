@@ -40,7 +40,7 @@
           hide-default-footer
           :server-items-length="total"
           :items-per-page="limit"
-          :items="forms"
+          :items="items"
           :headers="headers"
           :page.sync="page"
           :item-key="'id'"
@@ -88,17 +88,22 @@
 
 <script>
 import { createNamespacedHelpers } from 'vuex';
-import _recruitment from '~/utilities/ns/private/recruitment.js';
-import recruitment from '~/utilities/ns/public/recruitment.js';
-import filter from '~/utilities/ns/public/filters.js';
-import lists from '~/utilities/ns/public/lists.js';
+// import _recruitment from '~/utilities/ns/private/recruitment.js';
+// import recruitment from '~/utilities/ns/public/recruitment.js';
+// import filter from '~/utilities/ns/public/filters.js';
+// import lists from '~/utilities/ns/public/lists.js';
+
+import _recruitment from './store/types/private.js';
+import recruitment from './store/types/public.js';
+import filter from '~/components/filters/store/types/public.js';
+import lists from '~/components/table/store/types/public.js';
 
 import pagination from '~/mixins/pagination.js';
 import itemManagement from '~/mixins/itemManagement.js';
 
 import TableActions from '~/components/table/TableActions.vue';
 import TableDeleteDialog from '~/components/table/TableDeleteDialog.vue';
-import TableFilterOptions from '~/components/table/TableFilterOptions.vue';
+import TableFilterOptions from '~/components/filters/TableFilterOptions.vue';
 import TableDialogMenu from '~/components/table/TableDialogMenu.vue';
 
 import RecruitDialog from './RecruitDialog.vue';
@@ -168,7 +173,7 @@ export default {
      * this.selectedIds()
      */
     ...mapGetters([
-      _recruitment.getters.FORMS,
+      _recruitment.getters.ITEMS,
       _recruitment.getters.SELECTED_IDS,
     ]),
 

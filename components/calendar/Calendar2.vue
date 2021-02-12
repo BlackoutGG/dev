@@ -16,6 +16,7 @@
             :today="day.date === selectedDate"
             @eventClick="showPopover"
             @dayClick="onDayClick"
+            @dayDateClick="onDayDateClick"
           ></calendar-day>
         </div>
         <event-popover ref="popover" @edit="setEditableContent"></event-popover>
@@ -32,7 +33,6 @@ import { nanoid } from 'nanoid';
 import CalendarDay from './CalendarDay4.vue';
 import EventDialog from '~/components/events/EventDialog.vue';
 import EventPopover from '~/components/events/EventPopover.vue';
-import TableFilterOptions from '~/components/table/TableFilterOptions.vue';
 
 import events from '~/utilities/ns/public/events.js';
 import lists from '~/utilities/ns/public/lists.js';
@@ -40,7 +40,7 @@ import filters from '~/utilities/ns/public/filters.js';
 
 export default {
   name: 'MyCalendar',
-  components: { CalendarDay, EventPopover, EventDialog, TableFilterOptions },
+  components: { CalendarDay, EventPopover, EventDialog },
 
   props: {
     events: {
@@ -52,8 +52,6 @@ export default {
   data() {
     return {
       selectedDate: this.$dayjs(this.selectedDate, 'YYYY-MM-DD'),
-      view: 'dayMonthGrid',
-      name: 'events',
     };
   },
 
@@ -104,7 +102,9 @@ export default {
 
       this.$emit('dayClick', date);
     },
-
+    onDayDateClick(date) {
+      this.$emit('dayDateClick', date);
+    },
     setEditableContent(event) {
       this.$refs.dialog.setEditableContent(event);
     },

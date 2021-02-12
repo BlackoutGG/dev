@@ -42,12 +42,15 @@
         ref="calendar"
         @change="onChange"
         @dayClick="onDayClick"
+        @dayDateClick="onDayDateClick"
         v-if="view === 'monthGrid'"
       ></month-grid>
       <upcoming-events
         :events="events"
+        :options="options"
         ref="upcoming"
         @change="onChange"
+        @changeView="changeView"
         v-else
       ></upcoming-events>
     </v-container>
@@ -58,7 +61,7 @@
 import events from '~/utilities/ns/public/events.js';
 
 import MonthGrid from '~/components/calendar/Calendar2.vue';
-import UpcomingEvents from '~/components/calendar/CalendarUpcoming.vue';
+import UpcomingEvents from '~/components/calendar/CalendarUpcoming2.vue';
 import ParallaxBanner from '~/components/core/Parallax.vue';
 import lists from '~/utilities/ns/public/lists.js';
 export default {
@@ -86,6 +89,12 @@ export default {
     return {
       title: 'Events',
       view: 'monthGrid',
+
+      options: {
+        start: this.$dayjs(this.start, 'YYYY-MM-DD'),
+        type: 'month',
+        rangeWidth: 6,
+      },
     };
   },
 
@@ -95,6 +104,22 @@ export default {
     },
     onDayClick(date) {
       this.$refs.dialog.openFromDate(date);
+    },
+    onDayDateClick(date) {
+      this.options = {
+        start: this.$dayjs(date, 'YYYY-MM-DD'),
+        type: 'day',
+        rangeWidth: 1,
+      };
+      this.view = 'upcomingEvents';
+    },
+    changeView() {
+      this.options = {
+        start: this.$dayjs('YYYY-MM-DD'),
+        type: 'month',
+        rangeWidth: 6,
+      };
+      this.view = 'monthGrid';
     },
     prev() {
       if (this.$refs.calendar) this.$refs.calendar.prev();

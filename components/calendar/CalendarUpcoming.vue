@@ -44,6 +44,15 @@ export default {
       type: Array,
       default: () => [],
     },
+
+    options: {
+      type: Object,
+      default: () => ({
+        retriveByMonth: true,
+        retriveByDay: false,
+        rangeWidth: 6,
+      }),
+    },
   },
 
   data() {

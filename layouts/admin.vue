@@ -25,5 +25,5 @@ export default {
 
 <style lang="scss">
 #admin {
-  background-color: #fafafa;
+  background-color: #f1f1f1;
 }

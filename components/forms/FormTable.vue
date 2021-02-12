@@ -41,7 +41,7 @@
           hide-default-footer
           :server-items-length="total"
           :items-per-page="limit"
-          :items="forms"
+          :items="items"
           :headers="headers"
           :page.sync="page"
           :item-key="'id'"
@@ -98,10 +98,15 @@
 
 <script>
 import { createNamespacedHelpers } from 'vuex';
-import _forms from '~/utilities/ns/private/forms.js';
-import forms from '~/utilities/ns/public/forms.js';
-import filter from '~/utilities/ns/public/filters.js';
-import lists from '~/utilities/ns/public/lists.js';
+// import _forms from '~/utilities/ns/private/forms.js';
+// import forms from '~/utilities/ns/public/forms.js';
+// import filter from '~/utilities/ns/public/filters.js';
+// import lists from '~/utilities/ns/public/lists.js';
+
+import _forms from '~/components/forms/store/types/private.js';
+import forms from '~/components/forms/store/types/public.js';
+import filters from '~/components/filters/store/types/public.js';
+import table from '~/components/table/store/types/public.js';
 
 import pagination from '~/mixins/pagination.js';
 import itemManagement from '~/mixins/itemManagement.js';
@@ -189,13 +194,13 @@ export default {
 
   computed: {
     /**
-     * this.forms()
+     * this.items()
      * this.selectedIds()
      */
-    ...mapGetters([_forms.getters.FORMS, _forms.getters.SELECTED_IDS]),
+    ...mapGetters([_forms.getters.ITEMS, _forms.getters.SELECTED_IDS]),
 
     categoryList() {
-      return this.$store.getters[lists.getters.GET_ITEMS](
+      return this.$store.getters[table.getters.GET_ITEMS](
         'categories'
       ).map(({ id, name }) => ({ id, name }));
     },

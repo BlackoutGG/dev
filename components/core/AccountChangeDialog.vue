@@ -1,8 +1,8 @@
 <template>
-  <v-dialog v-model="open" persistent :min-width="minWidth">
+  <v-dialog v-model="open" persistent :min-width="minWidth" :width="minWidth">
     <v-card>
       <v-card-title>
-        <v-icon v-text="icon"></v-icon>
+        <v-icon left v-text="icon"></v-icon>
         <span>An account change has occurred</span>
       </v-card-title>
       <v-card-text>

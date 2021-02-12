@@ -74,9 +74,9 @@
 
 <script>
 import { createNamespacedHelpers } from 'vuex';
-import lists from '~/utilities/ns/public/lists.js';
-import snackbar from '~/utilities/ns/public/snackbar.js';
-import _lists from '~/utilities/ns/private/lists.js';
+import table from './store/types/public.js';
+import _table from './store/types/private.js';
+import snackbar from '~/components/snackbar/store/types/public.js';
 
 import pagination from '~/mixins/pagination.js';
 import itemManagement from '~/mixins/itemManagement.js';
@@ -88,11 +88,11 @@ import TableAddItem from './TableAddItem.vue';
 import TableRecruitmentSwitch from './TableRecruitmentSwitch.vue';
 
 const { mapGetters, mapActions, mapMutations } = createNamespacedHelpers(
-  'lists'
+  'table'
 );
 
 export default {
-  name: 'ListTable',
+  name: 'DefaultTable',
 
   components: {
     TableDeleteDialog,
@@ -102,7 +102,7 @@ export default {
     TableRecruitmentSwitch,
   },
 
-  mixins: [pagination(lists), itemManagement(lists)],
+  mixins: [pagination(table), itemManagement(table)],
 
   data() {
     return {
@@ -115,7 +115,7 @@ export default {
   },
 
   methods: {
-    ...mapActions([_lists.actions.REMOVE_ITEMS, _lists.actions.ADD_ITEM]),
+    ...mapActions([_table.actions.REMOVE_ITEMS, _table.actions.ADD_ITEM]),
 
     async save(name) {
       try {
@@ -152,9 +152,9 @@ export default {
      */
 
     ...mapGetters([
-      _lists.getters.GET_ITEMS,
-      _lists.getters.TYPE,
-      _lists.getters.SELECTED_IDS,
+      _table.getters.GET_ITEMS,
+      _table.getters.TYPE,
+      _table.getters.SELECTED_IDS,
     ]),
 
     items() {

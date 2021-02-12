@@ -38,7 +38,7 @@
           hide-default-footer
           :server-items-length="total"
           :items-per-page="limit"
-          :items="roles"
+          :items="items"
           :headers="headers"
           :page.sync="page"
           :item-key="'id'"
@@ -88,8 +88,8 @@
 
 <script>
 import { createNamespacedHelpers } from 'vuex';
-import _roles from '~/utilities/ns/private/roles.js';
-import roles from '~/utilities/ns/public/roles.js';
+import _roles from './store/types/private.js';
+import roles from './store/types/public.js';
 
 import TableActions from '~/components/table/TableActions.vue';
 import TableInput from '~/components/table/TableInput.vue';
@@ -165,11 +165,11 @@ export default {
       return range(this.$auth.user.level, 5);
     },
     /**
-     * this.roles,
+     * this.items,
      * this.selected
      * */
     ...mapGetters([
-      _roles.getters.ROLES,
+      _roles.getters.ITEMS,
       // _roles.getters.SELECTED,
       _roles.getters.SELECTED_IDS,
     ]),

@@ -82,14 +82,6 @@ export default {
 
   components: { Divider, DiscordButton, VueRecaptcha },
 
-  beforeDestroy() {
-    // if (window && window.grecaptcha) {
-    //   window.grecaptcha.reset(this.recaptchaId);
-    // }
-
-    this.$;
-  },
-
   data() {
     return {
       recaptchaId: null,
