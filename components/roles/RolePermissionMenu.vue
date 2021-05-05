@@ -17,9 +17,13 @@
     </template>
     <v-list>
       <template v-for="(item, idx) in items">
-        <v-list-item :key="idx" v-if="!item.disable" @click="$refs.menu.save(item.name)">
+        <v-list-item
+          :key="idx"
+          :disabled="!item.disable"
+          @click="$refs.menu.save(item.name)"
+        >
           <v-list-item-content>
-            <v-list-item-title>{{item.name}}</v-list-item-title>
+            <v-list-item-title>{{ item.name }}</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
       </template>

@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import types from './store/types/public.js';
+import types from '~/constants/filters/public.js';
 import isValidObject from '~/utilities/isValidObject.js';
 
 export default {

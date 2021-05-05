@@ -96,14 +96,13 @@
 </template>
 
 <script>
-import lists from '~/utilities/ns/public/lists.js';
-import recruitment from '~/utilities/ns/public/recruitment.js';
-import snackkbar from '~/utilities/ns/public/snackbar.js';
+import lists from '~/constants/table/public.js';
+import recruitment from '~/constants/recruitment/public.js';
+
 import recaptcha from '~/mixins/recaptcha.js';
 import RecruitForm from './RecruitForm.vue';
 import UserTableAvatar from '~/components/users/UserTableAvatar.vue';
 import VueRecaptcha from 'vue-recaptcha';
-import sanitize from '~/utilities/sanitize.js';
 
 export default {
   name: 'RecruitDialog',

@@ -33,8 +33,8 @@
 
 <script>
 import { createNamespacedHelpers } from 'vuex';
-import lists from '~/utilities/ns/public/lists.js';
-import forms from '~/utilities/ns/private/forms.js';
+import lists from '~/constants/table/public.js';
+import forms from '~/constants/forms/private.js';
 import FormField from './FormField.vue';
 
 const { mapGetters, mapMutations } = createNamespacedHelpers('forms');

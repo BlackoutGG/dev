@@ -3,9 +3,9 @@
 </template>
 <script>
 const types = /categories|tags/;
-// import lists from '~/utilities/ns/public/lists.js';
-import lists from '~/components/table/store/types/public.js';
-import page from '~/utilities/ns/public/page.js';
+
+import table from '~/constants/table/public.js';
+import page from '~/constants/page/public.js';
 import DataTable from '~/components/table/Table.vue';
 import capitalize from 'lodash/capitalize';
 
@@ -21,17 +21,18 @@ export default {
 
   middleware: [
     'auth',
-    ({ $auth, store, redirect, params }) => {
-      if (!$auth.hasScope(['view:admin'])) {
+    ({ $auth, $permissions, store, redirect, params }) => {
+      const { VIEW_ALL_ADMIN } = $permissions;
+      if (!$auth.hasScope([VIEW_ALL_ADMIN])) {
         return redirect('/');
       }
       store.commit(page.mutations.SET_TITLE, `View ${capitalize(params.type)}`);
-      store.dispatch(lists.actions.FETCH, params.type);
+      store.dispatch(table.actions.FETCH, params.type);
     },
   ],
 
   beforeRouteLeave(to, from, next) {
-    this.$store.dispatch(lists.actions.CLEAR_LIST);
+    this.$store.dispatch(table.actions.CLEAR_LIST);
     next();
   },
 };

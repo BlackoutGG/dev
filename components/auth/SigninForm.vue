@@ -73,7 +73,6 @@ import VueRecaptcha from 'vue-recaptcha';
 import Divider from './Divider.vue';
 import DiscordButton from '~/components/dialogs/DiscordButton';
 import recaptcha from '~/mixins/recaptcha.js';
-import snackbar from '~/utilities/ns/public/snackbar.js';
 
 export default {
   name: 'SigninForm',
@@ -134,28 +133,6 @@ export default {
       this.recaptchaId = id;
     },
 
-    setSnackbar(text, options = null) {
-      this.$store.dispatch(snackbar.actions.TOGGLE_BAR, { text, options });
-    },
-
-    onError(err, options = null) {
-      let text;
-
-      if (err) {
-        if (Array.isArray(err.response.data) && err.response.data.length) {
-          if (err.response.data[0].hasOwnProperty('msg')) {
-            text = err.response.data[0].msg;
-          }
-        } else {
-          text = err.response.data;
-        }
-      } else {
-        text = "We've encountered a problem. Contact an administrator.";
-      }
-
-      this.setSnackbar(text);
-    },
-
     async signIn() {
       if (!this.valid || !this.gresponse) return;
       this.isSending = true;
@@ -171,10 +148,16 @@ export default {
           data,
         });
 
-        this.setSnackbar(`You've successfully logged in!`);
+        this.$toast.show("You've succesfully logged in.", {
+          icon: 'check',
+          position: 'top-right',
+        });
       } catch (err) {
-        this.onError(err);
+        // if (err.response.data) {
+        //   this.$toast.error(err.response.data);
+        // }
         this.resetRecaptcha();
+        return Promise.reject(err);
       } finally {
         this.isSending = false;
         this.gresponse = null;

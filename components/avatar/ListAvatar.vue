@@ -10,10 +10,11 @@
     bordered
     overlap
     @click.native.stop="$emit('edit-profile-image')"
+    style="overflow: visible"
     v-else
   >
     <template v-slot:badge>
-      <v-avatar class="elevation-1">
+      <v-avatar>
         <v-icon>mdi-image-edit-outline</v-icon>
       </v-avatar>
     </template>

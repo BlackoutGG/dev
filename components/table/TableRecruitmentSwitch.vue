@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import lists from '~/utilities/ns/public/lists.js';
+import table from '~/constants/table/public.js';
 export default {
   name: 'TableRecruitmentSwitch',
 
@@ -21,7 +21,7 @@ export default {
       },
       set(value) {
         const details = { recruitment: !this.item.recruitment };
-        this.$store.dispatch(lists.actions.EDIT_ITEM, {
+        this.$store.dispatch(table.actions.EDIT_ITEM, {
           id: this.item.id,
           route: 'categories',
           details,

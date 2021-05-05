@@ -1,7 +1,7 @@
 <template>
   <v-container fluid>
-    <fp-list
-      v-model="selectedTestimonies"
+    <testimony-list
+      v-model="selected"
       :title="'Testimonies'"
       :items="testimonies"
       @create="testimonyDialog = true"
@@ -34,11 +34,15 @@
             </v-list-item>
           </div>
           <div class="fp-body-column">
-            <v-btn icon><v-icon>mdi-dots-vertical</v-icon></v-btn>
+            <list-actions
+              :suffix="'admin'"
+              :actions="actions"
+              @edit="editTestimony(item)"
+            ></list-actions>
           </div>
         </div>
       </template>
-    </fp-list>
+    </testimony-list>
     <v-dialog
       v-model="testimonyDialog"
       :minWidth="minWidth"
@@ -60,33 +64,27 @@
               <v-list-item class="px-0">
                 <v-list-item-avatar>
                   <user-avatar
-                    :item="testimonyDetails"
+                    :item="details"
                     :size="40"
                     :nameKey="'author'"
                     :style="{ overflow: 'visible' }"
                     is-editable
-                    @edit-profile-image="openMediaDialog = true"
+                    @edit-profile-image="mediaDialog = true"
                   ></user-avatar>
                 </v-list-item-avatar>
                 <v-list-item-content>
                   <v-text-field
                     label="Author"
-                    v-model="testimonyDetails.author"
+                    v-model="details.author"
                   ></v-text-field>
                 </v-list-item-content>
               </v-list-item>
             </v-col>
-            <!-- <v-col cols="12">
-              <v-text-field
-                label="Author"
-                v-model="testimonyDetails.author"
-              ></v-text-field>
-            </v-col> -->
             <v-col cols="12">
               <v-textarea
                 label="Text"
                 outlined
-                v-model="testimonyDetails.text"
+                v-model="details.text"
               ></v-textarea>
             </v-col>
           </v-row>
@@ -99,7 +97,7 @@
       </v-card>
     </v-dialog>
     <media-dialog
-      v-model="openMediaDialog"
+      v-model="mediaDialog"
       single
       header
       fullscreen
@@ -112,23 +110,22 @@
 
 <script>
 import setPageTitle from '~/middleware/setPageTitle.js';
-import FPList from '~/components/frontpage/FPList.vue';
+import TestimonyList from '~/components/frontpage/FPList.vue';
+import ListActions from '~/components/controls/Actions.vue';
 import UserAvatar from '~/components/avatar/ListAvatar.vue';
 import MediaDialog from '~/components/media/MediaDialog.vue';
-import snackbar from '~/components/snackbar/store/types/public.js';
 
 export default {
   name: 'FPTestimonies',
   layout: 'admin',
 
-  components: { FPList, UserAvatar },
+  components: { TestimonyList, ListActions, UserAvatar, MediaDialog },
 
   middleware: [
     'auth',
     setPageTitle('Testimonies'),
-    ({ $auth, store, redirect }) => {
-      const scopes = ['view:admin'];
-      if (!$auth.hasScope(scopes)) {
+    ({ $auth, $permissions, store, redirect }) => {
+      if (!$auth.hasScope($permissions.VIEW_ALL_ADMIN)) {
         return redirect('/');
         //   } else {
         //     store.dispatch(lists.actions.FETCH, 'categories');
@@ -145,7 +142,14 @@ export default {
         author: '',
         text: '',
       },
+      fileSize: 72000,
+      minWidth: 500,
       selected: [],
+      actions: [
+        { icon: 'mdi-pencil', scope: 'view', text: 'Edit' },
+        { icon: 'mdi-delete', scope: 'view', text: 'Remove' },
+      ],
+
       testimonies: [
         {
           id: 1,
@@ -217,8 +221,14 @@ export default {
     },
     resetTestimonyForm() {
       Object.keys(this.details).forEach(
-        (detail) => (this.testimonyDetails[detail] = '')
+        (detail) => (this.details[detail] = '')
       );
+    },
+
+    editTestimony(item) {
+      const { author, avatar, text } = item;
+      this.details = { author, avatar, text };
+      this.testimonyDialog = true;
     },
 
     async createNewTestimony() {

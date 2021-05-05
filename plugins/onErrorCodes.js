@@ -1,7 +1,6 @@
-import snackbar from '~/utilities/ns/public/snackbar.js';
-import page from '~/utilities/ns/public/page.js';
+import page from '~/constants/page/public.js';
 
-export default ({ $axios, $auth, redirect, store }) =>
+export default ({ $axios, $auth, $toast, redirect, store }) =>
   $axios.onError((err) => {
     const code = parseInt(err.response && err.response.status);
     const message = err.response.data.message;
@@ -12,20 +11,6 @@ export default ({ $axios, $auth, redirect, store }) =>
     console.log(type);
 
     if (code === 401) {
-      // if (type === 'Unauthorized') {
-      //   switch (message) {
-      //     case 'jwt_expired':
-      //       $auth.logout();
-      //       redirect('/');
-      //       break;
-      //     case 'jwt_revoked':
-      //       store.commit(page.mutations.TOGGLE_ACCOUNT_CHANGE_DIALOG, true);
-      //       break;
-      //     default:
-      //       break;
-      //   }
-      // }
-
       switch (type) {
         case 'Unauthorized':
           $auth.logout();
@@ -33,7 +18,7 @@ export default ({ $axios, $auth, redirect, store }) =>
           break;
         case 'Revoked':
           console.log('Toggling Dialog');
-          store.commit(page.mutations.TOGGLE_ACCOUNT_CHANGE_DIALOG, true);
+          store.commit(page.mutations.TOGGLE_STATUS_DIALOG, true);
           break;
         default:
           break;
@@ -42,10 +27,12 @@ export default ({ $axios, $auth, redirect, store }) =>
       if ($auth.loggedIn) {
         if (message === 'Permission denied' && type === 'Unauthorized') {
           const text = 'Insufficient permissions to perform this action.';
-          store.dispatch(snackbar.actions.TOGGLE_BAR, { text });
+          // store.dispatch(snackbar.actions.TOGGLE_BAR, { text });
+          $toast.show(text, { position: 'top-center' });
         }
       }
     } else {
-      store.dispatch(snackbar.actions.TOGGLE_BAR, { text: message });
+      // store.dispatch(snackbar.actions.TOGGLE_BAR, { text: message });
+      $toast.show(message, { position: 'top-center' });
     }
   });

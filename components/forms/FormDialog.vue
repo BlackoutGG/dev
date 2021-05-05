@@ -59,7 +59,7 @@
 
 <script>
 import { createNamespacedHelpers } from 'vuex';
-import forms from '~/utilities/ns/private/forms.js';
+import forms from '~/constants/forms/private.js';
 
 import FormTemplate from './FormTemplate.vue';
 import FormPreview from './FormPreview.vue';

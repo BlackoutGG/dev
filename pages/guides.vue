@@ -9,6 +9,12 @@
 import ParallaxBanner from '~/components/core/Parallax.vue';
 export default {
   name: 'Guides',
+
+  // transition: {
+  //   name: 'fade',
+  //   mode: 'in-out',
+  // },
+
   components: { ParallaxBanner },
 
   layout: 'default',

@@ -1,4 +1,4 @@
-import filters from '~/utilities/ns/public/filters.js';
+import filters from '~/constants/filters/public.js';
 export default function (ns, filter) {
   return {
     beforeRouteLeave(to, from, next) {

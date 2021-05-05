@@ -105,8 +105,8 @@
 </template>
 
 <script>
-import media from '~/utilities/ns/public/media.js';
-import snackbar from '~/utilities/ns/public/snackbar.js';
+import media from '~/constants/media/public.js';
+
 import mediaProps from '~/mixins/props/media.js';
 import mediaMixins from '~/mixins/media.js';
 import { nanoid } from 'nanoid';
@@ -140,10 +140,6 @@ export default {
   },
 
   methods: {
-    message(text, options) {
-      this.$store.dispatch(snackbar.actions.TOGGLE_BAR, { text });
-    },
-
     checkFiles(files) {
       return files.every((file) => {
         const validFileExt = this.approvedExts.test(file.name);
@@ -163,7 +159,10 @@ export default {
       const files = [...data];
 
       if (!this.checkFiles(files)) {
-        this.message('One or more of the files do not meet the criteria.');
+        this.$toast.error(
+          'One or more of the files do not meet the criteria.',
+          { position: 'top center' }
+        );
         return;
       }
 

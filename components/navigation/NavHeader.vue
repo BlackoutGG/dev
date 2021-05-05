@@ -22,21 +22,27 @@
             class="hidden-sm-and-down"
             :height="'80px'"
           >
-            <nav-link
+            <nav-header-item
               v-for="(link, idx) in links"
               :key="idx"
               :link="link"
               :class="{ 'ml-4': idx === 0 }"
-            ></nav-link>
+            ></nav-header-item>
+            <!-- <nav-link
+              v-for="(link, idx) in links"
+              :key="idx"
+              :link="link"
+              :class="{ 'ml-4': idx === 0 }"
+            ></nav-link> -->
             <v-tab
-              v-if="$auth.loggedIn && $auth.hasScope('view:events')"
+              v-if="$auth.loggedIn && $auth.hasScope(canViewEvents)"
               nuxt
               :to="'/events'"
               >Events</v-tab
             >
             <recruit-dialog
               v-model="showForm"
-              v-if="$auth.loggedIn && $auth.hasScope('view:forms')"
+              v-if="$auth.loggedIn && $auth.hasScope(canViewForms)"
               :button="true"
             ></recruit-dialog>
             <v-spacer></v-spacer>
@@ -48,7 +54,7 @@
                 </a>
               </template>
             </auth-dialog>
-            <user-panel :links="userPanelLinks" :avatarSize="32" v-else>
+            <nav-user-menu :links="navUserMenuItems" :avatarSize="32" v-else>
               <template #activator="{ on }">
                 <div class="v-tab" v-on="on">
                   <v-avatar :size="32" class="mr-2">
@@ -64,36 +70,37 @@
                   <v-icon small>mdi-chevron-down</v-icon>
                 </div>
               </template>
-            </user-panel>
+            </nav-user-menu>
           </v-tabs>
         </v-row>
       </v-container>
     </v-toolbar>
-    <user-nav-mobile
+    <nav-mobile
       v-model="showMobile"
       @toggle="showAuth = !showAuth"
       :links="links"
-    ></user-nav-mobile>
+    ></nav-mobile>
   </nav>
 </template>
 
 <script>
-import AuthDialog from '~/components/auth/AuthDialog.vue';
-import UserPanel from '~/components/navigation/UserPanelWithActivator.vue';
-import RecruitDialog from '~/components/recruitment/RecruitDialog.vue';
-import UserNavMobile from './UserNavMobile.vue';
-import NavLink from './NavigationLink.vue';
+import NavUserMenu from './NavUserMenu.vue';
+import NavMobile from './NavMobile.vue';
+import NavHeaderItem from './NavHeaderItem.vue';
 
-import menu from '~/utilities/ns/public/menu.js';
+import RecruitDialog from '~/components/recruitment/RecruitDialog.vue';
+import AuthDialog from '~/components/auth/AuthDialog.vue';
+
+import menu from '~/constants/menu/public.js';
 
 export default {
   name: 'NavHeader',
   components: {
-    UserPanel,
     AuthDialog,
-    UserNavMobile,
     RecruitDialog,
-    NavLink,
+    NavMobile,
+    NavHeaderItem,
+    NavUserMenu,
   },
 
   data() {
@@ -105,11 +112,11 @@ export default {
 
       color: '#1E1E1E',
 
-      userPanelLinks: [
+      navUserMenuItems: [
         {
           icon: 'mdi-account-box',
           title: 'Profile',
-          to: `/profile/${this.username}`,
+          to: `/profile`,
         },
       ],
     };
@@ -118,6 +125,14 @@ export default {
   computed: {
     links() {
       return this.$store.getters[menu.getters.LINKS];
+    },
+
+    canViewEvents() {
+      return [this.$permissions.VIEW_ALL_EVENTS];
+    },
+
+    canViewForms() {
+      return [this.$permissions.VIEW_ALL_FORMS];
     },
 
     initials() {

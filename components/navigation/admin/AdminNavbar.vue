@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import page from '~/utilities/ns/public/page.js';
+import page from '~/constants/page/public.js';
 import AdminUserMenu from './AdminUserMenu';
 export default {
   name: 'AdminNavbar',

@@ -1,35 +1,22 @@
 <template>
   <v-navigation-drawer app v-model="open" dark>
     <v-list nav>
-      <template v-for="(l, idx) in links">
-        <nav-link
-          v-if="l.children"
-          :key="idx"
-          :children="l.children"
-          :button="l.button ? true : false"
-          :title="l.title"
-          :icon="l.icon"
-        ></nav-link>
-        <nav-link
-          v-else
-          :key="idx"
-          :button="l.button ? true : false"
-          :title="l.title"
-          :icon="l.icon"
-          :to="l.to"
-        ></nav-link>
-      </template>
+      <nav-list-item
+        :item="link"
+        :key="idx"
+        v-for="(link, idx) in links"
+      ></nav-list-item>
     </v-list>
   </v-navigation-drawer>
 </template>
 
 <script>
-import page from '~/utilities/ns/public/page.js';
+import page from '~/constants/page/public.js';
 import UserAvatar from '~/components/avatar/UserAvatar.vue';
-import NavLink from '~/components/navigation/NavLink.vue';
+import NavListItem from '~/components/navigation/NavListItem.vue';
 export default {
   name: 'AdminNavDrawer',
-  components: { UserAvatar, NavLink },
+  components: { UserAvatar, NavListItem },
 
   props: {
     value: {

@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import filter from '~/utilities/ns/public/filters.js';
+import filter from '~/constants/filters/private.js';
 import isValidObject from '~/utilities/isValidObject.js';
 
 export default {

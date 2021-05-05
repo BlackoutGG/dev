@@ -15,7 +15,12 @@
           <v-text-field v-model="name" label="Name"></v-text-field>
         </v-col>
         <v-col cols="12" md="12" sm="12">
-          <v-textarea v-model="description" outlined label="Description" counter></v-textarea>
+          <v-textarea
+            v-model="description"
+            outlined
+            label="Description"
+            counter
+          ></v-textarea>
         </v-col>
       </v-row>
       <draggable
@@ -43,8 +48,8 @@
 </template>
 
 <script>
-import lists from '~/utilities/ns/public/lists.js';
-import forms from '~/utilities/ns/public/forms.js';
+import lists from '~/constants/table/public.js';
+import forms from '~/constants/forms/public.js';
 import Question from './FormQuestion.vue';
 import AddQuestion from './FormQuestionButton.vue';
 import draggable from 'vuedraggable';

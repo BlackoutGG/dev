@@ -2,11 +2,15 @@
   <v-row class="pb-4">
     <v-col md="12" sm="12">
       <div class="text--subtitle-1">
-        <span>Question {{num}}</span>
+        <span>Question {{ num }}</span>
       </div>
       <div class="d-flex align-center">
         <div class="flex-grow-1 pr-5">
-          <v-text-field v-model="computedValue" :label="label" :placeholder="label">
+          <v-text-field
+            v-model="computedValue"
+            :label="label"
+            :placeholder="label"
+          >
             <template #prepend>
               <v-icon class="handle" small v-text="icon"></v-icon>
             </template>
@@ -50,64 +54,67 @@
 </template>
 
 <script>
-import { createNamespacedHelpers } from "vuex";
+import { createNamespacedHelpers } from 'vuex';
 
-import SelectMenu from "./SelectMenu.vue";
-import QuestionOption from "./FormQuestionOption.vue";
-import forms from "~/utilities/ns/private/forms.js";
-import isAlphanumeric from "~/utilities/isAlphanumeric.js";
-import isEqual from "lodash/isEqual";
+import forms from '~/constants/forms/private.js';
 
-const { mapGetters, mapMutations } = createNamespacedHelpers("forms");
+import SelectMenu from './SelectMenu.vue';
+import QuestionOption from './FormQuestionOption.vue';
+
+import isAlphanumeric from '~/utilities/isAlphanumeric.js';
+import isEqual from 'lodash/isEqual';
+
+const { mapGetters, mapMutations } = createNamespacedHelpers('forms');
 
 export default {
-  name: "Question",
+  name: 'Question',
 
   components: {
     SelectMenu,
-    QuestionOption
+    QuestionOption,
   },
 
   props: {
     question: {
       type: Object,
-      required: true
+      required: true,
     },
     num: {
-      type: Number
+      type: Number,
     },
     isDrag: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   data() {
     return {
-      icon: "mdi-menu",
-      isRequired: v => (v.length && isAlphanumeric(v)) || "Field is required.",
+      icon: 'mdi-menu',
+      isRequired: (v) =>
+        (v.length && isAlphanumeric(v)) || 'Field is required.',
       types: [
-        { icon: "mdi-form-textbox", type: "textfield", name: "Short answer" },
-        { icon: "mdi-form-textarea", type: "textarea", name: "Long answer" },
+        { icon: 'mdi-form-textbox', type: 'textfield', name: 'Short answer' },
+        { icon: 'mdi-form-textarea', type: 'textarea', name: 'Long answer' },
         {
-          icon: "mdi-radiobox-marked",
-          type: "multiple",
+          icon: 'mdi-radiobox-marked',
+          type: 'multiple',
           options: true,
-          name: "Multiple choice"
+          name: 'Multiple choice',
         },
         {
-          icon: "mdi-form-select",
-          type: "select",
+          icon: 'mdi-form-select',
+          type: 'select',
           options: true,
-          name: "Select one"
+          name: 'Select one',
         },
         {
-          icon: "mdi-checkbox-marked",
-          type: "checkbox",
+          icon: 'mdi-checkbox-marked',
+          type: 'checkbox',
           options: true,
-          name: "Checkboxes"
-        }
-      ]
+          name: 'Checkboxes',
+        },
+      ],
     };
   },
 
@@ -122,7 +129,7 @@ export default {
           this.optionCache = oldValue;
         }
       }
-    }
+    },
   },
 
   methods: {
@@ -145,7 +152,7 @@ export default {
       forms.mutations.TOGGLE_OPTIONAL,
       forms.mutations.REMOVE_QUESTION,
       forms.mutations.REMOVE_OPTION,
-      forms.mutations.SET_OPTIONS_CACHE
+      forms.mutations.SET_OPTIONS_CACHE,
     ]),
 
     _removeOption(i) {
@@ -161,7 +168,7 @@ export default {
           } else {
             this.setOptions({
               idx: this.index,
-              value: [...this.optionCache]
+              value: [...this.optionCache],
             });
             this.setOptionsCache({ idx: this.index, value: [] });
           }
@@ -169,7 +176,7 @@ export default {
       } else {
         this.setOptions({ idx: this.index, value: null });
       }
-    }
+    },
   },
 
   computed: {
@@ -180,7 +187,7 @@ export default {
       return this.num - 1;
     },
     hasOptions() {
-      return this.types.some(item => item.type === this.type && item.options);
+      return this.types.some((item) => item.type === this.type && item.options);
     },
     options() {
       return this.question.options;
@@ -191,7 +198,7 @@ export default {
       },
       set(value) {
         this.setOptionsCache({ idx: this.index, value });
-      }
+      },
     },
     type: {
       get() {
@@ -200,9 +207,9 @@ export default {
       set(value) {
         this.changeQuestionType({
           idx: this.index,
-          type: value
+          type: value,
         });
-      }
+      },
     },
     computedValue: {
       get() {
@@ -211,9 +218,9 @@ export default {
       set(value) {
         this.changeQuestionValue({
           idx: this.index,
-          value
+          value,
         });
-      }
+      },
     },
     optional: {
       get() {
@@ -222,10 +229,10 @@ export default {
       set(bool) {
         this.toggleOptional({
           idx: this.index,
-          bool
+          bool,
         });
-      }
-    }
-  }
+      },
+    },
+  },
 };
 </script>

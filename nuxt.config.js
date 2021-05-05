@@ -41,12 +41,12 @@ export default {
   /*
    ** Global CSS
    */
-  css: [],
+  css: ['~/assets/main.css'],
   /*
    ** Plugins to load before mounting the App
    ** https://nuxtjs.org/guide/plugins
    */
-  plugins: [],
+  plugins: ['~/plugins/permissions.js'],
   /*
    ** Auto import components
    ** See https://nuxtjs.org/api/configuration-components
@@ -62,6 +62,7 @@ export default {
   modules: [
     // Doc: https://axios.nuxtjs.org/usage
     '@nuxtjs/axios',
+    '@nuxtjs/toast',
   ],
 
   dayjs: {
@@ -76,6 +77,18 @@ export default {
       'weekOfYear',
       'advancedFormat',
     ],
+  },
+
+  toast: {
+    duration: 1500,
+    singleton: true,
+    // theme: 'primary-theme',
+    position: 'bottom-center',
+    action: {
+      text: 'Close',
+      onClick: (e, toastObject) => toastObject.goAway(0),
+    },
+    iconPack: 'mdi',
   },
   /*
    ** Axios module configuration
@@ -134,6 +147,9 @@ export default {
    ** Build configuration
    ** See https://nuxtjs.org/api/configuration-build/
    */
+  build: {
+    transpile: ['vuetify'],
+  },
   // build: {
   //   transpile: /@fullcalendar.*/,
   // },

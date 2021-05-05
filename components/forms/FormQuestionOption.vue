@@ -1,6 +1,11 @@
 <template>
   <v-col cols="8">
-    <v-text-field @focus="addOption" v-model="computedValue" :placeholder="label" :label="label">
+    <v-text-field
+      @focus="addOption"
+      v-model="computedValue"
+      :placeholder="label"
+      :label="label"
+    >
       <template #append-outer>
         <slot />
       </template>
@@ -9,24 +14,24 @@
 </template>
 
 <script>
-import forms from "~/utilities/ns/public/forms.js";
+import forms from '~/constants/forms/public.js';
 export default {
-  name: "QuestionOptional",
+  name: 'QuestionOptional',
 
   props: {
     parentIdx: Number,
     idx: Number,
     item: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   methods: {
     addOption() {
       if (!this.isLast) return;
       this.$store.commit(forms.mutations.ADD_OPTION, this.parentIdx);
-    }
+    },
   },
 
   computed: {
@@ -47,10 +52,10 @@ export default {
         this.$store.commit(forms.mutations.CHANGE_OPTION_VALUE, {
           question: this.parentIdx,
           option: this.idx,
-          value
+          value,
         });
-      }
-    }
-  }
+      },
+    },
+  },
 };
 </script>

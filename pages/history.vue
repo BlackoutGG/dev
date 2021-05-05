@@ -10,6 +10,11 @@ import ParallaxBanner from '~/components/core/Parallax.vue';
 export default {
   name: 'History',
 
+  // transition: {
+  //   name: 'fade',
+  //   mode: 'in-out',
+  // },
+
   components: { ParallaxBanner },
 
   head() {

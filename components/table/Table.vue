@@ -74,15 +74,14 @@
 
 <script>
 import { createNamespacedHelpers } from 'vuex';
-import table from './store/types/public.js';
-import _table from './store/types/private.js';
-import snackbar from '~/components/snackbar/store/types/public.js';
+import table from '~/constants/table/public.js';
+import _table from '~/constants/table/private.js';
 
 import pagination from '~/mixins/pagination.js';
 import itemManagement from '~/mixins/itemManagement.js';
 
+import TableActions from '~/components/controls/Actions.vue';
 import TableDeleteDialog from './TableDeleteDialog.vue';
-import TableActions from './TableActions.vue';
 import TableInput from './TableInput.vue';
 import TableAddItem from './TableAddItem.vue';
 import TableRecruitmentSwitch from './TableRecruitmentSwitch.vue';
@@ -168,7 +167,7 @@ export default {
               if (key === 'id') return [];
               return [
                 {
-                  text: key,
+                  text: key.toUpperCase(),
                   sortable: true,
                   value: key,
                 },

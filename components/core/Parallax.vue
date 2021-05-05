@@ -9,8 +9,6 @@
 </template>
 
 <script>
-import page from '~/utilities/ns/public/page.js';
-
 export default {
   name: 'ParallaxHeader',
 

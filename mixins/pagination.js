@@ -1,6 +1,8 @@
 import isObject from 'lodash/isObject';
 
 export default function (ns) {
+  console.log(ns);
+
   if (!isObject(ns)) {
     throw new Error(
       'arguement must be an object containing the namespaces of the store.'

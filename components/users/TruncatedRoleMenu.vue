@@ -1,7 +1,7 @@
 <template>
   <v-menu>
     <template v-slot:activator="{ on }">
-      <v-chip small pill v-on="on">x{{truncated.length}}</v-chip>
+      <v-chip small pill v-on="on">+{{ truncated.length }}</v-chip>
     </template>
     <v-sheet>
       <v-chip-group class="pl-2">
@@ -13,7 +13,7 @@
           v-for="(role, idx) in truncated"
           :key="idx"
         >
-          <span>{{role.name}}</span>
+          <span>{{ role.name }}</span>
         </v-chip>
       </v-chip-group>
     </v-sheet>
@@ -22,12 +22,12 @@
 
 <script>
 export default {
-  name: "TruncatedRoleMenu",
+  name: 'TruncatedRoleMenu',
   props: {
     truncated: {
       type: Array,
-      default: () => []
-    }
-  }
+      default: () => [],
+    },
+  },
 };
 </script>

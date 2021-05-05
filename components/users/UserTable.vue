@@ -16,13 +16,24 @@
               @reset="onReset"
               footer
             ></table-filter-options>
-            <v-btn text :disabled="!selectedItems.length" @click="open = true">
+            <v-btn
+              text
+              :disabled="!selectedItems.length"
+              @click="open = true"
+              v-if="$auth.hasScope($permissions.REMOVE_ALL_USERS)"
+            >
               <v-icon v-text="icon"></v-icon>
               <span>Delete {{ selectedItems.length }}</span>
             </v-btn>
             <user-dialog
               ref="userDialog"
               @edit-profile-image="openMedia"
+              v-if="
+                $auth.hasScope([
+                  [$permissions.ADD_ALL_USERS],
+                  [$permissions.UPDATE_ALL_USERS],
+                ])
+              "
             ></user-dialog>
             <v-select
               :items="perPageOptions"
@@ -50,16 +61,25 @@
             :headers="headers"
             :item-key="'id'"
           >
-            <template v-slot:item.username="{ item }">
-              <table-dialog-menu
-                :route="validate.username"
-                :id="item.id"
-                :type="'username'"
-                :value="item.username"
-                @save="changeUserInfo"
-              ></table-dialog-menu>
+            <template #item.username="{ item }">
+              <v-list-item class="px-0">
+                <v-list-item-avatar>
+                  <user-avatar :item="item" :size="40" />
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title>
+                    <table-dialog-menu
+                      :route="validate.username"
+                      :id="item.id"
+                      :type="'username'"
+                      :value="item.username"
+                      @save="changeUserInfo"
+                    ></table-dialog-menu>
+                  </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
             </template>
-            <template v-slot:item.email="{ item }">
+            <template #item.email="{ item }">
               <table-dialog-menu
                 :route="validate.email"
                 :id="item.id"
@@ -68,12 +88,12 @@
                 @save="changeUserInfo"
               ></table-dialog-menu>
             </template>
-            <template v-slot:item.avatar="{ item }">
+            <!-- <template v-slot:item.avatar="{ item }">
               <user-table-avatar
                 :src="item.avatar"
                 :username="item.username"
               ></user-table-avatar>
-            </template>
+            </template> -->
             <template v-slot:item.roles="{ item }">
               <user-table-roles
                 :userId="item.id"
@@ -113,22 +133,23 @@
 
 <script>
 import { createNamespacedHelpers } from 'vuex';
-import users from '~/utilities/ns/public/users.js';
-import _users from '~/utilities/ns/private/users.js';
-import roles from '~/utilities/ns/public/roles.js';
+import users from '~/constants/users/public.js';
+import _users from '~/constants/users/private.js';
+import roles from '~/constants/roles/public.js';
 
 import pagination from '~/mixins/pagination.js';
 import itemManagement from '~/mixins/itemManagement.js';
 import filters from '~/mixins/filters.js';
 
 import TableInput from '~/components/table/TableInput.vue';
-import TableActions from '~/components/table/TableActions.vue';
+import TableActions from '~/components/controls/Actions.vue';
 import TableFilterOptions from '~/components/table/TableFilterOptions.vue';
 import TableDeleteDialog from '~/components/table/TableDeleteDialog.vue';
 import TableDialogMenu from '~/components/table/TableDialogMenu.vue';
 
 import UserDialog from './UserDialog.vue';
-import UserTableAvatar from './UserTableAvatar.vue';
+// import UserTableAvatar from './UserTableAvatar.vue';
+import UserAvatar from '~/components/avatar/ListAvatar.vue';
 import UserTableRoles from './UserRoles.vue';
 
 import MediaDialog from '~/components/media/MediaDialog.vue';
@@ -141,7 +162,7 @@ export default {
   name: 'UserTable',
 
   components: {
-    UserTableAvatar,
+    UserAvatar,
     UserTableRoles,
     UserDialog,
     TableFilterOptions,
@@ -157,11 +178,11 @@ export default {
   data() {
     return {
       headers: [
-        { text: '', sortable: false, value: 'avatar' },
-        { text: 'username', sortable: true, value: 'username' },
-        { text: 'email', sortable: true, value: 'email' },
-        { text: 'roles', sortable: false, value: 'roles' },
-        { text: 'joined_on', sortable: true, value: 'created_at' },
+        // { text: '', sortable: false, value: 'avatar' },
+        { text: 'USERNAME', sortable: true, value: 'username' },
+        { text: 'EMAIL', sortable: true, value: 'email' },
+        { text: 'ROLES', sortable: false, value: 'roles' },
+        { text: 'JOINED ON', sortable: true, value: 'created_at' },
         { text: '', sortable: false, value: 'actions', align: 'end' },
       ],
 
@@ -171,10 +192,33 @@ export default {
       open: false,
       openMediaDialog: false,
 
+      // actions: [
+      //   { icon: 'mdi-pencil', scope: 'update', target: 'all', text: 'Edit' },
+      //   {
+      //     icon: 'mdi-lock-reset',
+      //     scope: 'update',
+      //     target: 'all',
+      //     text: 'Reset',
+      //   },
+      //   { icon: 'mdi-delete', scope: 'delete', target: 'all', text: 'Remove' },
+      // ],
+
       actions: [
-        { icon: 'mdi-pencil', scope: 'update', text: 'Edit' },
-        { icon: 'mdi-lock-reset', scope: 'update', text: 'Reset' },
-        { icon: 'mdi-delete', scope: 'delete', text: 'Remove' },
+        {
+          icon: 'mdi-pencil',
+          scope: [this.$permissions.UPDATE_ALL_USERS],
+          text: 'Edit',
+        },
+        {
+          icon: 'mdi-lock-reset',
+          scope: [this.$permissions.UPDATE_ALL_USERS],
+          text: 'Reset',
+        },
+        {
+          icon: 'mdi-delete',
+          scope: [this.$permissions.REMOVE_ALL_USERS],
+          text: 'Remove',
+        },
       ],
 
       validate: {

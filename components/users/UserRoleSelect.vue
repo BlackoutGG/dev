@@ -13,25 +13,25 @@
 </template>
 
 <script>
-import roles from "~/utilities/ns/public/roles.js";
+import roles from '~/constants/roles/public.js';
 export default {
-  name: "RoleSelect",
+  name: 'RoleSelect',
 
   props: {
     value: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
     startingValues: {
       type: Array,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
 
   data() {
     return {
-      search: "",
-      internalItems: this.value
+      search: '',
+      internalItems: this.value,
     };
   },
 
@@ -42,8 +42,8 @@ export default {
       },
       set(val) {
         this.internalItems = val;
-        this.$emit("input", val);
-      }
+        this.$emit('input', val);
+      },
     },
 
     // markedForDeletion() {
@@ -54,7 +54,7 @@ export default {
 
     roles() {
       return this.$store.getters[roles.getters.ROLES];
-    }
-  }
+    },
+  },
 };
 </script>

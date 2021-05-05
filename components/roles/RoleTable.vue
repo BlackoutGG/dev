@@ -12,7 +12,7 @@
             <v-icon v-text="icon"></v-icon>
             <span>Delete {{ selectedItems.length }}</span>
           </v-btn>
-          <v-btn text @click="$refs.role.setNewContent()">
+          <v-btn text @click="$refs.role.setNewContent()" v-if="$auth.hasScope($permissions.ADD_ALL_ROLES)">
             <v-icon left>mdi-plus</v-icon>
             <span>Add Role</span>
           </v-btn>
@@ -88,10 +88,10 @@
 
 <script>
 import { createNamespacedHelpers } from 'vuex';
-import _roles from './store/types/private.js';
-import roles from './store/types/public.js';
+import _roles from '~/constants/roles/private.js';
+import roles from '~/constants/roles/public.js';
 
-import TableActions from '~/components/table/TableActions.vue';
+import TableActions from '~/components/controls/Actions.vue';
 import TableInput from '~/components/table/TableInput.vue';
 import TableDeleteDialog from '~/components/table/TableDeleteDialog.vue';
 import TableDialogMenu from '~/components/table/TableDialogMenu.vue';
@@ -124,10 +124,10 @@ export default {
   data() {
     return {
       headers: [
-        { text: 'name', align: 'start', value: 'name' },
-        { text: 'level', align: 'start', value: 'level' },
-        { text: 'created_at', align: 'start', value: 'created_at' },
-        { text: 'updated_at', align: 'start', value: 'updated_at' },
+        { text: 'NAME', align: 'start', value: 'name' },
+        { text: 'LEVEL', align: 'start', value: 'level' },
+        { text: 'CREATED AT', align: 'start', value: 'created_at' },
+        { text: 'UPDATED AT', align: 'start', value: 'updated_at' },
         { text: '', sortable: false, align: 'end', value: 'actions' },
       ],
 
@@ -137,9 +137,14 @@ export default {
 
       suffix: 'roles',
 
+      // actions: [
+      //   { icon: 'mdi-pencil', scope: 'update', target: 'all', text: 'Edit' },
+      //   { icon: 'mdi-delete', scope: 'delete', target: 'all', text: 'Remove' },
+      // ],
+
       actions: [
-        { icon: 'mdi-pencil', scope: 'update', text: 'Edit' },
-        { icon: 'mdi-delete', scope: 'delete', text: 'Remove' },
+        { icon: 'mdi-pencil', scope: [this.$permissions.UPDATE_ALL_ROLES], text: 'Edit' },
+        { icon: 'mdi-delete', scope: [this.$permissions.REMOVE_ALL_ROLES], text: 'Remove' },
       ],
 
       validate: {

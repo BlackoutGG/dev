@@ -1,15 +1,18 @@
-import types from './types/private.js';
+import priv from '~/constants/settings/private.js';
 import camelCase from 'lodash/camelCase';
 
 const mutations = {
-  [types.mutations.SET_SETTING](state, { key, value }) {
-    state[key] = value;
-  },
-  [types.mutations.SET_SETTINGS](state, settings) {
+  // [types.mutations.SET_SETTING](state, { key, value }) {
+  //   state.settings[key].value = value;
+  // },
+  [priv.mutations.SET_SETTINGS](state, settings) {
+    console.log(settings);
+
     Object.keys(settings).forEach((key) => {
       const k = camelCase(key);
-      if (typeof state.settings[k] !== undefined) {
-        state.settings[k].value = settings[key];
+
+      if (state[k] && typeof state[k] !== undefined) {
+        state[k].value = settings[key];
       }
     });
   },

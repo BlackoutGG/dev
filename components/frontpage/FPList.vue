@@ -1,5 +1,5 @@
 <template>
-  <div class="fp-list my-16">
+  <div class="fp-list">
     <div class="fp-top my-8">
       <div class="fp-column">
         <v-subheader>{{ title }}</v-subheader>

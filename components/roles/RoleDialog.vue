@@ -54,6 +54,7 @@
               :items="selected"
               :key="idx"
               :action.sync="perm.action"
+              :target.sync="perm.target"
               :resource.sync="perm.resource"
               @change="onChange($event, idx)"
               @remove="removePermission(idx)"
@@ -79,9 +80,10 @@
 <script>
 import { createNamespacedHelpers } from 'vuex';
 
+import roles from '~/constants/roles/public.js';
+
 import DialogInput from '~/components/dialogs/DialogInput.vue';
 import RolePermission from './RolePermission.vue';
-import roles from '~/utilities/ns/public/roles.js';
 import cloneDeep from 'lodash/cloneDeep';
 
 const range = (start, end) => {

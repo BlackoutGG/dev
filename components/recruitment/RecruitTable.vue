@@ -88,20 +88,16 @@
 
 <script>
 import { createNamespacedHelpers } from 'vuex';
-// import _recruitment from '~/utilities/ns/private/recruitment.js';
-// import recruitment from '~/utilities/ns/public/recruitment.js';
-// import filter from '~/utilities/ns/public/filters.js';
-// import lists from '~/utilities/ns/public/lists.js';
 
-import _recruitment from './store/types/private.js';
-import recruitment from './store/types/public.js';
-import filter from '~/components/filters/store/types/public.js';
-import lists from '~/components/table/store/types/public.js';
+import _recruitment from '~/constants/recruitment/private.js';
+import recruitment from '~/constants/recruitment/public.js';
+import filter from '~/constants/filters/public.js';
+import lists from '~/constants/table/public.js';
 
 import pagination from '~/mixins/pagination.js';
 import itemManagement from '~/mixins/itemManagement.js';
 
-import TableActions from '~/components/table/TableActions.vue';
+import TableActions from '~/components/controls/Actions.vue';
 import TableDeleteDialog from '~/components/table/TableDeleteDialog.vue';
 import TableFilterOptions from '~/components/filters/TableFilterOptions.vue';
 import TableDialogMenu from '~/components/table/TableDialogMenu.vue';
@@ -137,8 +133,16 @@ export default {
       suffix: 'forms',
 
       actions: [
-        { icon: 'mdi-eye', scope: 'view', text: 'View' },
-        { icon: 'mdi-delete', scope: 'delete', text: 'Remove' },
+        {
+          icon: 'mdi-eye',
+          scope: [this.$permissions.VIEW_ALL_FORMS],
+          text: 'View',
+        },
+        {
+          icon: 'mdi-delete',
+          scope: [this.$permissions.REMOVE_ALL_FORMS],
+          text: 'Remove',
+        },
       ],
     };
   },

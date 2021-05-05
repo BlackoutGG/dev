@@ -65,7 +65,6 @@ import Divider from './Divider.vue';
 import DiscordButton from '~/components/dialogs/DiscordButton.vue';
 
 import isAlphanumeric from '~/utilities/isAlphanumeric.js';
-import snackbar from '~/utilities/ns/public/snackbar.js';
 
 import recaptcha from '~/mixins/recaptcha.js';
 
@@ -185,8 +184,6 @@ export default {
         // const text = `Thank you, ${user} an email has been dispatched to ${user.email}.`;
 
         this.$emit('update:success', true);
-
-        // this.$store.dispatch(snackbar.actions.TOGGLE_BAR, { text });
       } catch (err) {
         console.log(err);
       }

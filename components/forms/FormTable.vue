@@ -20,7 +20,7 @@
             <v-icon v-text="icon"></v-icon>
             <span>Delete {{ selectedItems.length }}</span>
           </v-btn>
-          <form-dialog ref="dialog"></form-dialog>
+          <form-dialog ref="dialog" v-if="hasPermissions"></form-dialog>
           <v-select
             :items="perPageOptions"
             :full-width="false"
@@ -98,15 +98,11 @@
 
 <script>
 import { createNamespacedHelpers } from 'vuex';
-// import _forms from '~/utilities/ns/private/forms.js';
-// import forms from '~/utilities/ns/public/forms.js';
-// import filter from '~/utilities/ns/public/filters.js';
-// import lists from '~/utilities/ns/public/lists.js';
 
-import _forms from '~/components/forms/store/types/private.js';
-import forms from '~/components/forms/store/types/public.js';
-import filters from '~/components/filters/store/types/public.js';
-import table from '~/components/table/store/types/public.js';
+import _forms from '~/constants/forms/private.js';
+import forms from '~/constants/forms/public.js';
+import filters from '~/constants/filters/public.js';
+import table from '~/constants/table/public.js';
 
 import pagination from '~/mixins/pagination.js';
 import itemManagement from '~/mixins/itemManagement.js';
@@ -116,7 +112,7 @@ const { mapGetters, mapMutations, mapActions } = createNamespacedHelpers(
 );
 
 import FormDialog from './FormDialog.vue';
-import TableActions from '~/components/table/TableActions.vue';
+import TableActions from '~/components/controls/Actions.vue';
 import TableDeleteDialog from '~/components/table/TableDeleteDialog.vue';
 import TableFilterOptions from '~/components/table/TableFilterOptions.vue';
 import TableDialogMenu from '~/components/table/TableDialogMenu.vue';
@@ -150,8 +146,22 @@ export default {
       open: false,
 
       actions: [
-        { icon: 'mdi-pencil', scope: 'update', text: 'Edit' },
-        { icon: 'mdi-delete', scope: 'delete', text: 'Remove' },
+        {
+          icon: 'mdi-pencil',
+          scope: [
+            [this.$permissions.UPDATE_ALL_FORMS],
+            [this.$permissions.UPDATE_OWN_FORMS],
+          ],
+          text: 'Edit',
+        },
+        {
+          icon: 'mdi-delete',
+          scope: [
+            [this.$permissions.REMOVE_ALL_FORMS],
+            [this.$permissions.REMOVE_OWN_FORMS],
+          ],
+          text: 'Remove',
+        },
       ],
 
       validate: {
@@ -198,6 +208,14 @@ export default {
      * this.selectedIds()
      */
     ...mapGetters([_forms.getters.ITEMS, _forms.getters.SELECTED_IDS]),
+
+    hasPermissions() {
+      return this.$auth.hasScope([
+        [this.$permissions.ADD_ALL_FORMS],
+        [this.$permissions.UPDATE_ALL_FORMS],
+        [this.$permissions.UPDATE_OWN_FORMS],
+      ]);
+    },
 
     categoryList() {
       return this.$store.getters[table.getters.GET_ITEMS](

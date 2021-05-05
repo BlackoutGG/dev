@@ -1,29 +1,24 @@
 <template>
   <v-app dark>
-    <user-navbar />
+    <nav-header />
     <v-main>
       <nuxt />
-      <snack-bar />
     </v-main>
-    <site-footer />
-    <account-change-dialog />
+    <nav-footer />
+    <status-dialog />
   </v-app>
 </template>
 
 <script>
-import UserNavbar from '~/components/navigation/NavHeader.vue';
-import VideoBanner from '~/components/frontpage/VideoBanner.vue';
-import SnackBar from '~/components/core/SnackBar.vue';
-import AccountChangeDialog from '~/components/core/AccountChangeDialog.vue';
-import SiteFooter from '~/components/navigation/Footer.vue';
+import NavHeader from '~/components/navigation/NavHeader.vue';
+import NavFooter from '~/components/navigation/NavFooter.vue';
+import StatusDialog from '~/components/core/StatusDialog.vue';
 export default {
   name: 'DefaultLayout',
   components: {
-    UserNavbar,
-    VideoBanner,
-    SnackBar,
-    SiteFooter,
-    AccountChangeDialog,
+    NavHeader,
+    NavFooter,
+    StatusDialog,
   },
   created() {
     if (!this.$vuetify.theme.dark) {

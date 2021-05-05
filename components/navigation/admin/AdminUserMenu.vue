@@ -6,34 +6,35 @@
       </v-btn>
     </template>
     <v-list>
-      <nav-link
-        v-for="(_link, idx) in links"
-        :button="_link.button"
-        :to="_link.to"
-        :key="idx"
-        :title="_link.title"
-        :icon="_link.icon"
-      ></nav-link>
+      <v-list-item v-for="(link, idx) in links" :key="idx" nuxt :to="link.to">
+        <v-list-item-icon>
+          <v-icon v-text="link.icon"></v-icon>
+        </v-list-item-icon>
+        <v-list-item-content>
+          <v-list-item-title>{{ link.title }}</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
       <v-divider></v-divider>
-      <nav-link :button="true" :title="'Logout'" :icon="'mdi-logout'"></nav-link>
+      <v-btn flat @click="$auth.logout()">
+        <v-icon left v-text="'mdi-logout'"></v-icon>
+        <span>Logout</span>
+      </v-btn>
     </v-list>
   </v-menu>
 </template>
 
 <script>
-import NavLink from "~/components/navigation/NavLink.vue";
 export default {
-  name: "AdminUserMenu",
-  components: { NavLink },
+  name: 'AdminUserMenu',
   data() {
     return {
-      links: [{ icon: "mdi-home", title: "Home", to: "/", button: false }]
+      links: [{ icon: 'mdi-home', title: 'Home', to: '/' }],
     };
   },
   methods: {
     logout() {
-      console.log("Logging out...");
-    }
-  }
+      console.log('Logging out...');
+    },
+  },
 };
 </script>

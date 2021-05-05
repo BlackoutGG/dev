@@ -1,9 +1,20 @@
 <template>
   <v-row>
-    <v-col cols="5">
-      <role-permission-menu label="Action" :items="actions" v-model="computedAction"></role-permission-menu>
+    <v-col cols="4">
+      <role-permission-menu
+        label="Action"
+        :items="actions"
+        v-model="computedAction"
+      ></role-permission-menu>
     </v-col>
-    <v-col cols="5">
+    <v-col cols="4">
+      <role-permission-menu
+        label="Target"
+        :items="target"
+        v-model="computedTarget"
+      ></role-permission-menu>
+    </v-col>
+    <v-col cols="4">
       <role-permission-menu
         label="Resource"
         :items="resources"
@@ -34,6 +45,10 @@ export default {
       default: '',
     },
     resource: {
+      type: String,
+      default: '',
+    },
+    target: {
       type: String,
       default: '',
     },
@@ -93,6 +108,23 @@ export default {
       return this.resource ? items : defaultItems;
     },
 
+    targets() {
+      const items =
+        this.items && this.items.length
+          ? this.items.reduce((output, item) => {
+              if (item.target === this.target) {
+                output.push({
+                  disable: item.disable,
+                  name: item.target,
+                });
+              }
+              return output;
+            }, [])
+          : [];
+
+      return items;
+    },
+
     resources() {
       const items =
         this.items && this.items.length
@@ -116,14 +148,9 @@ export default {
       },
       set(value) {
         if (this.resource) {
-          // this.$nextTick(() => {
-          //   this.$emit('change', {
-          //     action: value,
-          //     resource: this.isValid(this.resource) ? this.resource : '',
-          //   });
-          // });
           this.$emit('change', {
             action: value,
+            target: this.target,
             resource: this.isValid(this.resource) ? this.resource : '',
           });
         }
@@ -136,18 +163,28 @@ export default {
       },
       set(value) {
         if (this.action) {
-          // this.$nextTick(() => {
-          //   this.$emit('change', {
-          //     action: this.action,
-          //     resource: this.isValid(value) ? value : '',
-          //   });
-          // });
           this.$emit('change', {
             action: this.action,
+            target: this.target,
             resource: this.isValid(value) ? value : '',
           });
         }
         this.$emit('update:resource', value);
+      },
+    },
+    computedTarget: {
+      get() {
+        return this.resource;
+      },
+      set(value) {
+        if (this.action) {
+          this.$emit('change', {
+            action: this.action,
+            target: value,
+            resource: this.isValid(value) ? value : '',
+          });
+        }
+        this.$emit('update:target', value);
       },
     },
   },

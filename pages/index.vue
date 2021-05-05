@@ -1,6 +1,13 @@
 <template>
   <section id="home">
-    <video-banner />
+    <video-banner
+      playsinline
+      autoplay
+      muted
+      loop
+      :src="settings.frontPageVideoUrl.value"
+      v-if="showVideoOnMobile || showVideo"
+    />
     <v-container dark class="pa-0" fluid>
       <!-- <div v-for="(block, idx) in blocks" :key="idx + 1"> -->
       <!-- <div class="py-12"></div> -->
@@ -21,7 +28,7 @@
         </div>
       </info-block>
     </v-container>
-    <testimony :items="testimonies" />
+    <testimonies :items="testimonies" v-if="settings.showTestimonies.value" />
     <v-container fluid fill-height class="pa-0">
       <v-carousel
         v-model="model"
@@ -45,21 +52,29 @@
 </template>
 
 <script>
-import InfoBlock from '~/components/frontpage/FrontPageBlock.vue';
+import InfoBlock from '~/components/frontpage/FPBlock.vue';
 import CarouselItem from '~/components/frontpage/CarouselItem.vue';
 import MonolithBlock from '~/components/frontpage/Monoliths.vue';
-import VideoBanner from '~/components/frontpage/VideoBanner.vue';
-import Testimony from '~/components/frontpage/Testimony.vue';
+import VideoBanner from '~/components/frontpage/FPVideoBanner.vue';
+import Testimonies from '~/components/frontpage/FPTestimonies.vue';
+
+import settings from '~/constants/settings/public.js';
+
 export default {
   name: 'Home',
   layout: 'default',
+
+  // transition: {
+  //   name: 'fade',
+  //   mode: 'in-out',
+  // },
 
   components: {
     InfoBlock,
     MonolithBlock,
     VideoBanner,
     CarouselItem,
-    Testimony,
+    Testimonies,
   },
 
   data() {
@@ -277,6 +292,27 @@ export default {
         },
       ],
     };
+  },
+
+  computed: {
+    settings() {
+      return this.$store.getters[settings.getters.SETTINGS](
+        'showVideo',
+        'showVideOnMobile',
+        'showTestimonies',
+        'frontPageVideoUrl'
+      );
+    },
+    showVideo() {
+      return this.settings.showVideo.value;
+    },
+    showVideoOnMobile() {
+      return (
+        this.settings.showVideo.value &&
+        this.settings.showVideoOnMobile.value &&
+        this.$vuetify.breakpoint.mobile
+      );
+    },
   },
 };
 </script>

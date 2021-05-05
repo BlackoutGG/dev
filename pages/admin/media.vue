@@ -17,8 +17,11 @@ export default {
   middleware: [
     'auth',
     setPageTitle('View Media'),
-    ({ $auth, store, redirect }) => {
-      if (!$auth.hasScope(['view:admin', 'view:media'])) return redirect('/');
+    ({ $auth, $permissions, store, redirect }) => {
+      const { VIEW_ALL_ADMIN, VIEW_ALL_MEDIA } = $permissions;
+      const perms = [$permissions.VIEW_ALL_ADMIN, $permissions.VIEW_ALL_MEDIA];
+
+      if (!$auth.hasScope(perms)) return redirect('/');
       //   else store.dispatch(roles.actions.FETCH);
     },
   ],

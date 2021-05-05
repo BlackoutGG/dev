@@ -64,7 +64,7 @@
 import Loader from 'vue-infinite-loading';
 import mediaProps from '~/mixins/props/media.js';
 import mediaMixins from '~/mixins/media.js';
-import media from '~/utilities/ns/public/media.js';
+import media from '~/constants/media/public.js';
 import pick from 'lodash/pick';
 
 export default {

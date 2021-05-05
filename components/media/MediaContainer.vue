@@ -78,8 +78,7 @@
 import MediaGallery from './MediaGallery.vue';
 import MediaUpload from './MediaUpload.vue';
 import TableDeleteDialog from '~/components/table/TableDeleteDialog.vue';
-import media from '~/utilities/ns/public/media.js';
-import snackbar from '~/utilities/ns/public/snackbar.js';
+import media from '~/constants/media/public.js';
 import mediaProps from '~/mixins/props/media.js';
 import pick from 'lodash/pick';
 

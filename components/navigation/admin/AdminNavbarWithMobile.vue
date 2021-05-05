@@ -9,11 +9,17 @@
       </v-app-bar-nav-icon>
       <v-toolbar-title>{{ title }}</v-toolbar-title>
       <v-spacer></v-spacer>
-      <user-panel
+      <nav-user-menu
         :displayMenuUser="true"
         :hideOnMobile="false"
         :links="userPanelLinks"
-      ></user-panel>
+      >
+        <template #activator="{ on }">
+          <div v-on="on">
+            <user-avatar :item="$auth.user" :size="40"></user-avatar>
+          </div>
+        </template>
+      </nav-user-menu>
     </v-app-bar>
     <admin-nav-drawer
       v-model="showDrawer"
@@ -24,12 +30,14 @@
 </template>
 
 <script>
-import page from '~/utilities/ns/public/page.js';
+import page from '~/constants/page/public.js';
 import AdminNavDrawer from './AdminNavDrawer.vue';
 import AdminUserMenu from './AdminUserMenu.vue';
+import UserAvatar from '~/components/avatar/ListAvatar.vue';
+import NavUserMenu from '../NavUserMenu.vue';
 export default {
   name: 'AdminNavbar',
-  components: { AdminUserMenu, AdminNavDrawer },
+  components: { AdminUserMenu, AdminNavDrawer, UserAvatar, NavUserMenu },
 
   data() {
     return {
@@ -52,36 +60,45 @@ export default {
         {
           icon: 'mdi-view-dashboard',
           title: 'Front Page',
-          to: '/admin/frontpage',
+          children: [
+            {
+              title: 'Settings',
+              to: '/admin/frontpage',
+            },
+            {
+              title: 'Testimonies',
+              to: '/admin/frontpage/testimonies',
+            },
+          ],
         },
         {
           icon: 'mdi-account-group',
           title: 'Users',
           to: '/admin/users',
+          scope: this.$permissions.VIEW_ALL_USERS,
         },
         {
           icon: 'mdi-account-star',
           title: 'Roles',
           to: '/admin/roles',
+          scope: this.$permissions.VIEW_ALL_ROLES,
         },
         {
           icon: 'mdi-file-image',
           title: 'Media',
           to: '/admin/media',
+          scope: this.$permissions.VIEW_ALL_MEDIA,
         },
         {
           icon: 'mdi-shape',
           title: 'Categories',
           to: '/admin/categories',
-        },
-        {
-          icon: 'mdi-tag-multiple',
-          title: 'Tags',
-          button: true,
+          scope: this.$permissions.VIEW_ALL_ADMIN,
         },
         {
           icon: 'mdi-note-plus',
           title: 'Recruitment',
+          scope: this.$permissions.VIEW_ALL_FORMS,
           children: [
             {
               title: 'Form Templates',
@@ -92,11 +109,6 @@ export default {
               to: '/admin/recruitment',
             },
           ],
-        },
-        {
-          icon: 'mdi-calendar-range',
-          title: 'Events',
-          to: '/admin/events',
         },
       ],
     };

@@ -4,26 +4,29 @@
     <v-main id="admin">
       <nuxt />
     </v-main>
-    <snackbar />
-    <account-change-dialog />
+    <status-dialog />
   </v-app>
 </template>
 
 <script>
-import AdminNavbar from "~/components/navigation/admin/AdminNavbarWithMobile.vue";
-import AccountChangeDialog from '~/components/core/AccountChangeDialog.vue';
-import Snackbar from "~/components/core/SnackBar.vue";
+import AdminNavbar from '~/components/navigation/admin/AdminNavbarWithMobile.vue';
+import StatusDialog from '~/components/core/StatusDialog.vue';
 export default {
-  name: "Admin",
-  // components: { AdminNavbar, AdminNavDrawer, Snackbar },
-  components: { AdminNavbar, AccountChangeDialog, Snackbar },
+  name: 'Admin',
+  components: { AdminNavbar, StatusDialog },
   created() {
     this.$vuetify.theme.dark = false;
-  }
+  },
 };
 </script>
 
 <style lang="scss">
 #admin {
-  background-color: #f1f1f1;
+  // background-color: #f1f1f1;
+  background-color: rgba(249, 250, 251);
 }
+
+.toasted-container {
+  font-family: 'Roboto', sans-serif;
+}
+</style>

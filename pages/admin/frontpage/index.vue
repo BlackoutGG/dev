@@ -1,7 +1,7 @@
 <template>
   <v-container fluid>
-    <fp-settings-block :settings="settings">
-      <template #url>
+    <settings-list :settings="settings">
+      <!-- <template #url>
         <v-list-item>
           <v-list-item-content>
             <v-text-field
@@ -11,86 +11,90 @@
             ></v-text-field>
           </v-list-item-content>
         </v-list-item>
-      </template>
-    </fp-settings-block>
+      </template> -->
+    </settings-list>
   </v-container>
 </template>
 
 <script>
-import FPSettings from '~/components/frontpage/FPSettingsBlock.vue';
-import snackbar from '~/components/snackbar/store/types/public.js';
-import settings from '~/store/settings/types/public.js';
+import setPageTitle from '~/middleware/setPageTitle.js';
+import SettingsList from '~/components/frontpage/FPSettings.vue';
+import settingConstants from '~/constants/settings/public.js';
+import cloneDeep from 'lodash/cloneDeep';
+import snakeCase from 'lodash/snakeCase';
 import pick from 'lodash/pick';
 export default {
   name: 'FPIndex',
   layout: 'admin',
 
-  components: { FPSettings },
+  components: {
+    SettingsList,
+  },
 
   middleware: [
     'auth',
     setPageTitle('Front Page Settings'),
-    ({ $auth, store, redirect }) => {
-      const scopes = ['view:admin'];
+    ({ $auth, $permissions, store, redirect }) => {
+      const scopes = [$permissions.VIEW_ALL_ADMIN];
       if (!$auth.hasScope(scopes)) {
         return redirect('/');
-        //   } else {
-        //     store.dispatch(lists.actions.FETCH, 'categories');
       }
     },
   ],
 
-  // asyncData() {
-  //   const store = this.$store.getters[settings.getters.SETTINGS]([
-  //     'showVideo',
-  //     'showVideoOnMobile',
-  //     'showTestimonies',
-  //     'flipInfoBlocksOnEven',
-  //   ]);
+  asyncData(ctx) {
+    const cloned = cloneDeep(
+      ctx.store.getters[settingConstants.getters.SETTINGS]([
+        'showVideo',
+        'showVideoOnMobile',
+        'showTestimonies',
+        'flipInfoBlocksOnEven',
+        'frontPageVideoUrl',
+      ])
+    );
 
-  //   return {
-  //     settings: Object.assign({}, store),
-  //     videoUrl: this.$store.getters[settings.getters.SETTINGS]([
-  //       'frontPageVideoUrl',
-  //     ]),
-  //   };
-  // },
+    const {
+      showVideo,
+      showVideoOnMobile,
+      showTestimonies,
+      flipInfoBlocksOnEven,
+      frontPageVideoUrl,
+    } = cloned;
 
-  data() {
+    showVideoOnMobile.validator = () => showVideo.value === false;
+
     return {
       settings: {
-        showVideo: {
-          title: 'Show video',
-          description: 'Show or hide the video on the index page.',
-          value: true,
-        },
-        showVideoOnMobile: {
-          title: 'Show video on mobile',
-          description: 'Show or hide the index page video on mobile.',
-          value: true,
-          validator: () => this.settings.showVideo.value,
-        },
-        showTestimonies: {
-          title: 'Show Testimonies',
-          description: 'Show short text blobs of our victims for funnsies.',
-          value: true,
-        },
-        flipInfoBlocksOnEven: {
-          title: 'Flip Info block position on Even',
-          description:
-            'Enable to over ride position of info block. Info block text and image positions will shift depending on order.',
-          value: true,
-        },
+        showVideo,
+        showVideoOnMobile,
+        showTestimonies,
+        flipInfoBlocksOnEven,
       },
+      frontPageVideoUrl,
     };
   },
 
   methods: {
     save() {
-      this.$store.dispatch(settings.actions.SAVE_SETTINGS, {
+      const original = this.$store.getters[settingConstants.getters.SETTINGS]([
+        'showVideo',
+        'showVideoOnMobile',
+        'showTestimonies',
+        'flipInfoBlocksOnEven',
+        'frontPageVideoUrl',
+      ]);
+
+      const payload = Object.entries({
         ...this.settings,
-        frontPageVideoUrl: this.videoUrl,
-      });
+        frontPageVideoUrl: this.frontPageVideoUrl,
+      }).reduce((output, [key, item]) => {
+        if (original[key].value !== item.value) {
+          output[snakeCase(key)] = item.value;
+        }
+        return output;
+      }, {});
+
+      this.$store.dispatch(settingConstants.actions.SAVE_SETTINGS, payload);
     },
   },
 };

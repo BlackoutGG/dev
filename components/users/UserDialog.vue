@@ -89,7 +89,7 @@
 
 <script>
 import { createNamespacedHelpers } from 'vuex';
-import users from '~/utilities/ns/private/users.js';
+import users from '~/constants/users/private.js';
 
 import DialogInput from '~/components/dialogs/DialogInput.vue';
 
@@ -372,4 +372,3 @@ export default {
   },
 };
 </script>
-
